@@ -1,3 +1,5 @@
+const OUTLINE_LG = '-2px -2px 0 rgba(100,20,20,0.45), 2px -2px 0 rgba(100,20,20,0.45), -2px 2px 0 rgba(100,20,20,0.45), 2px 2px 0 rgba(100,20,20,0.45)';
+const OUTLINE_SM = '-1px -1px 0 rgba(40,70,120,0.45), 1px -1px 0 rgba(40,70,120,0.45), -1px 1px 0 rgba(40,70,120,0.45), 1px 1px 0 rgba(40,70,120,0.45)';
 
 function GameOverScreen({ score, wordsFound, level, onPlayAgain }) {
   return (
@@ -5,94 +7,88 @@ function GameOverScreen({ score, wordsFound, level, onPlayAgain }) {
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(5,5,15,0.88)',
+        background: 'rgba(60,90,140,0.55)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 200,
-        backdropFilter: 'blur(4px)',
+        backdropFilter: 'blur(3px)',
       }}
     >
       <div
         style={{
-          background: 'linear-gradient(135deg, #0d0d2e 0%, #1a1a4a 100%)',
-          border: '2px solid #ff4466',
-          borderRadius: 16,
-          padding: '40px 56px',
+          background: 'linear-gradient(180deg, #c2e0f8 0%, #8abcdc 100%)',
+          border: '3px solid rgba(255,255,255,0.7)',
+          borderRadius: 20,
+          padding: '36px 48px',
           textAlign: 'center',
-          boxShadow:
-            '0 0 40px rgba(255,60,80,0.3), 0 0 80px rgba(255,60,80,0.1), inset 0 0 40px rgba(0,0,0,0.4)',
-          minWidth: 320,
+          boxShadow: '0 6px 0 rgba(80,130,190,0.45)',
+          minWidth: 300,
         }}
       >
         <h1
           style={{
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: "'BoutiqueBitmap', sans-serif",
             fontWeight: 900,
-            fontSize: 48,
-            letterSpacing: 6,
-            color: '#ff4466',
-            margin: '0 0 8px',
-            textShadow: '0 0 20px #ff4466, 0 0 40px #ff446688',
+            fontSize: 44,
+            letterSpacing: 4,
+            color: '#e06070',
+            margin: '0 0 4px',
+            textShadow: OUTLINE_LG,
           }}
         >
           GAME OVER
         </h1>
-
         <p
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            color: '#6060a0',
-            fontSize: 12,
+            fontFamily: "'BoutiqueBitmap', sans-serif",
+            color: '#ffffff',
+            fontSize: 11,
             letterSpacing: 3,
-            marginBottom: 32,
+            marginBottom: 26,
+            textShadow: OUTLINE_SM,
           }}
         >
           COLUMN OVERFLOW
         </p>
 
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-            marginBottom: 36,
-          }}
-        >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
           {[
-            { label: 'FINAL SCORE', value: score.toLocaleString(), color: '#ffdd44' },
-            { label: 'WORDS FOUND', value: wordsFound, color: '#44ff88' },
-            { label: 'LEVEL REACHED', value: level, color: '#44aaff' },
-          ].map(({ label, value, color }) => (
+            { label: 'FINAL SCORE', value: score.toLocaleString(), accent: '#ffe888' },
+            { label: 'WORDS FOUND', value: wordsFound, accent: '#aaeebb' },
+            { label: 'LEVEL REACHED', value: level, accent: '#aaddff' },
+          ].map(({ label, value, accent }) => (
             <div
               key={label}
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: '10px 20px',
-                background: 'rgba(255,255,255,0.03)',
-                borderRadius: 8,
-                border: '1px solid rgba(255,255,255,0.07)',
+                background: 'linear-gradient(180deg, #8eccc0 0%, #66aaaa 100%)',
+                border: '2px solid #4a8a88',
+                borderRadius: 999,
+                padding: '6px 20px',
+                boxShadow: '0 3px 0 #4a8a88',
               }}
             >
               <span
                 style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  color: '#8080a0',
+                  fontFamily: "'BoutiqueBitmap', sans-serif",
+                  color: '#ffffff',
                   fontSize: 11,
-                  letterSpacing: 2,
+                  letterSpacing: 1,
+                  textShadow: OUTLINE_SM,
                 }}
               >
                 {label}
               </span>
               <span
                 style={{
-                  fontFamily: "'Orbitron', sans-serif",
+                  fontFamily: "'BoutiqueBitmap', sans-serif",
                   fontWeight: 700,
                   fontSize: 22,
-                  color,
-                  textShadow: `0 0 10px ${color}88`,
+                  color: accent,
+                  textShadow: OUTLINE_SM,
                 }}
               >
                 {value}
@@ -103,29 +99,23 @@ function GameOverScreen({ score, wordsFound, level, onPlayAgain }) {
 
         <button
           onClick={onPlayAgain}
+          onMouseDown={(e) => { e.currentTarget.style.transform = 'translateY(4px)'; e.currentTarget.style.boxShadow = '0 1px 0 #448844'; }}
+          onMouseUp={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 5px 0 #448844'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 5px 0 #448844'; }}
           style={{
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: "'BoutiqueBitmap', sans-serif",
             fontWeight: 700,
-            fontSize: 16,
+            fontSize: 17,
             letterSpacing: 3,
-            padding: '14px 40px',
-            background: 'rgba(80,80,255,0.15)',
-            border: '2px solid #6060ff',
-            borderRadius: 8,
-            color: '#c0c0ff',
+            padding: '12px 40px',
+            background: 'linear-gradient(180deg, #90cc88 0%, #66aa60 100%)',
+            border: '2px solid #448844',
+            borderRadius: 999,
+            color: '#ffffff',
             cursor: 'pointer',
-            boxShadow: '0 0 16px rgba(100,100,255,0.25)',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(100,100,255,0.3)';
-            e.currentTarget.style.color = '#ffffff';
-            e.currentTarget.style.boxShadow = '0 0 24px rgba(120,120,255,0.5)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(80,80,255,0.15)';
-            e.currentTarget.style.color = '#c0c0ff';
-            e.currentTarget.style.boxShadow = '0 0 16px rgba(100,100,255,0.25)';
+            boxShadow: '0 5px 0 #448844',
+            textShadow: OUTLINE_SM,
+            transition: 'box-shadow 0.05s, transform 0.05s',
           }}
         >
           PLAY AGAIN

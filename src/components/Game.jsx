@@ -365,7 +365,7 @@ function Game() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a2a 100%)',
+        background: 'linear-gradient(180deg, #c2e0f8 0%, #82b8e8 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -396,15 +396,13 @@ function Game() {
           {/* Title */}
           <h1
             style={{
-              fontFamily: "'Orbitron', sans-serif",
+              fontFamily: "'BoutiqueBitmap', sans-serif",
               fontWeight: 900,
-              fontSize: 28,
+              fontSize: 30,
               letterSpacing: 8,
-              margin: '0 0 12px',
-              background: 'linear-gradient(90deg, #8888ff, #cc44ff)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
+              margin: '0 0 10px',
+              color: '#ffffff',
+              textShadow: '-2px -2px 0 rgba(40,70,140,0.5), 2px -2px 0 rgba(40,70,140,0.5), -2px 2px 0 rgba(40,70,140,0.5), 2px 2px 0 rgba(40,70,140,0.5)',
             }}
           >
             LETTRIS
@@ -426,22 +424,23 @@ function Game() {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                background: 'rgba(10,10,30,0.85)',
+                background: 'rgba(80,120,180,0.55)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 zIndex: 10,
-                borderRadius: 8,
+                borderRadius: 10,
+                backdropFilter: 'blur(2px)',
               }}
             >
               <div
                 style={{
-                  fontFamily: "'Orbitron', sans-serif",
+                  fontFamily: "'BoutiqueBitmap', sans-serif",
                   fontWeight: 700,
                   fontSize: 36,
                   letterSpacing: 8,
-                  color: '#8888ff',
-                  textShadow: '0 0 20px #8888ff',
+                  color: '#fff8cc',
+                  textShadow: '-1px -1px 0 rgba(40,70,120,0.45), 1px -1px 0 rgba(40,70,120,0.45), -1px 1px 0 rgba(40,70,120,0.45), 1px 1px 0 rgba(40,70,120,0.45)',
                 }}
               >
                 PAUSED
@@ -465,12 +464,12 @@ function Game() {
                   top: '40%',
                   left: '50%',
                   transform: 'translateX(-50%)',
-                  fontFamily: "'Orbitron', sans-serif",
+                  fontFamily: "'BoutiqueBitmap', sans-serif",
                   fontWeight: 700,
                   fontSize: 22,
                   letterSpacing: 5,
-                  color: '#44ff88',
-                  textShadow: '0 0 10px #44ff88, 0 0 20px #44ff8888',
+                  color: '#fff8cc',
+                  textShadow: '-1px -1px 0 rgba(40,70,120,0.45), 1px -1px 0 rgba(40,70,120,0.45), -1px 1px 0 rgba(40,70,120,0.45), 1px 1px 0 rgba(40,70,120,0.45)',
                   pointerEvents: 'none',
                   whiteSpace: 'nowrap',
                   zIndex: 20,
@@ -492,12 +491,14 @@ function Game() {
 
           <p
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              color: '#404070',
-              fontSize: 11,
+              fontFamily: "'BoutiqueBitmap', sans-serif",
+              color: '#ffffff',
+              fontSize: 10,
               letterSpacing: 2,
               marginTop: 8,
               textAlign: 'center',
+              textShadow: '-1px -1px 0 rgba(40,70,120,0.45), 1px -1px 0 rgba(40,70,120,0.45), -1px 1px 0 rgba(40,70,120,0.45), 1px 1px 0 rgba(40,70,120,0.45)',
+              opacity: 0.85,
             }}
           >
             ← → MOVE | ↓ DROP | SPACE HARD DROP | ESC PAUSE

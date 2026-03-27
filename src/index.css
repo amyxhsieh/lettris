@@ -1,3 +1,17 @@
+@font-face {
+  font-family: 'BoutiqueBitmap';
+  src: url('/font/BoutiqueBitmap9x9_1.5.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'BoutiqueBitmap';
+  src: url('/font/BoutiqueBitmap9x9_Bold_1.5.ttf') format('truetype');
+  font-weight: 700 900;
+  font-style: normal;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -7,9 +21,8 @@ html, body, #root {
   padding: 0;
   width: 100%;
   min-height: 100vh;
-  background: #0a0a1a;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(180deg, #c2e0f8 0%, #82b8e8 100%);
+  image-rendering: pixelated;
 }
 
 #root {

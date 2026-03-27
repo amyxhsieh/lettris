@@ -1,36 +1,42 @@
+const OUTLINE = '-1px -1px 0 rgba(40,70,120,0.4), 1px -1px 0 rgba(40,70,120,0.4), -1px 1px 0 rgba(40,70,120,0.4), 1px 1px 0 rgba(40,70,120,0.4)';
 
-function StatItem({ label, value, highlight, pulse }) {
+function StatChip({ label, value, accent }) {
   return (
     <div
       style={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        minWidth: 80,
+        background: 'linear-gradient(180deg, #8eccc0 0%, #62aaaa 100%)',
+        border: '2px solid #4a8a88',
+        borderRadius: 999,
+        boxShadow: '0 3px 0 #4a8a88, inset 0 2px 0 rgba(255,255,255,0.35)',
+        padding: '4px 18px 6px',
+        minWidth: 72,
       }}
     >
       <span
         style={{
-          fontSize: 10,
-          letterSpacing: 2,
-          color: '#6060a0',
-          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 9,
+          letterSpacing: 1,
+          color: '#ffffff',
+          fontFamily: "'BoutiqueBitmap', sans-serif",
+          textShadow: OUTLINE,
           textTransform: 'uppercase',
-          marginBottom: 2,
+          lineHeight: 1.2,
         }}
       >
         {label}
       </span>
       <span
-        className={pulse ? 'anim-pulse' : ''}
+        className={accent ? 'anim-pulse' : ''}
         style={{
-          fontSize: 24,
+          fontSize: 22,
           fontWeight: 700,
-          fontFamily: "'Orbitron', sans-serif",
-          color: highlight || '#c0c0ff',
-          textShadow: highlight
-            ? `0 0 10px ${highlight}, 0 0 20px ${highlight}55`
-            : '0 0 8px rgba(180,180,255,0.4)',
+          fontFamily: "'BoutiqueBitmap', sans-serif",
+          color: accent || '#fff8cc',
+          textShadow: OUTLINE,
+          lineHeight: 1.1,
         }}
       >
         {value}
@@ -40,14 +46,11 @@ function StatItem({ label, value, highlight, pulse }) {
 }
 
 function StatsBar({ score, level, wordsFound, combo }) {
-  const comboColor =
-    combo >= 4
-      ? '#ff4488'
-      : combo === 3
-      ? '#ff8844'
-      : combo === 2
-      ? '#ffdd44'
-      : '#c0c0ff';
+  const comboAccent =
+    combo >= 4 ? '#ffaacc'
+    : combo === 3 ? '#ffcc88'
+    : combo === 2 ? '#ffe688'
+    : null;
 
   return (
     <div
@@ -56,24 +59,17 @@ function StatsBar({ score, level, wordsFound, combo }) {
         justifyContent: 'space-around',
         alignItems: 'center',
         width: '100%',
-        padding: '10px 0',
-        background: 'rgba(10,10,26,0.7)',
-        border: '1px solid #2a2a5a',
-        borderRadius: 8,
-        marginBottom: 8,
+        gap: 6,
+        marginBottom: 10,
       }}
     >
-      <StatItem label="Score" value={score.toLocaleString()} />
-      <div style={{ width: 1, height: 40, background: '#2a2a5a' }} />
-      <StatItem label="Level" value={level} />
-      <div style={{ width: 1, height: 40, background: '#2a2a5a' }} />
-      <StatItem label="Words" value={wordsFound} />
-      <div style={{ width: 1, height: 40, background: '#2a2a5a' }} />
-      <StatItem
+      <StatChip label="Score" value={score.toLocaleString()} />
+      <StatChip label="Level" value={level} />
+      <StatChip label="Words" value={wordsFound} />
+      <StatChip
         label="Combo"
-        value={combo > 1 ? `x${combo}` : '–'}
-        highlight={combo > 1 ? comboColor : null}
-        pulse={combo > 1}
+        value={combo > 1 ? `×${combo}` : '–'}
+        accent={combo > 1 ? comboAccent : null}
       />
     </div>
   );

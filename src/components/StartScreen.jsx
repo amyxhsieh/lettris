@@ -1,3 +1,5 @@
+const OUTLINE_LG = '-2px -2px 0 rgba(40,70,140,0.5), 2px -2px 0 rgba(40,70,140,0.5), -2px 2px 0 rgba(40,70,140,0.5), 2px 2px 0 rgba(40,70,140,0.5)';
+const OUTLINE_SM = '-1px -1px 0 rgba(40,70,120,0.45), 1px -1px 0 rgba(40,70,120,0.45), -1px 1px 0 rgba(40,70,120,0.45), 1px 1px 0 rgba(40,70,120,0.45)';
 
 function StartScreen({ onStart }) {
   return (
@@ -5,152 +7,138 @@ function StartScreen({ onStart }) {
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a2a 100%)',
+        background: 'linear-gradient(180deg, #c2e0f8 0%, #82b8e8 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 100,
-        gap: 32,
+        gap: 28,
+        overflow: 'hidden',
       }}
     >
-      {/* Stars background */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          overflow: 'hidden',
-          pointerEvents: 'none',
-        }}
-      >
-        {Array.from({ length: 80 }, (_, i) => (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: Math.random() * 2 + 1,
-              height: Math.random() * 2 + 1,
-              borderRadius: '50%',
-              background: '#ffffff',
-              opacity: Math.random() * 0.7 + 0.1,
-              animation: `cosmicPulse ${Math.random() * 3 + 2}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 3}s`,
-            }}
-          />
-        ))}
-      </div>
+      {/* Soft decorative circles */}
+      {[
+        { size: 200, top: -70, left: -70, opacity: 0.18 },
+        { size: 130, top: 10, right: -45, opacity: 0.14 },
+        { size: 220, bottom: -90, right: -60, opacity: 0.16 },
+        { size: 110, bottom: 30, left: -35, opacity: 0.13 },
+      ].map((c, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            width: c.size,
+            height: c.size,
+            borderRadius: '50%',
+            background: '#ffffff',
+            opacity: c.opacity,
+            top: c.top,
+            left: c.left,
+            right: c.right,
+            bottom: c.bottom,
+            pointerEvents: 'none',
+          }}
+        />
+      ))}
 
       {/* Title */}
       <div style={{ textAlign: 'center', position: 'relative' }}>
         <h1
           style={{
-            fontFamily: "'Orbitron', sans-serif",
+            fontFamily: "'BoutiqueBitmap', sans-serif",
             fontWeight: 900,
             fontSize: 72,
-            letterSpacing: 12,
+            letterSpacing: 8,
             margin: 0,
-            background: 'linear-gradient(90deg, #ff4488, #ff8844, #ffdd44, #44ff88, #44aaff, #aa44ff, #ff4488)',
-            backgroundSize: '200%',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            animation: 'rainbowText 4s linear infinite',
-            textShadow: 'none',
+            color: '#ffffff',
+            textShadow: OUTLINE_LG,
+            lineHeight: 1,
           }}
         >
           LETTRIS
         </h1>
         <p
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            color: '#8080c0',
-            fontSize: 13,
+            fontFamily: "'BoutiqueBitmap', sans-serif",
+            color: '#fff8cc',
+            fontSize: 14,
             letterSpacing: 4,
-            margin: '8px 0 0',
-            textTransform: 'uppercase',
+            margin: '10px 0 0',
+            textShadow: OUTLINE_SM,
           }}
         >
-          Word × Tetris
+          WORD × TETRIS
         </p>
       </div>
 
-      {/* Instructions */}
+      {/* Instructions card */}
       <div
         style={{
-          background: 'rgba(20,20,50,0.8)',
-          border: '1px solid #3a3a7a',
-          borderRadius: 12,
-          padding: '24px 36px',
-          maxWidth: 420,
-          width: '90%',
+          background: 'linear-gradient(180deg, #8eccc0 0%, #66aaaa 100%)',
+          border: '2px solid #4a8a88',
+          borderRadius: 16,
+          boxShadow: '0 5px 0 #4a8a88, inset 0 2px 0 rgba(255,255,255,0.3)',
+          padding: '18px 28px',
+          maxWidth: 380,
+          width: '88%',
         }}
       >
         <h3
           style={{
-            fontFamily: "'Orbitron', sans-serif",
-            color: '#8080ff',
-            fontSize: 14,
-            letterSpacing: 3,
+            fontFamily: "'BoutiqueBitmap', sans-serif",
+            color: '#ffffff',
+            fontSize: 13,
+            letterSpacing: 2,
             marginTop: 0,
-            marginBottom: 16,
+            marginBottom: 12,
             textAlign: 'center',
+            textShadow: OUTLINE_SM,
           }}
         >
           HOW TO PLAY
         </h3>
         <ul
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            color: '#c0c0e0',
-            fontSize: 13,
+            fontFamily: "'BoutiqueBitmap', sans-serif",
+            color: '#ffffff',
+            fontSize: 11,
             lineHeight: 2,
-            paddingLeft: 20,
+            paddingLeft: 18,
             margin: 0,
+            textShadow: OUTLINE_SM,
           }}
         >
           <li>Letters fall from the top of the grid</li>
-          <li>← → to move, ↓ to speed up</li>
+          <li>← → to move &nbsp;|&nbsp; ↓ to speed up</li>
           <li>SPACE to hard-drop the letter instantly</li>
           <li>Type a word (3+ letters) and press ENTER</li>
-          <li>Letters are removed from the board!</li>
-          <li>Chain words fast for combo multipliers</li>
-          <li>Don't let the column fill to the top</li>
+          <li>Chain words fast for COMBO multipliers!</li>
+          <li>Don't let a column fill to the top</li>
           <li>ESC to pause / resume</li>
         </ul>
       </div>
 
-      {/* Start Button */}
+      {/* Start button */}
       <button
         onClick={onStart}
+        onMouseDown={(e) => { e.currentTarget.style.transform = 'translateY(4px)'; e.currentTarget.style.boxShadow = '0 1px 0 #448844'; }}
+        onMouseUp={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 5px 0 #448844'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 5px 0 #448844'; }}
         style={{
-          fontFamily: "'Orbitron', sans-serif",
+          fontFamily: "'BoutiqueBitmap', sans-serif",
           fontWeight: 700,
           fontSize: 20,
           letterSpacing: 4,
-          padding: '16px 48px',
-          background: 'linear-gradient(135deg, rgba(80,80,255,0.2), rgba(120,40,200,0.2))',
-          border: '2px solid #6060ff',
-          borderRadius: 8,
-          color: '#c0c0ff',
+          padding: '13px 50px',
+          background: 'linear-gradient(180deg, #90cc88 0%, #66aa60 100%)',
+          border: '2px solid #448844',
+          borderRadius: 999,
+          color: '#ffffff',
           cursor: 'pointer',
-          boxShadow: '0 0 20px rgba(100,100,255,0.3), 0 0 40px rgba(100,100,255,0.1)',
-          transition: 'all 0.2s',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background =
-            'linear-gradient(135deg, rgba(100,100,255,0.4), rgba(160,60,240,0.4))';
-          e.currentTarget.style.boxShadow =
-            '0 0 30px rgba(120,120,255,0.5), 0 0 60px rgba(120,120,255,0.2)';
-          e.currentTarget.style.color = '#ffffff';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background =
-            'linear-gradient(135deg, rgba(80,80,255,0.2), rgba(120,40,200,0.2))';
-          e.currentTarget.style.boxShadow =
-            '0 0 20px rgba(100,100,255,0.3), 0 0 40px rgba(100,100,255,0.1)';
-          e.currentTarget.style.color = '#c0c0ff';
+          boxShadow: '0 5px 0 #448844',
+          textShadow: OUTLINE_SM,
+          transition: 'box-shadow 0.05s, transform 0.05s',
         }}
       >
         START GAME

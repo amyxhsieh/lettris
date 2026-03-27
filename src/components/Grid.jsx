@@ -4,7 +4,6 @@ const ROWS = 14;
 const COLS = 8;
 
 function Grid({ grid, falling, clearedCells }) {
-  // Build a set for quick lookup of cleared cells
   const clearedSet = new Set(
     (clearedCells || []).map(({ row, col }) => `${row},${col}`)
   );
@@ -17,21 +16,16 @@ function Grid({ grid, falling, clearedCells }) {
         gridTemplateRows: `repeat(${ROWS}, 44px)`,
         gap: 3,
         padding: 8,
-        background: 'rgba(10,10,30,0.8)',
-        border: '1px solid #2a2a5a',
-        borderRadius: 8,
-        boxShadow: '0 0 30px rgba(80,80,200,0.15), inset 0 0 30px rgba(0,0,0,0.3)',
+        background: 'rgba(120,170,220,0.22)',
+        border: '2px solid rgba(255,255,255,0.55)',
+        borderRadius: 10,
+        boxShadow: '0 4px 0 rgba(80,130,190,0.35), inset 0 2px 0 rgba(255,255,255,0.3)',
       }}
     >
       {Array.from({ length: ROWS }, (_, row) =>
         Array.from({ length: COLS }, (_, col) => {
           const isClearing = clearedSet.has(`${row},${col}`);
-
-          // Check if falling letter occupies this cell
-          const isFallingHere =
-            falling &&
-            falling.row === row &&
-            falling.col === col;
+          const isFallingHere = falling && falling.row === row && falling.col === col;
 
           let letter = null;
           let color = null;
