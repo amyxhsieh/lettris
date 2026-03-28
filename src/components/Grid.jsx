@@ -12,14 +12,14 @@ function Grid({ grid, falling, clearedCells }) {
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(${COLS}, 44px)`,
-        gridTemplateRows: `repeat(${ROWS}, 44px)`,
-        gap: 3,
-        padding: 8,
-        background: 'rgba(120,170,220,0.22)',
-        border: '2px solid rgba(255,255,255,0.55)',
-        borderRadius: 10,
-        boxShadow: '0 4px 0 rgba(80,130,190,0.35), inset 0 2px 0 rgba(255,255,255,0.3)',
+        gridTemplateColumns: `repeat(${COLS}, 38px)`,
+        gridTemplateRows: `repeat(${ROWS}, 38px)`,
+        gap: 4,
+        padding: 10,
+        background: 'rgba(8,8,28,0.85)',
+        border: '1px solid rgba(0,200,240,0.2)',
+        borderRadius: 6,
+        boxShadow: '0 0 30px rgba(0,180,220,0.08), inset 0 0 40px rgba(0,0,0,0.4)',
       }}
     >
       {Array.from({ length: ROWS }, (_, row) =>
@@ -28,21 +28,17 @@ function Grid({ grid, falling, clearedCells }) {
           const isFallingHere = falling && falling.row === row && falling.col === col;
 
           let letter = null;
-          let color = null;
 
           if (isFallingHere) {
             letter = falling.letter;
-            color = falling.color;
           } else if (grid[row] && grid[row][col]) {
             letter = grid[row][col].letter;
-            color = grid[row][col].color;
           }
 
           return (
             <Cell
               key={`${row}-${col}`}
               letter={letter}
-              color={color}
               isClearing={isClearing}
               isFalling={isFallingHere}
             />

@@ -1,28 +1,25 @@
-const OUTLINE_LG = '-2px -2px 0 rgba(100,20,20,0.45), 2px -2px 0 rgba(100,20,20,0.45), -2px 2px 0 rgba(100,20,20,0.45), 2px 2px 0 rgba(100,20,20,0.45)';
-const OUTLINE_SM = '-1px -1px 0 rgba(40,70,120,0.45), 1px -1px 0 rgba(40,70,120,0.45), -1px 1px 0 rgba(40,70,120,0.45), 1px 1px 0 rgba(40,70,120,0.45)';
-
 function GameOverScreen({ score, wordsFound, level, onPlayAgain }) {
   return (
     <div
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(60,90,140,0.55)',
+        background: 'rgba(4,4,16,0.88)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 200,
-        backdropFilter: 'blur(3px)',
+        backdropFilter: 'blur(4px)',
       }}
     >
       <div
         style={{
-          background: 'linear-gradient(180deg, #c2e0f8 0%, #8abcdc 100%)',
-          border: '3px solid rgba(255,255,255,0.7)',
-          borderRadius: 20,
-          padding: '36px 48px',
+          background: 'rgba(8,8,28,0.95)',
+          border: '1px solid rgba(0,200,240,0.3)',
+          borderRadius: 8,
+          padding: '40px 52px',
           textAlign: 'center',
-          boxShadow: '0 6px 0 rgba(80,130,190,0.45)',
+          boxShadow: '0 0 40px rgba(0,180,220,0.12), 0 0 80px rgba(0,0,0,0.6)',
           minWidth: 300,
         }}
       >
@@ -30,11 +27,11 @@ function GameOverScreen({ score, wordsFound, level, onPlayAgain }) {
           style={{
             fontFamily: "'BoutiqueBitmap', sans-serif",
             fontWeight: 900,
-            fontSize: 44,
+            fontSize: 48,
             letterSpacing: 4,
-            color: '#e06070',
+            color: '#ff4466',
             margin: '0 0 4px',
-            textShadow: OUTLINE_LG,
+            textShadow: '0 0 12px #ff4466, 0 0 40px #ff446655',
           }}
         >
           GAME OVER
@@ -42,42 +39,39 @@ function GameOverScreen({ score, wordsFound, level, onPlayAgain }) {
         <p
           style={{
             fontFamily: "'BoutiqueBitmap', sans-serif",
-            color: '#ffffff',
+            color: 'rgba(255,255,255,0.35)',
             fontSize: 11,
             letterSpacing: 3,
-            marginBottom: 26,
-            textShadow: OUTLINE_SM,
+            marginBottom: 30,
           }}
         >
           COLUMN OVERFLOW
         </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 32 }}>
           {[
-            { label: 'FINAL SCORE', value: score.toLocaleString(), accent: '#ffe888' },
-            { label: 'WORDS FOUND', value: wordsFound, accent: '#aaeebb' },
-            { label: 'LEVEL REACHED', value: level, accent: '#aaddff' },
-          ].map(({ label, value, accent }) => (
+            { label: 'FINAL SCORE',   value: score.toLocaleString(), color: '#33ff66' },
+            { label: 'WORDS FOUND',   value: wordsFound,             color: '#00ccee' },
+            { label: 'LEVEL REACHED', value: level,                  color: '#00ccee' },
+          ].map(({ label, value, color }) => (
             <div
               key={label}
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                background: 'linear-gradient(180deg, #8eccc0 0%, #66aaaa 100%)',
-                border: '2px solid #4a8a88',
-                borderRadius: 999,
-                padding: '6px 20px',
-                boxShadow: '0 3px 0 #4a8a88',
+                padding: '8px 18px',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 4,
               }}
             >
               <span
                 style={{
                   fontFamily: "'BoutiqueBitmap', sans-serif",
-                  color: '#ffffff',
+                  color: 'rgba(255,255,255,0.5)',
                   fontSize: 11,
-                  letterSpacing: 1,
-                  textShadow: OUTLINE_SM,
+                  letterSpacing: 2,
                 }}
               >
                 {label}
@@ -87,8 +81,8 @@ function GameOverScreen({ score, wordsFound, level, onPlayAgain }) {
                   fontFamily: "'BoutiqueBitmap', sans-serif",
                   fontWeight: 700,
                   fontSize: 22,
-                  color: accent,
-                  textShadow: OUTLINE_SM,
+                  color,
+                  textShadow: `0 0 8px ${color}88`,
                 }}
               >
                 {value}
@@ -99,23 +93,22 @@ function GameOverScreen({ score, wordsFound, level, onPlayAgain }) {
 
         <button
           onClick={onPlayAgain}
-          onMouseDown={(e) => { e.currentTarget.style.transform = 'translateY(4px)'; e.currentTarget.style.boxShadow = '0 1px 0 #448844'; }}
-          onMouseUp={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 5px 0 #448844'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 5px 0 #448844'; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(51,255,102,0.12)'; e.currentTarget.style.boxShadow = '0 0 16px #33ff6644'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.boxShadow = '0 0 8px #33ff6622'; }}
           style={{
             fontFamily: "'BoutiqueBitmap', sans-serif",
             fontWeight: 700,
-            fontSize: 17,
-            letterSpacing: 3,
+            fontSize: 16,
+            letterSpacing: 4,
             padding: '12px 40px',
-            background: 'linear-gradient(180deg, #90cc88 0%, #66aa60 100%)',
-            border: '2px solid #448844',
-            borderRadius: 999,
-            color: '#ffffff',
+            background: 'transparent',
+            border: '2px solid #33ff66',
+            borderRadius: 4,
+            color: '#33ff66',
             cursor: 'pointer',
-            boxShadow: '0 5px 0 #448844',
-            textShadow: OUTLINE_SM,
-            transition: 'box-shadow 0.05s, transform 0.05s',
+            boxShadow: '0 0 8px #33ff6622',
+            textShadow: '0 0 8px #33ff66',
+            transition: 'background 0.15s, box-shadow 0.15s',
           }}
         >
           PLAY AGAIN

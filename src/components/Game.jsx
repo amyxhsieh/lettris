@@ -25,7 +25,7 @@ function makeEmptyGrid() {
 }
 
 function getSpeed(level) {
-  return Math.max(200, 900 - level * 80);
+  return Math.max(200, 550 - level * 50);
 }
 
 function Game() {
@@ -365,7 +365,7 @@ function Game() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(180deg, #c2e0f8 0%, #82b8e8 100%)',
+        background: 'linear-gradient(180deg, #080818 0%, #10102a 60%, #0d0d22 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -389,7 +389,7 @@ function Game() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            width: COLS * 44 + (COLS - 1) * 3 + 16 + 2,
+            width: COLS * 38 + (COLS - 1) * 4 + 20 + 2,
             position: 'relative',
           }}
         >
@@ -400,9 +400,9 @@ function Game() {
               fontWeight: 900,
               fontSize: 30,
               letterSpacing: 8,
-              margin: '0 0 10px',
-              color: '#ffffff',
-              textShadow: '-2px -2px 0 rgba(40,70,140,0.5), 2px -2px 0 rgba(40,70,140,0.5), -2px 2px 0 rgba(40,70,140,0.5), 2px 2px 0 rgba(40,70,140,0.5)',
+              margin: '0 0 18px',
+              color: '#00ddff',
+              textShadow: '0 0 10px #00ddff, 0 0 30px #00ddff66',
             }}
           >
             LETTRIS
@@ -424,7 +424,7 @@ function Game() {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                background: 'rgba(80,120,180,0.55)',
+                background: 'rgba(4,4,20,0.82)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -439,8 +439,8 @@ function Game() {
                   fontWeight: 700,
                   fontSize: 36,
                   letterSpacing: 8,
-                  color: '#fff8cc',
-                  textShadow: '-1px -1px 0 rgba(40,70,120,0.45), 1px -1px 0 rgba(40,70,120,0.45), -1px 1px 0 rgba(40,70,120,0.45), 1px 1px 0 rgba(40,70,120,0.45)',
+                  color: '#ffee44',
+                  textShadow: '0 0 12px #ffee44, 0 0 40px #ffee4466',
                 }}
               >
                 PAUSED
@@ -468,8 +468,8 @@ function Game() {
                   fontWeight: 700,
                   fontSize: 22,
                   letterSpacing: 5,
-                  color: '#fff8cc',
-                  textShadow: '-1px -1px 0 rgba(40,70,120,0.45), 1px -1px 0 rgba(40,70,120,0.45), -1px 1px 0 rgba(40,70,120,0.45), 1px 1px 0 rgba(40,70,120,0.45)',
+                  color: '#33ff66',
+                  textShadow: '0 0 10px #33ff66, 0 0 30px #33ff6666',
                   pointerEvents: 'none',
                   whiteSpace: 'nowrap',
                   zIndex: 20,
@@ -492,16 +492,14 @@ function Game() {
           <p
             style={{
               fontFamily: "'BoutiqueBitmap', sans-serif",
-              color: '#ffffff',
+              color: 'rgba(255,255,255,0.3)',
               fontSize: 10,
               letterSpacing: 2,
               marginTop: 8,
               textAlign: 'center',
-              textShadow: '-1px -1px 0 rgba(40,70,120,0.45), 1px -1px 0 rgba(40,70,120,0.45), -1px 1px 0 rgba(40,70,120,0.45), 1px 1px 0 rgba(40,70,120,0.45)',
-              opacity: 0.85,
             }}
           >
-            ← → MOVE | ↓ DROP | SPACE HARD DROP | ESC PAUSE
+            ← → MOVE | ↓ DROP | SPACE HARD DROP
           </p>
         </div>
       )}

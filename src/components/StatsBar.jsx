@@ -1,42 +1,28 @@
-const OUTLINE = '-1px -1px 0 rgba(40,70,120,0.4), 1px -1px 0 rgba(40,70,120,0.4), -1px 1px 0 rgba(40,70,120,0.4), 1px 1px 0 rgba(40,70,120,0.4)';
-
-function StatChip({ label, value, accent }) {
+// Arcade-style score display — like the 1UP/2UP panel in classic games
+function StatItem({ label, value, color }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        background: 'linear-gradient(180deg, #8eccc0 0%, #62aaaa 100%)',
-        border: '2px solid #4a8a88',
-        borderRadius: 999,
-        boxShadow: '0 3px 0 #4a8a88, inset 0 2px 0 rgba(255,255,255,0.35)',
-        padding: '4px 18px 6px',
-        minWidth: 72,
-      }}
-    >
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 72 }}>
       <span
         style={{
-          fontSize: 9,
-          letterSpacing: 1,
-          color: '#ffffff',
           fontFamily: "'BoutiqueBitmap', sans-serif",
-          textShadow: OUTLINE,
+          fontSize: 10,
+          letterSpacing: 2,
+          color: '#ffffff',
+          opacity: 0.55,
           textTransform: 'uppercase',
-          lineHeight: 1.2,
+          marginBottom: 2,
         }}
       >
         {label}
       </span>
       <span
-        className={accent ? 'anim-pulse' : ''}
         style={{
-          fontSize: 22,
-          fontWeight: 700,
           fontFamily: "'BoutiqueBitmap', sans-serif",
-          color: accent || '#fff8cc',
-          textShadow: OUTLINE,
-          lineHeight: 1.1,
+          fontWeight: 700,
+          fontSize: 22,
+          color: color || '#33ff66',
+          textShadow: `0 0 8px ${color || '#33ff66'}, 0 0 20px ${color || '#33ff66'}66`,
+          letterSpacing: 1,
         }}
       >
         {value}
@@ -46,11 +32,11 @@ function StatChip({ label, value, accent }) {
 }
 
 function StatsBar({ score, level, wordsFound, combo }) {
-  const comboAccent =
-    combo >= 4 ? '#ffaacc'
-    : combo === 3 ? '#ffcc88'
-    : combo === 2 ? '#ffe688'
-    : null;
+  const comboColor =
+    combo >= 4 ? '#ff66aa'
+    : combo === 3 ? '#ffaa44'
+    : combo === 2 ? '#ffee44'
+    : '#33ff66';
 
   return (
     <div
@@ -59,17 +45,23 @@ function StatsBar({ score, level, wordsFound, combo }) {
         justifyContent: 'space-around',
         alignItems: 'center',
         width: '100%',
-        gap: 6,
-        marginBottom: 10,
+        padding: '8px 0',
+        borderTop: '1px solid rgba(255,255,255,0.07)',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        marginBottom: 18,
+        background: 'rgba(0,0,0,0.25)',
       }}
     >
-      <StatChip label="Score" value={score.toLocaleString()} />
-      <StatChip label="Level" value={level} />
-      <StatChip label="Words" value={wordsFound} />
-      <StatChip
+      <StatItem label="Score" value={score.toLocaleString()} color="#33ff66" />
+      <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
+      <StatItem label="Level" value={level} color="#00ccee" />
+      <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
+      <StatItem label="Words" value={wordsFound} color="#00ccee" />
+      <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
+      <StatItem
         label="Combo"
         value={combo > 1 ? `×${combo}` : '–'}
-        accent={combo > 1 ? comboAccent : null}
+        color={comboColor}
       />
     </div>
   );

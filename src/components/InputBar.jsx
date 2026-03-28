@@ -1,54 +1,54 @@
 import { useRef } from 'react';
 import { canFormWord } from '../utils/dictionary';
 
-const BTN_OUTLINE = '-1px -1px 0 rgba(40,70,120,0.4), 1px -1px 0 rgba(40,70,120,0.4), -1px 1px 0 rgba(40,70,120,0.4), 1px 1px 0 rgba(40,70,120,0.4)';
+const PauseIcon = () => (
+  <svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor">
+    <rect x="0" y="0" width="4" height="16" rx="1" />
+    <rect x="10" y="0" width="4" height="16" rx="1" />
+  </svg>
+);
 
-function KutarButton({ onClick, disabled, label, colorTop, colorBot, border }) {
+const PlayIcon = () => (
+  <svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor">
+    <polygon points="0,0 14,8 0,16" />
+  </svg>
+);
+
+function NeonButton({ onClick, disabled, children, color, square }) {
   const ref = useRef(null);
+  const dimColor = disabled ? 'rgba(255,255,255,0.2)' : color;
+
   return (
     <button
       ref={ref}
       onClick={onClick}
       disabled={disabled}
-      onMouseDown={() => {
-        if (ref.current) {
-          ref.current.style.transform = 'translateY(3px)';
-          ref.current.style.boxShadow = `0 0px 0 ${border}`;
-        }
-      }}
-      onMouseUp={() => {
-        if (ref.current) {
-          ref.current.style.transform = '';
-          ref.current.style.boxShadow = `0 3px 0 ${border}`;
-        }
-      }}
-      onMouseLeave={() => {
-        if (ref.current) {
-          ref.current.style.transform = '';
-          ref.current.style.boxShadow = `0 3px 0 ${border}`;
-        }
-      }}
+      onMouseDown={() => { if (ref.current) ref.current.style.opacity = '0.6'; }}
+      onMouseUp={() => { if (ref.current) ref.current.style.opacity = '1'; }}
+      onMouseLeave={() => { if (ref.current) ref.current.style.opacity = '1'; }}
       style={{
-        background: disabled
-          ? 'linear-gradient(180deg, #c8c8c8, #aaaaaa)'
-          : `linear-gradient(180deg, ${colorTop} 0%, ${colorBot} 100%)`,
-        border: `2px solid ${disabled ? '#999' : border}`,
-        borderRadius: 999,
-        boxShadow: `0 3px 0 ${disabled ? '#999' : border}`,
-        color: '#ffffff',
+        background: 'transparent',
+        border: `2px solid ${dimColor}`,
+        borderRadius: 4,
+        color: dimColor,
         fontFamily: "'BoutiqueBitmap', sans-serif",
         fontWeight: 700,
         fontSize: 13,
-        padding: '7px 18px',
+        width: square ? 42 : undefined,
+        padding: square ? 0 : '7px 16px',
+        height: 42,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         cursor: disabled ? 'not-allowed' : 'pointer',
         letterSpacing: 1,
-        textShadow: BTN_OUTLINE,
-        transition: 'background 0.1s',
-        whiteSpace: 'nowrap',
-        opacity: disabled ? 0.55 : 1,
+        boxShadow: disabled ? 'none' : `0 0 8px ${color}44`,
+        textShadow: disabled ? 'none' : `0 0 6px ${color}`,
+        transition: 'opacity 0.1s',
+        flexShrink: 0,
       }}
     >
-      {label}
+      {children}
     </button>
   );
 }
@@ -58,7 +58,12 @@ function InputBar({ typed, onTyped, onSubmit, onPause, paused, grid }) {
   const canForm = typed.length >= 3 && canFormWord(typed, grid);
   const hasBadWord = typed.length >= 3 && !canForm;
 
-  const inputBorder = canForm ? '#7ec89a' : hasBadWord ? '#e08888' : 'rgba(255,255,255,0.6)';
+  const inputBorder = canForm ? '#33ee66' : hasBadWord ? '#ee4455' : 'rgba(255,255,255,0.2)';
+  const inputGlow = canForm
+    ? '0 0 8px #33ee6644'
+    : hasBadWord
+    ? '0 0 8px #ee445544'
+    : 'none';
 
   const handleKeyDown = (e) => {
     if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
@@ -71,7 +76,7 @@ function InputBar({ typed, onTyped, onSubmit, onPause, paused, grid }) {
   };
 
   return (
-    <div style={{ display: 'flex', gap: 6, alignItems: 'center', width: '100%', marginTop: 8 }}>
+    <div style={{ display: 'flex', gap: 6, alignItems: 'center', width: '100%', marginTop: 16, boxSizing: 'border-box' }}>
       <input
         ref={inputRef}
         type="text"
@@ -85,40 +90,34 @@ function InputBar({ typed, onTyped, onSubmit, onPause, paused, grid }) {
         maxLength={12}
         style={{
           flex: 1,
-          background: 'rgba(255,255,255,0.85)',
+          minWidth: 0,
+          background: 'rgba(255,255,255,0.05)',
           border: `2px solid ${inputBorder}`,
-          borderRadius: 999,
-          color: '#4466aa',
+          borderRadius: 4,
+          color: '#ffffff',
           fontFamily: "'BoutiqueBitmap', sans-serif",
           fontWeight: 700,
-          fontSize: 16,
-          padding: '7px 16px',
+          fontSize: 14,
+          padding: '0 14px',
+          height: 42,
           outline: 'none',
           letterSpacing: 3,
-          boxShadow: '0 3px 0 rgba(80,130,190,0.3)',
-          transition: 'border-color 0.2s',
+          boxShadow: inputGlow,
+          transition: 'border-color 0.2s, box-shadow 0.2s',
           textTransform: 'uppercase',
+          boxSizing: 'border-box',
         }}
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck={false}
       />
-      <KutarButton
-        onClick={onSubmit}
-        disabled={!canForm}
-        label="ENTER"
-        colorTop="#90cc88"
-        colorBot="#66aa60"
-        border="#448844"
-      />
-      <KutarButton
-        onClick={onPause}
-        label={paused ? 'RESUME' : 'PAUSE'}
-        colorTop="#e8cc70"
-        colorBot="#c8a848"
-        border="#9a7c30"
-      />
+      <NeonButton onClick={onSubmit} disabled={!canForm} color="#33ee66">
+        ENTER
+      </NeonButton>
+      <NeonButton onClick={onPause} color="#00ccee" square>
+        {paused ? <PlayIcon /> : <PauseIcon />}
+      </NeonButton>
     </div>
   );
 }

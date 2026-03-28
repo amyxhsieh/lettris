@@ -1,46 +1,54 @@
-const OUTLINE_LG = '-2px -2px 0 rgba(40,70,140,0.5), 2px -2px 0 rgba(40,70,140,0.5), -2px 2px 0 rgba(40,70,140,0.5), 2px 2px 0 rgba(40,70,140,0.5)';
-const OUTLINE_SM = '-1px -1px 0 rgba(40,70,120,0.45), 1px -1px 0 rgba(40,70,120,0.45), -1px 1px 0 rgba(40,70,120,0.45), 1px 1px 0 rgba(40,70,120,0.45)';
+import { useState, useEffect } from 'react';
+
+// Deterministic star positions (avoid re-generating on re-render)
+const STARS = Array.from({ length: 80 }, (_, i) => ({
+  left: ((i * 137.508) % 100).toFixed(2),
+  top:  ((i * 97.3)   % 100).toFixed(2),
+  size: (i % 3) + 1,
+  opacity: (0.2 + (i % 5) * 0.12).toFixed(2),
+}));
 
 function StartScreen({ onStart }) {
+  const [blink, setBlink] = useState(true);
+
+  useEffect(() => {
+    const id = setInterval(() => setBlink((b) => !b), 600);
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <div
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'linear-gradient(180deg, #c2e0f8 0%, #82b8e8 100%)',
+        background: 'linear-gradient(180deg, #080818 0%, #10102a 60%, #0d0d22 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 100,
-        gap: 28,
+        gap: 32,
         overflow: 'hidden',
       }}
     >
-      {/* Soft decorative circles */}
-      {[
-        { size: 200, top: -70, left: -70, opacity: 0.18 },
-        { size: 130, top: 10, right: -45, opacity: 0.14 },
-        { size: 220, bottom: -90, right: -60, opacity: 0.16 },
-        { size: 110, bottom: 30, left: -35, opacity: 0.13 },
-      ].map((c, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            width: c.size,
-            height: c.size,
-            borderRadius: '50%',
-            background: '#ffffff',
-            opacity: c.opacity,
-            top: c.top,
-            left: c.left,
-            right: c.right,
-            bottom: c.bottom,
-            pointerEvents: 'none',
-          }}
-        />
-      ))}
+      {/* Starfield */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+        {STARS.map((s, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              left: `${s.left}%`,
+              top: `${s.top}%`,
+              width: s.size,
+              height: s.size,
+              borderRadius: '50%',
+              background: '#ffffff',
+              opacity: s.opacity,
+            }}
+          />
+        ))}
+      </div>
 
       {/* Title */}
       <div style={{ textAlign: 'center', position: 'relative' }}>
@@ -49,10 +57,10 @@ function StartScreen({ onStart }) {
             fontFamily: "'BoutiqueBitmap', sans-serif",
             fontWeight: 900,
             fontSize: 72,
-            letterSpacing: 8,
+            letterSpacing: 10,
             margin: 0,
-            color: '#ffffff',
-            textShadow: OUTLINE_LG,
+            color: '#00ddff',
+            textShadow: '0 0 12px #00ddff, 0 0 40px #00ddff88, 0 0 80px #00ddff33',
             lineHeight: 1,
           }}
         >
@@ -61,39 +69,57 @@ function StartScreen({ onStart }) {
         <p
           style={{
             fontFamily: "'BoutiqueBitmap', sans-serif",
-            color: '#fff8cc',
+            color: '#00ddff',
             fontSize: 14,
-            letterSpacing: 4,
-            margin: '10px 0 0',
-            textShadow: OUTLINE_SM,
+            letterSpacing: 5,
+            margin: '12px 0 0',
+            textShadow: '0 0 8px #00ddff, 0 0 40px #00ddff88, 0 0 80px #00ddff33',
           }}
         >
           WORD × TETRIS
         </p>
       </div>
 
-      {/* Instructions card */}
+      {/* PRESS START — arcade blink */}
       <div
         style={{
-          background: 'linear-gradient(180deg, #8eccc0 0%, #66aaaa 100%)',
-          border: '2px solid #4a8a88',
-          borderRadius: 16,
-          boxShadow: '0 5px 0 #4a8a88, inset 0 2px 0 rgba(255,255,255,0.3)',
-          padding: '18px 28px',
+          fontFamily: "'BoutiqueBitmap', sans-serif",
+          fontWeight: 700,
+          fontSize: 22,
+          letterSpacing: 5,
+          color: '#ffee44',
+          textShadow: '0 0 10px #ffee44, 0 0 30px #ffee4466',
+          opacity: blink ? 1 : 0,
+          transition: 'opacity 0.05s',
+          cursor: 'pointer',
+        }}
+        onClick={onStart}
+      >
+        PRESS START
+      </div>
+
+      {/* Instructions */}
+      <div
+        style={{
+          background: 'rgba(0,0,0,0.45)',
+          border: '1px solid rgba(0,200,240,0.2)',
+          borderRadius: 6,
+          padding: '16px 28px',
           maxWidth: 380,
           width: '88%',
+          boxShadow: '0 0 20px rgba(0,180,220,0.06)',
         }}
       >
         <h3
           style={{
             fontFamily: "'BoutiqueBitmap', sans-serif",
-            color: '#ffffff',
-            fontSize: 13,
-            letterSpacing: 2,
+            color: '#00ccee',
+            fontSize: 12,
+            letterSpacing: 3,
             marginTop: 0,
             marginBottom: 12,
             textAlign: 'center',
-            textShadow: OUTLINE_SM,
+            textShadow: '0 0 6px #00ccee',
           }}
         >
           HOW TO PLAY
@@ -101,48 +127,22 @@ function StartScreen({ onStart }) {
         <ul
           style={{
             fontFamily: "'BoutiqueBitmap', sans-serif",
-            color: '#ffffff',
+            color: 'rgba(255,255,255,0.75)',
             fontSize: 11,
-            lineHeight: 2,
+            lineHeight: 2.2,
             paddingLeft: 18,
             margin: 0,
-            textShadow: OUTLINE_SM,
           }}
         >
           <li>Letters fall from the top of the grid</li>
           <li>← → to move &nbsp;|&nbsp; ↓ to speed up</li>
-          <li>SPACE to hard-drop the letter instantly</li>
-          <li>Type a word (3+ letters) and press ENTER</li>
+          <li>SPACE to hard-drop instantly</li>
+          <li>Type a word (3+ letters) → ENTER to clear</li>
+          <li><span style={{ color: '#00eeff' }}>CYAN</span> = vowels &nbsp;|&nbsp; <span style={{ color: '#44ff88' }}>GREEN</span> = consonants</li>
           <li>Chain words fast for COMBO multipliers!</li>
-          <li>Don't let a column fill to the top</li>
           <li>ESC to pause / resume</li>
         </ul>
       </div>
-
-      {/* Start button */}
-      <button
-        onClick={onStart}
-        onMouseDown={(e) => { e.currentTarget.style.transform = 'translateY(4px)'; e.currentTarget.style.boxShadow = '0 1px 0 #448844'; }}
-        onMouseUp={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 5px 0 #448844'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 5px 0 #448844'; }}
-        style={{
-          fontFamily: "'BoutiqueBitmap', sans-serif",
-          fontWeight: 700,
-          fontSize: 20,
-          letterSpacing: 4,
-          padding: '13px 50px',
-          background: 'linear-gradient(180deg, #90cc88 0%, #66aa60 100%)',
-          border: '2px solid #448844',
-          borderRadius: 999,
-          color: '#ffffff',
-          cursor: 'pointer',
-          boxShadow: '0 5px 0 #448844',
-          textShadow: OUTLINE_SM,
-          transition: 'box-shadow 0.05s, transform 0.05s',
-        }}
-      >
-        START GAME
-      </button>
     </div>
   );
 }

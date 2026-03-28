@@ -1,14 +1,16 @@
 import { memo } from 'react';
 
-const OUTLINE = '-1px -1px 0 rgba(40,70,120,0.45), 1px -1px 0 rgba(40,70,120,0.45), -1px 1px 0 rgba(40,70,120,0.45), 1px 1px 0 rgba(40,70,120,0.45)';
+const VOWELS = new Set(['A', 'E', 'I', 'O', 'U']);
+
+// Cyan for vowels, green for consonants
+const CYAN  = { border: '#00ccee', text: '#00eeff', bg: 'rgba(0,200,240,0.12)', glow: '0 0 6px #00ccee, 0 0 14px #00ccee66' };
+const GREEN = { border: '#33ee66', text: '#44ff88', bg: 'rgba(50,220,100,0.10)', glow: '0 0 6px #33ee66, 0 0 14px #33ee6655' };
 
 const Cell = memo(function Cell({ letter, isClearing, isFalling }) {
   const filled = Boolean(letter);
-  let hue = 0;
-  if (filled) {
-    const charCode = letter.toUpperCase().charCodeAt(0);
-    hue = ((charCode - 65) * (360 / 26) + 20) % 360;
-  }
+  const palette = filled
+    ? (VOWELS.has(letter.toUpperCase()) ? CYAN : GREEN)
+    : null;
 
   let animClass = '';
   if (isClearing) animClass = 'anim-pop-out';
@@ -18,9 +20,9 @@ const Cell = memo(function Cell({ letter, isClearing, isFalling }) {
     <div
       className={`cell ${animClass}`}
       style={{
-        width: 44,
-        height: 44,
-        borderRadius: 6,
+        width: 38,
+        height: 38,
+        borderRadius: 4,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -29,18 +31,18 @@ const Cell = memo(function Cell({ letter, isClearing, isFalling }) {
         fontSize: 20,
         userSelect: 'none',
         cursor: 'default',
-        position: 'relative',
+        transition: 'box-shadow 0.1s',
         ...(filled
           ? {
-              background: `linear-gradient(180deg, hsl(${hue},55%,76%) 0%, hsl(${hue},55%,62%) 100%)`,
-              border: `2px solid hsl(${hue},45%,50%)`,
-              boxShadow: `0 3px 0 hsl(${hue},45%,44%), inset 0 2px 0 rgba(255,255,255,0.5)`,
-              color: '#ffffff',
-              textShadow: OUTLINE,
+              background: palette.bg,
+              border: `2px solid ${palette.border}`,
+              boxShadow: palette.glow,
+              color: palette.text,
+              textShadow: `0 0 8px ${palette.border}`,
             }
           : {
-              background: 'rgba(160,200,240,0.25)',
-              border: '1px solid rgba(255,255,255,0.4)',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.07)',
               color: 'transparent',
             }),
       }}
