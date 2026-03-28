@@ -20,15 +20,15 @@ const Cell = memo(function Cell({ letter, isClearing, isFalling }) {
     <div
       className={`cell ${animClass}`}
       style={{
-        width: 38,
-        height: 38,
+        width: 34,
+        height: 34,
         borderRadius: 4,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: "'JetBrains Mono', monospace",
         fontWeight: 700,
-        fontSize: 20,
+        fontSize: 17,
         userSelect: 'none',
         cursor: 'default',
         transition: 'box-shadow 0.1s',

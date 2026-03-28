@@ -1,6 +1,6 @@
 import Cell from './Cell';
 
-const ROWS = 14;
+const ROWS = 13;
 const COLS = 8;
 
 function Grid({ grid, falling, clearedCells }) {
@@ -12,8 +12,8 @@ function Grid({ grid, falling, clearedCells }) {
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(${COLS}, 38px)`,
-        gridTemplateRows: `repeat(${ROWS}, 38px)`,
+        gridTemplateColumns: `repeat(${COLS}, 34px)`,
+        gridTemplateRows: `repeat(${ROWS}, 34px)`,
         gap: 4,
         padding: 10,
         background: 'rgba(8,8,28,0.85)',

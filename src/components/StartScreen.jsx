@@ -1,12 +1,6 @@
 import { useState, useEffect } from 'react';
+import PixelBackground from './PixelBackground';
 
-// Deterministic star positions (avoid re-generating on re-render)
-const STARS = Array.from({ length: 80 }, (_, i) => ({
-  left: ((i * 137.508) % 100).toFixed(2),
-  top:  ((i * 97.3)   % 100).toFixed(2),
-  size: (i % 3) + 1,
-  opacity: (0.2 + (i % 5) * 0.12).toFixed(2),
-}));
 
 function StartScreen({ onStart }) {
   const [blink, setBlink] = useState(true);
@@ -21,7 +15,7 @@ function StartScreen({ onStart }) {
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'linear-gradient(180deg, #080818 0%, #10102a 60%, #0d0d22 100%)',
+        background: 'linear-gradient(180deg, #03030e 0%, #07091e 25%, #090e38 55%, #0e1458 80%, #141870 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -31,24 +25,10 @@ function StartScreen({ onStart }) {
         overflow: 'hidden',
       }}
     >
-      {/* Starfield */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-        {STARS.map((s, i) => (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              left: `${s.left}%`,
-              top: `${s.top}%`,
-              width: s.size,
-              height: s.size,
-              borderRadius: '50%',
-              background: '#ffffff',
-              opacity: s.opacity,
-            }}
-          />
-        ))}
-      </div>
+      <PixelBackground shootingStars />
+
+      {/* All content sits above PixelBackground in the stacking order */}
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32 }}>
 
       {/* Title */}
       <div style={{ textAlign: 'center', position: 'relative' }}>
@@ -87,8 +67,8 @@ function StartScreen({ onStart }) {
           fontWeight: 700,
           fontSize: 22,
           letterSpacing: 5,
-          color: '#ffee44',
-          textShadow: '0 0 10px #ffee44, 0 0 30px #ffee4466',
+          color: '#ddccff',
+          textShadow: '0 0 10px #ddccff, 0 0 30px rgba(221,204,255,0.4)',
           opacity: blink ? 1 : 0,
           transition: 'opacity 0.05s',
           cursor: 'pointer',
@@ -105,21 +85,20 @@ function StartScreen({ onStart }) {
           border: '1px solid rgba(0,200,240,0.2)',
           borderRadius: 6,
           padding: '16px 28px',
-          maxWidth: 380,
-          width: '88%',
+          maxWidth: 640,
+          width: '96%',
           boxShadow: '0 0 20px rgba(0,180,220,0.06)',
         }}
       >
         <h3
           style={{
             fontFamily: "'BoutiqueBitmap', sans-serif",
-            color: '#00ccee',
-            fontSize: 12,
+            color: 'rgba(255,255,255,0.75)',
+            fontSize: 14,
             letterSpacing: 3,
             marginTop: 0,
             marginBottom: 12,
             textAlign: 'center',
-            textShadow: '0 0 6px #00ccee',
           }}
         >
           HOW TO PLAY
@@ -128,10 +107,11 @@ function StartScreen({ onStart }) {
           style={{
             fontFamily: "'BoutiqueBitmap', sans-serif",
             color: 'rgba(255,255,255,0.75)',
-            fontSize: 11,
+            fontSize: 13,
             lineHeight: 2.2,
             paddingLeft: 18,
             margin: 0,
+            whiteSpace: 'nowrap',
           }}
         >
           <li>Letters fall from the top of the grid</li>
@@ -143,6 +123,8 @@ function StartScreen({ onStart }) {
           <li>ESC to pause / resume</li>
         </ul>
       </div>
+
+      </div>{/* end content wrapper */}
     </div>
   );
 }

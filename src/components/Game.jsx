@@ -9,13 +9,14 @@ import StatsBar from './StatsBar';
 import InputBar from './InputBar';
 import StartScreen from './StartScreen';
 import GameOverScreen from './GameOverScreen';
+import PixelBackground from './PixelBackground';
 import { getRandomLetter, getLetterColor } from '../utils/letters';
 import { isValidWord, canFormWord, findWordCells } from '../utils/dictionary';
 import { calculateScore } from '../utils/scoring';
 import { useKeyboard } from '../hooks/useKeyboard';
 import '../styles/animations.css';
 
-const ROWS = 14;
+const ROWS = 13;
 const COLS = 8;
 const WORDS_PER_LEVEL = 3;
 const COMBO_TIMEOUT_MS = 3000;
@@ -25,7 +26,7 @@ function makeEmptyGrid() {
 }
 
 function getSpeed(level) {
-  return Math.max(200, 550 - level * 50);
+  return Math.max(150, 350 - level * 30);
 }
 
 function Game() {
@@ -364,15 +365,17 @@ function Game() {
   return (
     <div
       style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(180deg, #080818 0%, #10102a 60%, #0d0d22 100%)',
+        height: '100vh',
+        overflow: 'hidden',
+        background: 'linear-gradient(180deg, #03030e 0%, #07091e 25%, #090e38 55%, #0e1458 80%, #141870 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px 0',
+        padding: '6px 0',
       }}
     >
+      <PixelBackground />
       {!started && <StartScreen onStart={startGame} />}
       {gameOver && started && (
         <GameOverScreen
@@ -389,7 +392,7 @@ function Game() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            width: COLS * 38 + (COLS - 1) * 4 + 20 + 2,
+            width: COLS * 34 + (COLS - 1) * 4 + 20 + 2,
             position: 'relative',
           }}
         >
@@ -400,7 +403,7 @@ function Game() {
               fontWeight: 900,
               fontSize: 30,
               letterSpacing: 8,
-              margin: '0 0 18px',
+              margin: '0 0 10px',
               color: '#00ddff',
               textShadow: '0 0 10px #00ddff, 0 0 30px #00ddff66',
             }}
@@ -439,8 +442,8 @@ function Game() {
                   fontWeight: 700,
                   fontSize: 36,
                   letterSpacing: 8,
-                  color: '#ffee44',
-                  textShadow: '0 0 12px #ffee44, 0 0 40px #ffee4466',
+                  color: '#ddccff',
+                  textShadow: '0 0 12px #ddccff, 0 0 40px rgba(221,204,255,0.4)',
                 }}
               >
                 PAUSED

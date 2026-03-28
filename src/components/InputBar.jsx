@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { canFormWord } from '../utils/dictionary';
+import { canFormWord, isValidWord } from '../utils/dictionary';
 
 const PauseIcon = () => (
   <svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor">
@@ -55,13 +55,22 @@ function NeonButton({ onClick, disabled, children, color, square }) {
 
 function InputBar({ typed, onTyped, onSubmit, onPause, paused, grid }) {
   const inputRef = useRef(null);
-  const canForm = typed.length >= 3 && canFormWord(typed, grid);
-  const hasBadWord = typed.length >= 3 && !canForm;
-
-  const inputBorder = canForm ? '#33ee66' : hasBadWord ? '#ee4455' : 'rgba(255,255,255,0.2)';
+  const enough = typed.length >= 3;
+  const inDict = enough && isValidWord(typed);
+  const canForm = inDict && canFormWord(typed, grid);
+  // red = not a real word; orange = real word but letters not on board; green = ready to submit
+  const inputBorder = !enough
+    ? 'rgba(255,255,255,0.2)'
+    : canForm
+    ? '#33ee66'
+    : inDict
+    ? '#ffaa33'
+    : '#ee4455';
   const inputGlow = canForm
     ? '0 0 8px #33ee6644'
-    : hasBadWord
+    : inDict
+    ? '0 0 8px #ffaa3344'
+    : enough
     ? '0 0 8px #ee445544'
     : 'none';
 

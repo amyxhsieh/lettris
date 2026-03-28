@@ -35,7 +35,7 @@ function StatsBar({ score, level, wordsFound, combo }) {
   const comboColor =
     combo >= 4 ? '#ff66aa'
     : combo === 3 ? '#ffaa44'
-    : combo === 2 ? '#ffee44'
+    : combo === 2 ? '#ddccff'
     : '#33ff66';
 
   return (
@@ -48,7 +48,7 @@ function StatsBar({ score, level, wordsFound, combo }) {
         padding: '8px 0',
         borderTop: '1px solid rgba(255,255,255,0.07)',
         borderBottom: '1px solid rgba(255,255,255,0.07)',
-        marginBottom: 18,
+        marginBottom: 10,
         background: 'rgba(0,0,0,0.25)',
       }}
     >

@@ -1,5 +1,16 @@
-// Large built-in word list of common English words (3-6 letters)
-const WORD_LIST = [
+import allWords from 'an-array-of-english-words';
+
+// Build a Set of 3-6 letter words for O(1) lookups
+const WORD_SET = new Set(allWords.filter(w => w.length >= 3 && w.length <= 6));
+
+export function isValidWord(word) {
+  if (!word || word.length < 3) return false;
+  return WORD_SET.has(word.toLowerCase());
+}
+
+// ── Legacy list kept only so canFormWord/findWordCells still work ──────────
+// (they don't use WORD_LIST, but the file structure is preserved below)
+const _UNUSED_WORD_LIST = [
   // 3-letter words
   "ace","act","add","age","ago","aid","aim","air","ale","all","and","ant","any","ape",
   "arc","are","ark","arm","art","ash","ask","ate","awe","axe","aye","bad","bag","ban",
@@ -108,7 +119,41 @@ const WORD_LIST = [
   "wide","wife","wild","will","wimp","wind","wine","wink","wire","wise","wish","with",
   "wolf","wood","wool","word","wore","worm","wove","wrap","wren","writ","yawn","year",
   "yell","your","zeal","zero","zest","zone",
+  // common 4-letter words added
+  "cute","give","five","dive","hate","have","wave","gave","take","fare","mare","ware",
+  "wage","dale","yore","tone","tile","dime","bore","wore","gore","more","fore","lore",
+  "pore","sore","tore","yore","dare","hare","pare","bare","care","bale","male","tale",
+  "vale","pale","sale","gale","dame","fame","name","same","lame","game","tame","came",
+  "bake","fake","lake","make","rake","sake","cake","wake","cave","rave","pave","save",
+  "cane","lane","mane","pane","sane","wane","bane","vane","dune","tune","rune","lune",
+  "dine","fine","line","mine","pine","vine","wine","sine","bone","cone","done","gone",
+  "hone","lone","none","zone","home","dome","Nome","rome","some","come","tome","nome",
+  "bike","hike","like","mike","pike","tile","bile","file","mile","pile","rile","wile",
+  "hide","ride","side","wide","tide","bide","aide","cite","kite","bite","mite","site",
+  "dote","mote","note","rote","vote","tote","hose","dose","pose","rose","nose","bode",
+  "code","mode","rode","lode","node","mode","cope","dope","hope","mope","rope","pope",
+  "lore","bore","core","fore","gore","more","pore","sore","tore","wore","yore",
+  "cube","tube","rube","lube","dupe","lure","cure","pure","sure","muse","fuse","ruse",
+  "used","mute","lute","jute","cute","June","dune","tune","rune","bun","pun","gun",
+  "hive","jive","live","dive","five","give","sive",
   // 5-letter words
+  // common 5-letter words added
+  "smile","stone","stove","crime","crave","shave","crate","plate","grape","crane","drone",
+  "phone","clone","alone","plane","brave","blaze","graze","craze","glaze","amaze","phase",
+  "chase","grace","place","space","trace","brace","lace","race","pace","face","mace",
+  "price","slice","twice","juice","voice","noise","poise","raise","praise","false","pulse",
+  "horse","worse","curse","purse","nurse","verse","terse","prose","close","chose","those",
+  "whose","whose","house","mouse","louse","grouse","blouse","rouse","douse","spouse",
+  "store","score","shore","snore","adore","swore","chore","pore","bore","gore","more",
+  "flame","blame","frame","shame","tame","same","game","came","name","fame","dame",
+  "stake","snake","shake","brake","drake","flake","quake","awake","opaque",
+  "stale","whale","shale","scale","male","pale","tale","gale","vale","sale","bale",
+  "style","while","smile","exile","vile","mile","pile","file","bile","tile","rile",
+  "write","quite","unite","white","kite","site","mite","bite","cite",
+  "quote","note","vote","rote","dote","mote","tote","emote","devote","remote","denote",
+  "drove","stove","trove","grove","cove","dove","love","rove","wove","cove",
+  "curve","nerve","serve","swerve","verve","carve","starve","scarf",
+  "blame","flame","frame","shame","claim","aim","aim",
   "abbey","abhor","abide","abler","abode","abort","about","above","abuse","abyss","ached",
   "acorn","acrid","acted","acute","adage","adept","admit","adobe","adore","adorn","adult",
   "after","again","agile","aging","agony","agree","ahead","aided","aisle","alert","algae",
@@ -251,14 +296,6 @@ const WORD_LIST = [
   "velvet","vessel","victim","vision","wander","warmth","wealth","weapon","weekly","wicket",
   "wickle","wisdom","wonder","wrists","worthy","yellow","zigzag",
 ];
-
-// Build a Set for O(1) lookups
-const WORD_SET = new Set(WORD_LIST.map(w => w.toLowerCase()));
-
-export function isValidWord(word) {
-  if (!word || word.length < 3) return false;
-  return WORD_SET.has(word.toLowerCase());
-}
 
 /**
  * canFormWord: checks if the board has the required letters.
