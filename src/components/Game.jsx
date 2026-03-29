@@ -14,12 +14,14 @@ import { getRandomLetter, getLetterColor } from '../utils/letters';
 import { isValidWord, canFormWord, findWordCells } from '../utils/dictionary';
 import { calculateScore } from '../utils/scoring';
 import { useKeyboard } from '../hooks/useKeyboard';
+import { getUsername, saveScore } from '../utils/storage';
+import { clickSound, startBGM, stopBGM, playSound } from '../utils/sound';
 import '../styles/animations.css';
 
 const ROWS = 13;
 const COLS = 8;
 const WORDS_PER_LEVEL = 3;
-const COMBO_TIMEOUT_MS = 3000;
+const COMBO_TIMEOUT_MS = 5000;
 
 function makeEmptyGrid() {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
@@ -30,6 +32,9 @@ function getSpeed(level) {
 }
 
 function Game() {
+  // ── Player name ───────────────────────────────────────────
+  const [username] = useState(() => getUsername());
+
   // ── UI state ──────────────────────────────────────────────
   const [started, setStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -47,6 +52,7 @@ function Game() {
   const [combo, setCombo] = useState(0);
   const [typed, setTyped] = useState('');
   const [floatingWord, setFloatingWord] = useState('');
+  const [comboBanner, setComboBanner] = useState(null); // { text, color, key }
 
   // ── Refs for use inside intervals (avoid stale closures) ──
   const gridRef = useRef(makeEmptyGrid());
@@ -58,6 +64,18 @@ function Game() {
   const wordsFoundRef = useRef(0);
   const lastWordTimeRef = useRef(0);
   const clearingRef = useRef(false); // prevent overlapping clears
+
+  // ── Combo banner ──────────────────────────────────────────
+  useEffect(() => {
+    if (combo < 2) return;
+    const color =
+      combo >= 4 ? '#ff66aa'
+      : combo === 3 ? '#ffaa44'
+      : '#ddccff';
+    setComboBanner({ text: `×${combo} COMBO!`, color, key: Date.now() });
+    const t = setTimeout(() => setComboBanner(null), 1000);
+    return () => clearTimeout(t);
+  }, [combo]);
 
   // Keep refs in sync with state
   useEffect(() => { pausedRef.current = paused; }, [paused]);
@@ -186,6 +204,19 @@ function Game() {
     return stopLoop;
   }, [level, started, gameOver, startLoop, stopLoop]);
 
+  // ── Quit to start screen ───────────────────────────────────
+  const quitGame = useCallback(() => {
+    stopLoop();
+    stopBGM();
+    gameOverRef.current = false;
+    fallingRef.current = null;
+    pausedRef.current = false;
+    setFalling(null);
+    setStarted(false);
+    setGameOver(false);
+    setPaused(false);
+  }, [stopLoop]);
+
   // ── Start game ─────────────────────────────────────────────
   const startGame = useCallback(() => {
     const emptyGrid = makeEmptyGrid();
@@ -213,13 +244,29 @@ function Game() {
     setStarted(true);
   }, []);
 
-  // Spawn first letter after start
+  // Spawn first letter + start BGM after game begins
   useEffect(() => {
     if (started && !gameOver) {
+      startBGM();
       spawnLetter(gridRef.current);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started]);
+
+  // Save score + play sounds when game ends
+  useEffect(() => {
+    if (gameOver && started) {
+      stopBGM();
+      playSound('/sound/gameover.wav');
+      saveScore({
+        name: username || 'ANON',
+        score,
+        words: wordsFound,
+        level,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameOver]);
 
   // ── Submit word ────────────────────────────────────────────
   const submitWord = useCallback(() => {
@@ -361,6 +408,23 @@ function Game() {
     enabled: started && !gameOver,
   });
 
+  // ── Global letter input (no focus required) ────────────────
+  useEffect(() => {
+    if (!started || gameOver) return;
+    const handler = (e) => {
+      if (pausedRef.current) return;
+      if (/^[a-zA-Z]$/.test(e.key)) {
+        setTyped(prev => prev.length < 8 ? prev + e.key.toUpperCase() : prev);
+      } else if (e.key === 'Backspace') {
+        setTyped(prev => prev.slice(0, -1));
+      } else if (e.key === 'Enter') {
+        submitWord();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [started, gameOver, submitWord]);
+
   // ── Render ─────────────────────────────────────────────────
   return (
     <div
@@ -376,6 +440,30 @@ function Game() {
       }}
     >
       <PixelBackground />
+
+      {/* Quit button — top-left, only during active game */}
+      {started && !gameOver && (
+        <button
+          onClick={() => { clickSound(); quitGame(); }}
+          style={{
+            position: 'fixed',
+            top: 16,
+            left: 20,
+            background: 'none',
+            border: 'none',
+            fontFamily: "'BoutiqueBitmap', sans-serif",
+            fontSize: 12,
+            letterSpacing: 2,
+            color: 'rgba(255,255,255,0.35)',
+            cursor: 'pointer',
+            padding: '4px 0',
+            zIndex: 50,
+          }}
+        >
+          ← QUIT
+        </button>
+      )}
+
       {!started && <StartScreen onStart={startGame} />}
       {gameOver && started && (
         <GameOverScreen
@@ -383,6 +471,8 @@ function Game() {
           wordsFound={wordsFound}
           level={level}
           onPlayAgain={startGame}
+          onQuit={quitGame}
+          playerName={username}
         />
       )}
 
@@ -416,6 +506,7 @@ function Game() {
             level={level}
             wordsFound={wordsFound}
             combo={combo}
+            comboBanner={comboBanner}
           />
 
           {/* Paused overlay */}
@@ -485,7 +576,6 @@ function Game() {
 
           <InputBar
             typed={typed}
-            onTyped={setTyped}
             onSubmit={submitWord}
             onPause={handleEscape}
             paused={paused}

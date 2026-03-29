@@ -1,7 +1,7 @@
 import allWords from 'an-array-of-english-words';
 
-// Build a Set of 3-6 letter words for O(1) lookups
-const WORD_SET = new Set(allWords.filter(w => w.length >= 3 && w.length <= 6));
+// Build a Set of 3-8 letter words for O(1) lookups
+const WORD_SET = new Set(allWords.filter(w => w.length >= 3 && w.length <= 8));
 
 export function isValidWord(word) {
   if (!word || word.length < 3) return false;

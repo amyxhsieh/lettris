@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
+import { clickSound } from '../utils/sound';
 import { canFormWord, isValidWord } from '../utils/dictionary';
 
 const PauseIcon = () => (
@@ -53,8 +54,13 @@ function NeonButton({ onClick, disabled, children, color, square }) {
   );
 }
 
-function InputBar({ typed, onTyped, onSubmit, onPause, paused, grid }) {
+function InputBar({ typed, onSubmit, onPause, paused, grid }) {
   const inputRef = useRef(null);
+
+  // Keep input blurred — keyboard handled globally in Game
+  useEffect(() => {
+    if (inputRef.current) inputRef.current.blur();
+  });
   const enough = typed.length >= 3;
   const inDict = enough && isValidWord(typed);
   const canForm = inDict && canFormWord(typed, grid);
@@ -74,27 +80,14 @@ function InputBar({ typed, onTyped, onSubmit, onPause, paused, grid }) {
     ? '0 0 8px #ee445544'
     : 'none';
 
-  const handleKeyDown = (e) => {
-    if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
-      e.stopPropagation();
-    }
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      onSubmit();
-    }
-  };
-
   return (
     <div style={{ display: 'flex', gap: 6, alignItems: 'center', width: '100%', marginTop: 16, boxSizing: 'border-box' }}>
       <input
         ref={inputRef}
         type="text"
         value={typed}
-        onChange={(e) => {
-          const val = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
-          onTyped(val);
-        }}
-        onKeyDown={handleKeyDown}
+        onChange={() => {}}
+        readOnly
         placeholder="TYPE A WORD..."
         maxLength={12}
         style={{
@@ -124,7 +117,7 @@ function InputBar({ typed, onTyped, onSubmit, onPause, paused, grid }) {
       <NeonButton onClick={onSubmit} disabled={!canForm} color="#33ee66">
         ENTER
       </NeonButton>
-      <NeonButton onClick={onPause} color="#00ccee" square>
+      <NeonButton onClick={() => { clickSound(); onPause(); }} color="#00ccee" square>
         {paused ? <PlayIcon /> : <PauseIcon />}
       </NeonButton>
     </div>

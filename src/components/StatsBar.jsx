@@ -31,7 +31,7 @@ function StatItem({ label, value, color }) {
   );
 }
 
-function StatsBar({ score, level, wordsFound, combo }) {
+function StatsBar({ score, level, wordsFound, combo, comboBanner }) {
   const comboColor =
     combo >= 4 ? '#ff66aa'
     : combo === 3 ? '#ffaa44'
@@ -58,11 +58,35 @@ function StatsBar({ score, level, wordsFound, combo }) {
       <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
       <StatItem label="Words" value={wordsFound} color="#00ccee" />
       <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
-      <StatItem
-        label="Combo"
-        value={combo > 1 ? `×${combo}` : '–'}
-        color={comboColor}
-      />
+      <div style={{ position: 'relative' }}>
+        <StatItem
+          label="Combo"
+          value={combo > 1 ? `×${combo}` : '–'}
+          color={comboColor}
+        />
+        {comboBanner && (
+          <div
+            key={comboBanner.key}
+            className="anim-combo-banner"
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: 'calc(100% + 8px)',
+              transform: 'translateY(-50%)',
+              fontFamily: "'BoutiqueBitmap', sans-serif",
+              fontWeight: 900,
+              fontSize: 18,
+              letterSpacing: 4,
+              color: comboBanner.color,
+              textShadow: `0 0 10px ${comboBanner.color}, 0 0 24px ${comboBanner.color}88`,
+              whiteSpace: 'nowrap',
+              pointerEvents: 'none',
+            }}
+          >
+            {comboBanner.text}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
