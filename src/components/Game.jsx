@@ -32,9 +32,6 @@ function getSpeed(level) {
 }
 
 function Game() {
-  // ── Player name ───────────────────────────────────────────
-  const [username] = useState(() => getUsername());
-
   // ── UI state ──────────────────────────────────────────────
   const [started, setStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -259,7 +256,7 @@ function Game() {
       stopBGM();
       playSound('/sound/gameover.wav');
       saveScore({
-        name: username || 'ANON',
+        name: getUsername() || 'ANON',
         score,
         words: wordsFound,
         level,
@@ -473,7 +470,7 @@ function Game() {
           level={level}
           onPlayAgain={startGame}
           onQuit={quitGame}
-          playerName={username}
+          playerName={getUsername()}
         />
       )}
 
