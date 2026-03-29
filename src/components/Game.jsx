@@ -309,7 +309,8 @@ function Game() {
       setLevel(newLevel);
     }
 
-    // Floating word
+    // Floating word + points sound
+    playSound('/sound/points.wav');
     setFloatingWord(word);
     setTimeout(() => setFloatingWord(''), 900);
 
