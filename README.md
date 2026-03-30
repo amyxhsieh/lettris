@@ -4,6 +4,12 @@
 
 ---
 
+## Game demo
+
+![Lettris demo](public/Demo.gif)
+
+---
+
 ## How it works
 
 Letters drop one at a time into an 8-column grid. Use the arrow keys to position them, then type any word you can spot on the board and hit Enter to clear those letters. The grid fills up faster as you level up, so you'll need to think and type quickly.
