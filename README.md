@@ -6,7 +6,7 @@
 
 ## Game demo
 
-![Lettris demo](public/Demo.gif)
+<img src="public/Demo.gif" width="50%" />
 
 ---
 
