@@ -56,5 +56,3 @@ No clicking required to switch between moving and typing — just start typing a
 npm install
 npm run dev
 ```
-
-Built with React + Vite.
