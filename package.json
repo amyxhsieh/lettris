@@ -7,11 +7,15 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:rules": "python3 engine/build_rules.py",
+    "test:rules": "python3 engine/build_rules.py && python3 engine/test_engine.py && node engine/check_parity.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
+    "all-the-cities": "^3.1.0",
     "an-array-of-english-words": "^2.0.0",
+    "country-list": "^2.4.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },

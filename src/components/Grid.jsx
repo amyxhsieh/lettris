@@ -1,7 +1,8 @@
 import Cell from './Cell';
+import { RULES } from '../utils/dictionary';
 
-const ROWS = 13;
-const COLS = 8;
+const ROWS = RULES.rows;
+const COLS = RULES.cols;
 
 function Grid({ grid, falling, clearedCells }) {
   const clearedSet = new Set(
@@ -12,10 +13,10 @@ function Grid({ grid, falling, clearedCells }) {
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(${COLS}, 34px)`,
-        gridTemplateRows: `repeat(${ROWS}, 34px)`,
-        gap: 4,
-        padding: 10,
+        gridTemplateColumns: `repeat(${COLS}, var(--cell))`,
+        gridTemplateRows: `repeat(${ROWS}, var(--cell))`,
+        gap: 'var(--gap)',
+        padding: 'var(--pad)',
         background: 'rgba(8,8,28,0.85)',
         border: '1px solid rgba(0,200,240,0.2)',
         borderRadius: 6,

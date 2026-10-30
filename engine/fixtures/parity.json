@@ -1,0 +1,1028 @@
+[
+  {
+    "fn": "calculateScore",
+    "expect": 90,
+    "length": 3,
+    "combo": 1
+  },
+  {
+    "fn": "calculateScore",
+    "expect": 135,
+    "length": 3,
+    "combo": 2
+  },
+  {
+    "fn": "calculateScore",
+    "expect": 180,
+    "length": 3,
+    "combo": 3
+  },
+  {
+    "fn": "calculateScore",
+    "expect": 225,
+    "length": 3,
+    "combo": 4
+  },
+  {
+    "fn": "calculateScore",
+    "expect": 225,
+    "length": 3,
+    "combo": 6
+  },
+  {
+    "fn": "calculateScore",
+    "expect": 160,
+    "length": 4,
+    "combo": 1
+  },
+  {
+    "fn": "calculateScore",
+    "expect": 375,
+    "length": 5,
+    "combo": 2
+  },
+  {
+    "fn": "calculateScore",
+    "expect": 1600,
+    "length": 8,
+    "combo": 4
+  },
+  {
+    "fn": "fallInterval",
+    "expect": 620,
+    "difficultyId": "easy",
+    "level": 1
+  },
+  {
+    "fn": "fallInterval",
+    "expect": 600,
+    "difficultyId": "easy",
+    "level": 2
+  },
+  {
+    "fn": "fallInterval",
+    "expect": 540,
+    "difficultyId": "easy",
+    "level": 5
+  },
+  {
+    "fn": "fallInterval",
+    "expect": 360,
+    "difficultyId": "easy",
+    "level": 30
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 1,
+    "difficultyId": "easy",
+    "wordsFound": 0
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 1,
+    "difficultyId": "easy",
+    "wordsFound": 1
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 1,
+    "difficultyId": "easy",
+    "wordsFound": 2
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 1,
+    "difficultyId": "easy",
+    "wordsFound": 3
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 2,
+    "difficultyId": "easy",
+    "wordsFound": 4
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 3,
+    "difficultyId": "easy",
+    "wordsFound": 8
+  },
+  {
+    "fn": "fallInterval",
+    "expect": 320,
+    "difficultyId": "medium",
+    "level": 1
+  },
+  {
+    "fn": "fallInterval",
+    "expect": 290,
+    "difficultyId": "medium",
+    "level": 2
+  },
+  {
+    "fn": "fallInterval",
+    "expect": 200,
+    "difficultyId": "medium",
+    "level": 5
+  },
+  {
+    "fn": "fallInterval",
+    "expect": 150,
+    "difficultyId": "medium",
+    "level": 30
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 1,
+    "difficultyId": "medium",
+    "wordsFound": 0
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 1,
+    "difficultyId": "medium",
+    "wordsFound": 1
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 1,
+    "difficultyId": "medium",
+    "wordsFound": 2
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 2,
+    "difficultyId": "medium",
+    "wordsFound": 3
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 2,
+    "difficultyId": "medium",
+    "wordsFound": 4
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 3,
+    "difficultyId": "medium",
+    "wordsFound": 8
+  },
+  {
+    "fn": "fallInterval",
+    "expect": 200,
+    "difficultyId": "hard",
+    "level": 1
+  },
+  {
+    "fn": "fallInterval",
+    "expect": 180,
+    "difficultyId": "hard",
+    "level": 2
+  },
+  {
+    "fn": "fallInterval",
+    "expect": 120,
+    "difficultyId": "hard",
+    "level": 5
+  },
+  {
+    "fn": "fallInterval",
+    "expect": 80,
+    "difficultyId": "hard",
+    "level": 30
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 1,
+    "difficultyId": "hard",
+    "wordsFound": 0
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 1,
+    "difficultyId": "hard",
+    "wordsFound": 1
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 2,
+    "difficultyId": "hard",
+    "wordsFound": 2
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 2,
+    "difficultyId": "hard",
+    "wordsFound": 3
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 3,
+    "difficultyId": "hard",
+    "wordsFound": 4
+  },
+  {
+    "fn": "levelForWords",
+    "expect": 5,
+    "difficultyId": "hard",
+    "wordsFound": 8
+  },
+  {
+    "fn": "chooseLetter",
+    "expect": "U",
+    "difficultyId": "easy",
+    "recent": [
+      "B",
+      "C",
+      "D"
+    ],
+    "roll": 0.99
+  },
+  {
+    "fn": "chooseLetter",
+    "expect": "K",
+    "difficultyId": "easy",
+    "recent": [
+      "E",
+      "T",
+      "A"
+    ],
+    "roll": 0.99
+  },
+  {
+    "fn": "chooseLetter",
+    "expect": "E",
+    "difficultyId": "hard",
+    "recent": [
+      "B",
+      "C",
+      "D"
+    ],
+    "roll": 0
+  },
+  {
+    "fn": "chooseLetter",
+    "expect": "S",
+    "difficultyId": "medium",
+    "recent": [],
+    "roll": 0.5
+  },
+  {
+    "fn": "chooseSpawnColumn",
+    "expect": 1,
+    "difficultyId": "medium",
+    "grid": [
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ]
+    ],
+    "roll": 0.5
+  },
+  {
+    "fn": "chooseSpawnColumn",
+    "expect": 2,
+    "difficultyId": "hard",
+    "grid": [
+      [
+        "A",
+        null,
+        null
+      ],
+      [
+        "B",
+        "C",
+        null
+      ],
+      [
+        "D",
+        "E",
+        null
+      ],
+      [
+        "F",
+        "G",
+        null
+      ]
+    ],
+    "roll": 0.9
+  },
+  {
+    "fn": "chooseSpawnColumn",
+    "expect": 2,
+    "difficultyId": "easy",
+    "grid": [
+      [
+        "A",
+        null,
+        null
+      ],
+      [
+        "B",
+        "C",
+        null
+      ],
+      [
+        "D",
+        "E",
+        null
+      ],
+      [
+        "F",
+        "G",
+        null
+      ]
+    ],
+    "roll": 0
+  },
+  {
+    "fn": "chooseSpawnColumn",
+    "expect": null,
+    "difficultyId": "medium",
+    "grid": [
+      [
+        "Z",
+        "Z",
+        "Z"
+      ],
+      [
+        "Z",
+        "Z",
+        "Z"
+      ],
+      [
+        "Z",
+        "Z",
+        "Z"
+      ],
+      [
+        "Z",
+        "Z",
+        "Z"
+      ]
+    ],
+    "roll": 0.2
+  },
+  {
+    "fn": "chooseSpawnColumn",
+    "expect": 0,
+    "difficultyId": "easy",
+    "grid": [
+      [
+        null,
+        null
+      ],
+      [
+        null,
+        null
+      ],
+      [
+        null,
+        "A"
+      ],
+      [
+        null,
+        "B"
+      ]
+    ],
+    "roll": 0.6
+  },
+  {
+    "fn": "chooseSpawnColumn",
+    "expect": 1,
+    "difficultyId": "hard",
+    "grid": [
+      [
+        null,
+        null
+      ],
+      [
+        null,
+        null
+      ],
+      [
+        null,
+        "A"
+      ],
+      [
+        null,
+        "B"
+      ]
+    ],
+    "roll": 0.6
+  },
+  {
+    "fn": "findWordCells",
+    "expect": [
+      {
+        "row": 1,
+        "col": 0
+      },
+      {
+        "row": 0,
+        "col": 1
+      },
+      {
+        "row": 0,
+        "col": 2
+      }
+    ],
+    "word": "cat",
+    "grid": [
+      [
+        "C",
+        "A",
+        "T"
+      ],
+      [
+        "C",
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "fn": "findWordCells",
+    "expect": [
+      {
+        "row": 1,
+        "col": 0
+      },
+      {
+        "row": 0,
+        "col": 0
+      }
+    ],
+    "word": "cc",
+    "grid": [
+      [
+        "C",
+        "A",
+        "T"
+      ],
+      [
+        "C",
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "fn": "findWordCells",
+    "expect": null,
+    "word": "ccc",
+    "grid": [
+      [
+        "C",
+        "A",
+        "T"
+      ],
+      [
+        "C",
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "fn": "findWordCells",
+    "expect": null,
+    "word": "",
+    "grid": [
+      [
+        "C",
+        "A",
+        "T"
+      ],
+      [
+        "C",
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "fn": "applyGravity",
+    "expect": [
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        "A",
+        null,
+        null
+      ],
+      [
+        "B",
+        "c",
+        {
+          "letter": "e",
+          "color": "#fff"
+        }
+      ]
+    ],
+    "grid": [
+      [
+        "A",
+        null,
+        {
+          "letter": "e",
+          "color": "#fff"
+        }
+      ],
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        "B",
+        "c",
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "fn": "isValidWord",
+    "expect": true,
+    "word": "cat",
+    "difficultyId": "easy"
+  },
+  {
+    "fn": "isValidWord",
+    "expect": false,
+    "word": "cat",
+    "difficultyId": "hard"
+  },
+  {
+    "fn": "isValidWord",
+    "expect": true,
+    "word": "stone",
+    "difficultyId": "hard"
+  },
+  {
+    "fn": "isValidWord",
+    "expect": true,
+    "word": "the",
+    "difficultyId": "medium"
+  },
+  {
+    "fn": "isValidWord",
+    "expect": true,
+    "word": "mom",
+    "difficultyId": "easy"
+  },
+  {
+    "fn": "isValidWord",
+    "expect": true,
+    "word": "vein",
+    "difficultyId": "medium"
+  },
+  {
+    "fn": "isValidWord",
+    "expect": true,
+    "word": "rome",
+    "difficultyId": "hard"
+  },
+  {
+    "fn": "isValidWord",
+    "expect": false,
+    "word": "zzzzz",
+    "difficultyId": "easy"
+  },
+  {
+    "fn": "isValidWord",
+    "expect": false,
+    "word": "no",
+    "difficultyId": "easy"
+  },
+  {
+    "fn": "isValidWord",
+    "expect": false,
+    "word": "",
+    "difficultyId": "medium"
+  },
+  {
+    "fn": "difficultyCount",
+    "expect": 3,
+    "count": 3
+  },
+  {
+    "fn": "challenge",
+    "expect": {
+      "id": "survival",
+      "label": "SURVIVAL",
+      "tagline": "Play until the board fills",
+      "goal": "survival",
+      "targetWords": null,
+      "limitMs": null,
+      "rankBy": "score"
+    },
+    "challengeId": "survival"
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "survival",
+    "words": 0,
+    "elapsedMs": 0,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "survival",
+    "words": 10,
+    "elapsedMs": 1000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "survival",
+    "words": 29,
+    "elapsedMs": 50000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": false,
+      "reason": "topout",
+      "ranks": true
+    },
+    "challengeId": "survival",
+    "words": 29,
+    "elapsedMs": 50000,
+    "toppedOut": true
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "survival",
+    "words": 30,
+    "elapsedMs": 50000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": false,
+      "reason": "topout",
+      "ranks": true
+    },
+    "challengeId": "survival",
+    "words": 30,
+    "elapsedMs": 50000,
+    "toppedOut": true
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "survival",
+    "words": 4,
+    "elapsedMs": 179999,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "survival",
+    "words": 4,
+    "elapsedMs": 180000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": false,
+      "reason": "topout",
+      "ranks": true
+    },
+    "challengeId": "survival",
+    "words": 4,
+    "elapsedMs": 40000,
+    "toppedOut": true
+  },
+  {
+    "fn": "challenge",
+    "expect": {
+      "id": "words",
+      "label": "30 WORDS",
+      "tagline": "Clear 30 words as fast as you can",
+      "goal": "words",
+      "targetWords": 30,
+      "limitMs": null,
+      "rankBy": "time"
+    },
+    "challengeId": "words"
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "words",
+    "words": 0,
+    "elapsedMs": 0,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "words",
+    "words": 10,
+    "elapsedMs": 1000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "words",
+    "words": 29,
+    "elapsedMs": 50000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": false,
+      "reason": "topout",
+      "ranks": false
+    },
+    "challengeId": "words",
+    "words": 29,
+    "elapsedMs": 50000,
+    "toppedOut": true
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": true,
+      "reason": "target",
+      "ranks": true
+    },
+    "challengeId": "words",
+    "words": 30,
+    "elapsedMs": 50000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": true,
+      "reason": "target",
+      "ranks": true
+    },
+    "challengeId": "words",
+    "words": 30,
+    "elapsedMs": 50000,
+    "toppedOut": true
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "words",
+    "words": 4,
+    "elapsedMs": 179999,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "words",
+    "words": 4,
+    "elapsedMs": 180000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": false,
+      "reason": "topout",
+      "ranks": false
+    },
+    "challengeId": "words",
+    "words": 4,
+    "elapsedMs": 40000,
+    "toppedOut": true
+  },
+  {
+    "fn": "challenge",
+    "expect": {
+      "id": "timed",
+      "label": "3 MINUTES",
+      "tagline": "Score as much as you can before the clock ends",
+      "goal": "time",
+      "targetWords": null,
+      "limitMs": 180000,
+      "rankBy": "score"
+    },
+    "challengeId": "timed"
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "timed",
+    "words": 0,
+    "elapsedMs": 0,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "timed",
+    "words": 10,
+    "elapsedMs": 1000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "timed",
+    "words": 29,
+    "elapsedMs": 50000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": false,
+      "reason": "topout",
+      "ranks": true
+    },
+    "challengeId": "timed",
+    "words": 29,
+    "elapsedMs": 50000,
+    "toppedOut": true
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "timed",
+    "words": 30,
+    "elapsedMs": 50000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": false,
+      "reason": "topout",
+      "ranks": true
+    },
+    "challengeId": "timed",
+    "words": 30,
+    "elapsedMs": 50000,
+    "toppedOut": true
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "timed",
+    "words": 4,
+    "elapsedMs": 179999,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": true,
+      "reason": "time",
+      "ranks": true
+    },
+    "challengeId": "timed",
+    "words": 4,
+    "elapsedMs": 180000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": false,
+      "reason": "topout",
+      "ranks": true
+    },
+    "challengeId": "timed",
+    "words": 4,
+    "elapsedMs": 40000,
+    "toppedOut": true
+  }
+]

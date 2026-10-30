@@ -1,11 +1,11 @@
 // Arcade-style score display — like the 1UP/2UP panel in classic games
 function StatItem({ label, value, color }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 72 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: 0 }}>
       <span
         style={{
           fontFamily: "'BoutiqueBitmap', sans-serif",
-          fontSize: 10,
+          fontSize: 'max(10px, calc(var(--cell) * 0.24))',
           letterSpacing: 2,
           color: '#ffffff',
           opacity: 0.55,
@@ -19,7 +19,7 @@ function StatItem({ label, value, color }) {
         style={{
           fontFamily: "'BoutiqueBitmap', sans-serif",
           fontWeight: 700,
-          fontSize: 22,
+          fontSize: 'max(22px, calc(var(--cell) * 0.52))',
           color: color || '#33ff66',
           textShadow: `0 0 8px ${color || '#33ff66'}, 0 0 20px ${color || '#33ff66'}66`,
           letterSpacing: 1,
@@ -31,7 +31,7 @@ function StatItem({ label, value, color }) {
   );
 }
 
-function StatsBar({ score, level, wordsFound, combo, comboBanner }) {
+function StatsBar({ score, middle, wordsLabel, combo, comboBanner }) {
   const comboColor =
     combo >= 4 ? '#ff66aa'
     : combo === 3 ? '#ffaa44'
@@ -54,9 +54,9 @@ function StatsBar({ score, level, wordsFound, combo, comboBanner }) {
     >
       <StatItem label="Score" value={score.toLocaleString()} color="#33ff66" />
       <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
-      <StatItem label="Level" value={level} color="#00ccee" />
+      <StatItem label={middle.label} value={middle.value} color={middle.color} />
       <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
-      <StatItem label="Words" value={wordsFound} color="#00ccee" />
+      <StatItem label="Words" value={wordsLabel} color="#00ccee" />
       <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
       <div style={{ position: 'relative' }}>
         <StatItem

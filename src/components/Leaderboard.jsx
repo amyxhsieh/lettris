@@ -1,4 +1,6 @@
-function Leaderboard({ scores, currentName }) {
+import { formatClock } from '../utils/time';
+
+function Leaderboard({ scores, currentName, emptyLabel = 'NO RECORDS YET', rankBy = 'score' }) {
   if (!scores || scores.length === 0) {
     return (
       <div
@@ -11,7 +13,7 @@ function Leaderboard({ scores, currentName }) {
           padding: '16px 0',
         }}
       >
-        NO RECORDS YET
+        {emptyLabel}
       </div>
     );
   }
@@ -61,7 +63,7 @@ function Leaderboard({ scores, currentName }) {
                 flexShrink: 0,
               }}
             >
-              {entry.score.toLocaleString()}
+              {rankBy === 'time' ? formatClock(entry.timeMs || 0) : entry.score.toLocaleString()}
             </span>
             <span
               style={{
@@ -70,7 +72,7 @@ function Leaderboard({ scores, currentName }) {
                 flexShrink: 0,
               }}
             >
-              {entry.words}w
+              {rankBy === 'time' ? entry.score.toLocaleString() : `${entry.words}w`}
             </span>
           </div>
         );

@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { clickSound } from '../utils/sound';
-import { canFormWord, isValidWord } from '../utils/dictionary';
+import { canFormWord, isValidWord, engine } from '../utils/dictionary';
 
 const PauseIcon = () => (
   <svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor">
@@ -34,10 +34,10 @@ function NeonButton({ onClick, disabled, children, color, square }) {
         color: dimColor,
         fontFamily: "'BoutiqueBitmap', sans-serif",
         fontWeight: 700,
-        fontSize: 13,
-        width: square ? 42 : undefined,
-        padding: square ? 0 : '7px 16px',
-        height: 42,
+        fontSize: 'max(13px, calc(var(--cell) * 0.32))',
+        width: square ? 'max(42px, calc(var(--cell) * 0.95))' : undefined,
+        padding: square ? 0 : '0 16px',
+        height: 'max(42px, calc(var(--cell) * 0.95))',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -54,15 +54,16 @@ function NeonButton({ onClick, disabled, children, color, square }) {
   );
 }
 
-function InputBar({ typed, onSubmit, onPause, paused, grid }) {
+function InputBar({ typed, onSubmit, onPause, paused, grid, difficulty = 'medium' }) {
   const inputRef = useRef(null);
 
   // Keep input blurred — keyboard handled globally in Game
   useEffect(() => {
     if (inputRef.current) inputRef.current.blur();
   });
-  const enough = typed.length >= 3;
-  const inDict = enough && isValidWord(typed);
+  const minWordLength = engine.difficulty(difficulty).minWordLength;
+  const enough = typed.length >= minWordLength;
+  const inDict = enough && isValidWord(typed, difficulty);
   const canForm = inDict && canFormWord(typed, grid);
   // red = not a real word; orange = real word but letters not on board; green = ready to submit
   const inputBorder = !enough
@@ -88,7 +89,7 @@ function InputBar({ typed, onSubmit, onPause, paused, grid }) {
         value={typed}
         onChange={() => {}}
         readOnly
-        placeholder="TYPE A WORD..."
+        placeholder={`${minWordLength}+ LETTERS`}
         maxLength={12}
         style={{
           flex: 1,
@@ -99,9 +100,9 @@ function InputBar({ typed, onSubmit, onPause, paused, grid }) {
           color: '#ffffff',
           fontFamily: "'BoutiqueBitmap', sans-serif",
           fontWeight: 700,
-          fontSize: 14,
+          fontSize: 'max(14px, calc(var(--cell) * 0.36))',
           padding: '0 14px',
-          height: 42,
+          height: 'max(42px, calc(var(--cell) * 0.95))',
           outline: 'none',
           letterSpacing: 3,
           boxShadow: inputGlow,

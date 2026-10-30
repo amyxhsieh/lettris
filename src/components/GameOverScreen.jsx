@@ -1,17 +1,100 @@
-import { useState, useEffect } from 'react';
-import { getScores } from '../utils/storage';
+import { scoresFor } from '../utils/storage';
 import { clickSound } from '../utils/sound';
+import { engine, MODE_COLOR, CHALLENGE_COLOR } from '../utils/dictionary';
+import { formatClock, formatRemaining } from '../utils/time';
 
-function GameOverScreen({ score, wordsFound, level, onPlayAgain, onQuit, playerName }) {
-  const [rank, setRank] = useState(null);
+function overview({ challenge, reason, wordsFound, score, level, difficulty, timeMs }) {
+  const mode = engine.difficulty(difficulty);
+  const spec = engine.challenge(challenge);
+  const difficultyRow = { label: 'DIFFICULTY', value: mode.label, color: MODE_COLOR[difficulty] };
+  const scoreRow = { label: 'FINAL SCORE', value: score.toLocaleString(), color: '#33ff66' };
 
-  useEffect(() => {
-    const scores = getScores();
-    const idx = scores.findIndex(
-      (s) => s.score === score && s.name.toUpperCase() === (playerName || '').toUpperCase()
-    );
-    if (idx !== -1) setRank(idx + 1);
-  }, []);
+  if (spec.goal === 'words' && reason === 'target') {
+    return {
+      title: 'CLEARED',
+      titleColor: CHALLENGE_COLOR.words,
+      subtitle: spec.label,
+      rows: [
+        { label: 'TIME', value: formatClock(timeMs), color: '#33ff66' },
+        scoreRow,
+        difficultyRow,
+      ],
+    };
+  }
+
+  if (spec.goal === 'words') {
+    return {
+      title: 'GAME OVER',
+      titleColor: '#ff4466',
+      subtitle: `${wordsFound}/${spec.targetWords}`,
+      rows: [
+        { label: 'TIME', value: formatClock(timeMs), color: '#00ccee' },
+        scoreRow,
+        difficultyRow,
+      ],
+    };
+  }
+
+  if (spec.goal === 'time' && reason === 'time') {
+    return {
+      title: 'TIME UP',
+      titleColor: CHALLENGE_COLOR.timed,
+      subtitle: formatClock(spec.limitMs),
+      rows: [
+        scoreRow,
+        { label: 'WORDS FOUND', value: wordsFound, color: '#00ccee' },
+        difficultyRow,
+      ],
+    };
+  }
+
+  if (spec.goal === 'time') {
+    return {
+      title: 'GAME OVER',
+      titleColor: '#ff4466',
+      subtitle: 'BOARD FILLED',
+      rows: [
+        scoreRow,
+        { label: 'TIME LEFT', value: formatRemaining(Math.max(0, spec.limitMs - timeMs)), color: '#ffaa44' },
+        { label: 'WORDS FOUND', value: wordsFound, color: '#00ccee' },
+        difficultyRow,
+      ],
+    };
+  }
+
+  return {
+    title: 'GAME OVER',
+    titleColor: '#ff4466',
+    subtitle: 'COLUMN OVERFLOW',
+    rows: [
+      scoreRow,
+      difficultyRow,
+      { label: 'WORDS FOUND', value: wordsFound, color: '#00ccee' },
+      { label: 'LEVEL REACHED', value: level, color: '#00ccee' },
+    ],
+  };
+}
+
+function GameOverScreen({
+  score,
+  wordsFound,
+  level,
+  difficulty = 'medium',
+  challenge = 'survival',
+  timeMs = 0,
+  reason = 'topout',
+  onPlayAgain,
+  onQuit,
+  playerName,
+}) {
+  const spec = engine.challenge(challenge);
+  const board = overview({ challenge, reason, wordsFound, score, level, difficulty, timeMs });
+  const rankIndex = scoresFor(difficulty, challenge).findIndex((entry) => (
+    entry.score === score
+    && entry.name.toUpperCase() === (playerName || '').toUpperCase()
+    && (spec.rankBy !== 'time' || entry.timeMs === timeMs)
+  ));
+  const rank = rankIndex === -1 ? null : rankIndex + 1;
 
   return (
     <div
@@ -43,12 +126,12 @@ function GameOverScreen({ score, wordsFound, level, onPlayAgain, onQuit, playerN
             fontWeight: 900,
             fontSize: 48,
             letterSpacing: 4,
-            color: '#ff4466',
+            color: board.titleColor,
             margin: '0 0 4px',
-            textShadow: '0 0 12px #ff4466, 0 0 40px #ff446655',
+            textShadow: `0 0 12px ${board.titleColor}, 0 0 40px ${board.titleColor}55`,
           }}
         >
-          GAME OVER
+          {board.title}
         </h1>
         <p
           style={{
@@ -59,7 +142,7 @@ function GameOverScreen({ score, wordsFound, level, onPlayAgain, onQuit, playerN
             marginBottom: 16,
           }}
         >
-          COLUMN OVERFLOW
+          {board.subtitle}
         </p>
 
         {/* Player name */}
@@ -96,11 +179,7 @@ function GameOverScreen({ score, wordsFound, level, onPlayAgain, onQuit, playerN
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 32 }}>
-          {[
-            { label: 'FINAL SCORE',   value: score.toLocaleString(), color: '#33ff66' },
-            { label: 'WORDS FOUND',   value: wordsFound,             color: '#00ccee' },
-            { label: 'LEVEL REACHED', value: level,                  color: '#00ccee' },
-          ].map(({ label, value, color }) => (
+          {board.rows.map(({ label, value, color }) => (
             <div
               key={label}
               style={{

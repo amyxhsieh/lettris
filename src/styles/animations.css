@@ -102,6 +102,201 @@
   100% { transform: translateY(-50%) scale(1);   opacity: 0; }
 }
 
+.pressable {
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.pressable:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pressable {
+    transition: none;
+  }
+}
+
+@keyframes menuStepIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menu-step {
+  animation: menuStepIn 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.mode-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 2px;
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  background: color-mix(in srgb, var(--mode) 11%, #100814);
+  text-align: left;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.mode-card[data-cursor='true'] {
+  background: color-mix(in srgb, var(--mode) 18%, #100814);
+}
+
+.mode-card[data-on='true'] {
+  background: color-mix(in srgb, var(--mode) 30%, #160c18);
+}
+
+.mode-card:active {
+  transform: scale(0.97);
+}
+
+.mode-list[data-locked='true'] .mode-card:not([data-on='true']) {
+  opacity: 0.42;
+}
+
+.mode-card-code {
+  flex: 0 0 84px;
+  font-family: 'BoutiqueBitmap', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  line-height: 1;
+  color: var(--mode);
+  text-shadow: 4px 4px 0 color-mix(in srgb, var(--mode) 45%, #000);
+}
+
+.mode-card-name {
+  display: block;
+  font-family: 'BoutiqueBitmap', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  line-height: 1.1;
+  color: var(--mode);
+}
+
+.mode-card-tag {
+  display: block;
+  margin-top: 5px;
+  font-family: 'BoutiqueBitmap', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--mode) 42%, #fff);
+  opacity: 0.8;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mode-card:hover {
+    background: color-mix(in srgb, var(--mode) 22%, #100814);
+  }
+
+  .mode-card[data-on='true']:hover {
+    background: color-mix(in srgb, var(--mode) 34%, #160c18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-card {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-step {
+    animation: none;
+  }
+}
+
+.corner-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  line-height: 0;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--ink) 42%, transparent);
+  background: color-mix(in srgb, var(--ink) 14%, rgba(8, 10, 28, 0.78));
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.corner-icon[data-on='true'] {
+  background: color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+.corner-icon:active {
+  transform: scale(0.97);
+}
+
+.corner-icon:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ink) 75%, white);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .corner-icon:hover {
+    background: color-mix(in srgb, var(--ink) 16%, transparent);
+  }
+
+  .corner-icon[data-on='true']:hover {
+    background: color-mix(in srgb, var(--ink) 28%, transparent);
+  }
+}
+
+.home-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(4, 4, 18, 0.72);
+  transition: opacity 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.home-modal {
+  width: min(460px, 100%);
+  max-height: min(560px, calc(100vh - 48px));
+  overflow: auto;
+  transform-origin: center;
+  background: rgba(8, 10, 28, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 22px 24px 26px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  transition: opacity 220ms cubic-bezier(0.23, 1, 0.32, 1), transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@starting-style {
+  .home-modal-backdrop {
+    opacity: 0;
+  }
+
+  .home-modal {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .corner-icon,
+  .home-modal-backdrop,
+  .home-modal {
+    transition: none;
+  }
+}
+
 /* Utility animation classes */
 .anim-pop-in   { animation: popIn   0.25s ease-out forwards; }
 .anim-pop-out  { animation: popOut  0.3s ease-in  forwards; }
