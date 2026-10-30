@@ -16,7 +16,7 @@ let bgm = null;
 
 export function startBGM() {
   if (!bgm) {
-    bgm = new Audio('/sound/bgm.mp3');
+    bgm = new Audio('/sound/bgm.wav');
     bgm.loop = true;
     bgm.volume = 0.5;
   }
