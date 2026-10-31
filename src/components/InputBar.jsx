@@ -61,7 +61,8 @@ function InputBar({ typed, onSubmit, onPause, paused, grid, difficulty = 'medium
   useEffect(() => {
     if (inputRef.current) inputRef.current.blur();
   });
-  const minWordLength = engine.difficulty(difficulty).minWordLength;
+  const spec = engine.difficulty(difficulty);
+  const minWordLength = spec.minWordLength;
   const enough = typed.length >= minWordLength;
   const inDict = enough && isValidWord(typed, difficulty);
   const canForm = inDict && canFormWord(typed, grid);
@@ -90,7 +91,7 @@ function InputBar({ typed, onSubmit, onPause, paused, grid, difficulty = 'medium
         onChange={() => {}}
         readOnly
         placeholder={`${minWordLength}+ LETTERS`}
-        maxLength={12}
+        maxLength={spec.maxWordLength}
         style={{
           flex: 1,
           minWidth: 0,

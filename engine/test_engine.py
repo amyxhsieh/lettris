@@ -148,8 +148,8 @@ class DictionaryTest(unittest.TestCase):
 
     def test_word_list_accepts_real_words_and_places(self):
         self.assertGreater(len(self.words), 90_000)
-        self.assertLess(len(self.words), 140_000)
-        for word in ("cat", "stone", "the", "letter", "queue", "quiz", "mom", "mum", "vein", "rome", "italy", "gin", "dont", "doesnt"):
+        self.assertLess(len(self.words), 500_000)
+        for word in ("cat", "stone", "the", "letter", "queue", "quiz", "mom", "mum", "vein", "rome", "italy", "gin", "dont", "doesnt", "monday", "saturday", "wednesday", "september"):
             self.assertIn(word, self.words)
         for word in ("nth", "aah", "john", "gonna", "cuz", "lol", "dvd"):
             self.assertNotIn(word, self.words)
@@ -160,6 +160,8 @@ class DictionaryTest(unittest.TestCase):
         self.assertIn("gin", words)
         self.assertIn("dont", words)
         self.assertIn("doesnt", words)
+        self.assertIn("monday", words)
+        self.assertIn("wednesday", words)
         self.assertNotIn("don't", words)
         self.assertNotIn("lol", words)
 
@@ -215,7 +217,7 @@ class PlaceNameTest(unittest.TestCase):
         self.assertEqual(game.plain_place_name("Malmö"), "malmo")
         self.assertIsNone(game.plain_place_name("New York"))
         self.assertIsNone(game.plain_place_name("São Paulo"))
-        self.assertIsNone(game.plain_place_name("Afghanistan"))
+        self.assertEqual(game.plain_place_name("Afghanistan"), "afghanistan")
 
 
 class ChallengeTest(unittest.TestCase):

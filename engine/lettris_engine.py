@@ -18,6 +18,12 @@ FREQUENCY_CUTOFF = 10000
 # Cities below this are small enough that a random letter run should not clear them.
 MIN_CITY_POPULATION = 100_000
 
+# Day and month names the dictionary leaves out.
+CALENDAR_WORDS = frozenset({
+    "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+    "january", "february", "april", "june", "july", "september", "october", "december",
+})
+
 # The board has no apostrophe, so a contraction clears as its letters.
 # "don't" is typed DONT. Forms that are already dictionary words are included
 # again on purpose; take() keeps one copy.
@@ -109,7 +115,7 @@ DIFFICULTIES = {
         label="EASY",
         tagline="Slow drops, common letters, 3-letter words",
         min_word_length=3,
-        max_word_length=8,
+        max_word_length=ROWS * COLS,
         start_speed=620,
         min_speed=360,
         speed_step=20,
@@ -126,7 +132,7 @@ DIFFICULTIES = {
         label="MEDIUM",
         tagline="The regular pace, with a normal letter mix",
         min_word_length=3,
-        max_word_length=8,
+        max_word_length=ROWS * COLS,
         start_speed=320,
         min_speed=150,
         speed_step=30,
@@ -143,7 +149,7 @@ DIFFICULTIES = {
         label="HARD",
         tagline="Rarer letters, words from 4 letters",
         min_word_length=4,
-        max_word_length=8,
+        max_word_length=ROWS * COLS,
         start_speed=300,
         min_speed=140,
         speed_step=16,
@@ -410,7 +416,7 @@ def usable_word(word):
     """Structural filter shared by every difficulty."""
     if not word.isalpha() or not word.islower():
         return False
-    if not 3 <= len(word) <= 8:
+    if len(word) < 3 or len(word) > ROWS * COLS:
         return False
     if not any(character in "aeiouy" for character in word):
         return False
@@ -418,7 +424,7 @@ def usable_word(word):
 
 
 def plain_place_name(name):
-    """A place clears only as one word of 3–8 letters.
+    """A place clears only as one word of at least 3 letters.
 
     "Rome" and "Malmö" pass. "New York" and "São Paulo" do not, because a
     clear is letters with no space. Accents fold to ASCII.
@@ -430,7 +436,7 @@ def plain_place_name(name):
     folded = unicodedata.normalize("NFKD", name)
     folded = "".join(character for character in folded if not unicodedata.combining(character))
     folded = folded.lower()
-    if folded.isalpha() and 3 <= len(folded) <= 8:
+    if folded.isalpha() and 3 <= len(folded) <= ROWS * COLS:
         return folded
     return None
 
@@ -447,12 +453,13 @@ def place_names(cities, countries):
 def build_word_list(dictionary, ranked, three_letter, places=(), cutoff=FREQUENCY_CUTOFF):
     """Words a player can clear.
 
-    Four- to eight-letter words come from the English dictionary, so an
-    uncommon word like "vein" still clears. Three-letter words stay on the
-    curated list, plus common dictionary words such as "mom" when the
-    frequency list also contains them. That leaves codes such as "dvd" out.
-    Contractions join as letters only, so "don't" clears as "dont".
-    Place names arrive separately, already limited to one word.
+    Words of four letters or more come from the English dictionary, so an
+    uncommon word like "vein" still clears. There is no shorter cap than the
+    board itself. Three-letter words stay on the curated list, plus common
+    dictionary words such as "mom" when the frequency list also contains them.
+    That leaves codes such as "dvd" out. Contractions join as letters only,
+    so "don't" clears as "dont". Day and month names the dictionary omits
+    are added too. Place names arrive separately, already limited to one word.
     """
     known = {entry.lower() for entry in dictionary if isinstance(entry, str) and entry.isalpha()}
     common = {word.lower() for word in ranked[:cutoff]}
@@ -471,11 +478,13 @@ def build_word_list(dictionary, ranked, three_letter, places=(), cutoff=FREQUENC
         if len(word) == 3 and word in known:
             take(word)
     for word in known:
-        if 4 <= len(word) <= 8:
+        if len(word) >= 4:
             take(word)
     for word in places:
         take(word.lower())
     for word in CONTRACTIONS:
+        take(word)
+    for word in CALENDAR_WORDS:
         take(word)
     return sorted(chosen)
 
