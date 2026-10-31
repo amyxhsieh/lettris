@@ -149,11 +149,19 @@ class DictionaryTest(unittest.TestCase):
     def test_word_list_accepts_real_words_and_places(self):
         self.assertGreater(len(self.words), 90_000)
         self.assertLess(len(self.words), 140_000)
-        for word in ("cat", "stone", "the", "letter", "queue", "quiz", "mom", "mum", "vein", "rome", "italy"):
+        for word in ("cat", "stone", "the", "letter", "queue", "quiz", "mom", "mum", "vein", "rome", "italy", "gin", "dont", "doesnt"):
             self.assertIn(word, self.words)
         for word in ("nth", "aah", "john", "gonna", "cuz", "lol", "dvd"):
             self.assertNotIn(word, self.words)
         self.assertTrue(all(game.usable_word(word) for word in self.words))
+
+    def test_contractions_clear_as_letters(self):
+        words = set(game.build_word_list(["stone", "gin", "cat"], [], ["cat", "gin"]))
+        self.assertIn("gin", words)
+        self.assertIn("dont", words)
+        self.assertIn("doesnt", words)
+        self.assertNotIn("don't", words)
+        self.assertNotIn("lol", words)
 
     def test_hard_rejects_three_letter_words(self):
         words = self.words
@@ -162,6 +170,10 @@ class DictionaryTest(unittest.TestCase):
         self.assertFalse(game.is_valid_word("cat", game.DIFFICULTIES["hard"], words))
         self.assertFalse(game.is_valid_word("the", game.DIFFICULTIES["hard"], words))
         self.assertTrue(game.is_valid_word("stone", game.DIFFICULTIES["hard"], words))
+        self.assertTrue(game.is_valid_word("gin", game.DIFFICULTIES["easy"], words))
+        self.assertTrue(game.is_valid_word("gin", game.DIFFICULTIES["medium"], words))
+        self.assertFalse(game.is_valid_word("gin", game.DIFFICULTIES["hard"], words))
+        self.assertTrue(game.is_valid_word("dont", game.DIFFICULTIES["hard"], words))
         self.assertFalse(game.is_valid_word("no", game.DIFFICULTIES["easy"], words))
         self.assertFalse(game.is_valid_word("notaword", game.DIFFICULTIES["medium"], words))
 

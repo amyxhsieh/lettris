@@ -18,6 +18,18 @@ FREQUENCY_CUTOFF = 10000
 # Cities below this are small enough that a random letter run should not clear them.
 MIN_CITY_POPULATION = 100_000
 
+# The board has no apostrophe, so a contraction clears as its letters.
+# "don't" is typed DONT. Forms that are already dictionary words are included
+# again on purpose; take() keeps one copy.
+CONTRACTIONS = frozenset({
+    "dont", "doesnt", "didnt", "isnt", "arent", "wasnt", "werent",
+    "hasnt", "havent", "hadnt", "couldnt", "wouldnt", "shouldnt", "mustnt",
+    "cant", "wont", "lets", "thats", "whats", "theres", "theyre", "youre",
+    "heres", "wheres", "hows", "shes", "hes", "its",
+    "ive", "youve", "weve", "theyve", "youd", "theyd", "youll", "theyll",
+    "oclock", "yall", "aint",
+})
+
 # Spoken fillers and given names that ride along in frequency lists.
 # Real words that are also names (mark, rose, grace, march) stay out of this set.
 BLOCKED_WORDS = frozenset({
@@ -439,6 +451,7 @@ def build_word_list(dictionary, ranked, three_letter, places=(), cutoff=FREQUENC
     uncommon word like "vein" still clears. Three-letter words stay on the
     curated list, plus common dictionary words such as "mom" when the
     frequency list also contains them. That leaves codes such as "dvd" out.
+    Contractions join as letters only, so "don't" clears as "dont".
     Place names arrive separately, already limited to one word.
     """
     known = {entry.lower() for entry in dictionary if isinstance(entry, str) and entry.isalpha()}
@@ -462,6 +475,8 @@ def build_word_list(dictionary, ranked, three_letter, places=(), cutoff=FREQUENC
             take(word)
     for word in places:
         take(word.lower())
+    for word in CONTRACTIONS:
+        take(word)
     return sorted(chosen)
 
 
