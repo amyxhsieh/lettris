@@ -23,6 +23,11 @@ DAILY_POOL_SIZE = 366
 # Each letter in today's word is raised to this weight, once per copy in the word.
 # A light letter such as D is then dealt as often as E. The rest of the bag stays.
 DAILY_LETTER_WEIGHT = 16
+# After a clear, the next few drops lean toward a different word.
+# The bonus is added on top of the difficulty bag, and only to letters that bag can deal.
+BRANCH_DROPS = 6
+BRANCH_LETTER_LIMIT = 3
+BRANCH_BONUS = 6
 # Python date.toordinal() for 1970-01-01. The browser adds this to UTC day counts.
 UNIX_EPOCH_ORDINAL = 719163
 
@@ -101,6 +106,9 @@ class Difficulty:
     column_bias: int
     score_multiplier: int
     letter_weights: tuple
+    branch_min_length: int
+    branch_max_length: int
+    branch_common: bool
 
     def as_json(self):
         return {
@@ -119,6 +127,9 @@ class Difficulty:
             "columnBias": self.column_bias,
             "scoreMultiplier": self.score_multiplier,
             "letterWeights": [list(pair) for pair in self.letter_weights],
+            "branchMinLength": self.branch_min_length,
+            "branchMaxLength": self.branch_max_length,
+            "branchCommon": self.branch_common,
         }
 
 
@@ -139,6 +150,9 @@ DIFFICULTIES = {
         column_bias=2,
         score_multiplier=1,
         letter_weights=EASY_WEIGHTS,
+        branch_min_length=3,
+        branch_max_length=4,
+        branch_common=True,
     ),
     "medium": Difficulty(
         id="medium",
@@ -156,6 +170,9 @@ DIFFICULTIES = {
         column_bias=1,
         score_multiplier=2,
         letter_weights=MEDIUM_WEIGHTS,
+        branch_min_length=3,
+        branch_max_length=6,
+        branch_common=True,
     ),
     "hard": Difficulty(
         id="hard",
@@ -173,6 +190,9 @@ DIFFICULTIES = {
         column_bias=1,
         score_multiplier=3,
         letter_weights=HARD_WEIGHTS,
+        branch_min_length=5,
+        branch_max_length=8,
+        branch_common=True,
     ),
 }
 
@@ -442,12 +462,14 @@ def choose_spawn_column(grid, difficulty, roll):
     return weighted_pick(candidates, weights, roll)
 
 
-def choose_letter(recent, difficulty, roll, favored=""):
+def choose_letter(recent, difficulty, roll, favored="", branch=""):
     """Next letter. Forces a vowel when the recent window is too dry.
 
     `favored` is today's word on a daily run. Each of its letters is
     raised to the same weight, once per copy, so a light letter is dealt
     as often as a common one. Letters outside the word keep their weights.
+    `branch` is the missing letters of a different word. Each one gets a
+    small bonus for the next few drops. The vowel rescue still wins.
     """
     history = [letter.upper() for letter in recent]
     window = history[-difficulty.vowel_window :]
@@ -463,14 +485,114 @@ def choose_letter(recent, difficulty, roll, favored=""):
     for letter in favored.upper():
         if letter.isalpha():
             counts[letter] = counts.get(letter, 0) + 1
+    boost = {letter.upper() for letter in branch if letter.isalpha()}
     items = [letter for letter, _weight in pool]
     weights = []
     for letter, weight in pool:
+        if letter in boost:
+            weight += BRANCH_BONUS
         copies = counts.get(letter, 0)
         if copies:
             weight = max(weight, DAILY_LETTER_WEIGHT * copies)
         weights.append(weight)
     return weighted_pick(items, weights, roll)
+
+
+def _letter_counts(text):
+    counts = [0] * 26
+    for character in text or "":
+        letter = character.lower()
+        if "a" <= letter <= "z":
+            counts[ord(letter) - 97] += 1
+    return counts
+
+
+def _one_short(word, have):
+    """The single letter `word` still needs, or None."""
+    need = [0] * 26
+    for character in word:
+        need[ord(character) - 97] += 1
+    missing = None
+    extra = 0
+    for index, count in enumerate(need):
+        if count > have[index]:
+            extra += count - have[index]
+            if extra > 1:
+                return None
+            missing = index
+    if extra != 1:
+        return None
+    return chr(ord("a") + missing)
+
+
+def _branch_hits(words, have, blocked, bag, difficulty, common, cleared, exact_length=None):
+    hits = {}
+    minimum = difficulty.branch_min_length
+    maximum = difficulty.branch_max_length
+    for word in words:
+        length = len(word)
+        if length < minimum or length > maximum or word == cleared:
+            continue
+        if exact_length is not None and length != exact_length:
+            continue
+        if difficulty.branch_common and common is not None and word not in common:
+            continue
+        missing = _one_short(word, have)
+        if missing is None or missing in blocked or missing not in bag:
+            continue
+        hits[missing] = hits.get(missing, 0) + 1
+    return hits
+
+
+def _pick_branch(hits):
+    ranked = sorted(hits, key=lambda letter: (-hits[letter], letter))
+    return "".join(ranked[:BRANCH_LETTER_LIMIT])
+
+
+def branch_letters(board_letters, cleared, difficulty, words, common=None):
+    """Letters that finish a different word from the one just cleared.
+
+    A candidate word already has every letter but one on the board. That
+    missing letter is raised. Letters of the cleared word stay put, so the
+    same word is not rebuilt. When the board is one letter from nothing,
+    the cleared word itself is extended by one new letter.
+    """
+    cleared = "".join(character for character in str(cleared or "").lower() if "a" <= character <= "z")
+    blocked = set(cleared)
+    bag = {letter.lower() for letter, _weight in difficulty.letter_weights}
+    hits = _branch_hits(
+        words,
+        _letter_counts(board_letters),
+        blocked,
+        bag,
+        difficulty,
+        common,
+        cleared,
+    )
+    if hits:
+        return _pick_branch(hits)
+    if not cleared:
+        return ""
+    # One added letter, and every letter of the cleared word stays in it.
+    return _pick_branch(_branch_hits(
+        words,
+        _letter_counts(cleared),
+        blocked,
+        bag,
+        difficulty,
+        common,
+        cleared,
+        len(cleared) + 1,
+    ))
+
+
+def common_branch_words(ranked, words, cutoff=FREQUENCY_CUTOFF):
+    """Common words the branch can aim at, in frequency order."""
+    known = set(words)
+    return [
+        word for word in ranked[:cutoff]
+        if 3 <= len(word) <= 8 and word in known
+    ]
 
 
 def find_word_cells(word, grid):
@@ -596,13 +718,15 @@ def build_word_list(dictionary, ranked, three_letter, places=(), cutoff=FREQUENC
     return sorted(chosen)
 
 
-def build_payload(words, daily_words):
+def build_payload(words, daily_words, common_words=()):
     return {
         "rows": ROWS,
         "cols": COLS,
         "order": list(DIFFICULTY_ORDER),
         "words": words,
         "dailyWords": list(daily_words),
+        "commonWords": list(common_words),
+        "branchDrops": BRANCH_DROPS,
         "difficulties": {
             difficulty_id: DIFFICULTIES[difficulty_id].as_json()
             for difficulty_id in DIFFICULTY_ORDER

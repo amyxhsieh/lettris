@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import {
   applyGravity,
   calculateScore,
+  branchLetters,
   chooseLetter,
   chooseSpawnColumn,
   createRolls,
@@ -21,6 +22,7 @@ const root = path.resolve(here, '..');
 const rules = JSON.parse(fs.readFileSync(path.join(root, 'src/generated/rules.json'), 'utf8'));
 const fixtures = JSON.parse(fs.readFileSync(path.join(here, 'fixtures/parity.json'), 'utf8'));
 const words = new Set(rules.words);
+const commonWords = new Set(rules.commonWords || []);
 
 function run(test) {
   const difficulty = rules.difficulties[test.difficultyId];
@@ -32,7 +34,9 @@ function run(test) {
     case 'levelForWords':
       return levelForWords(test.wordsFound, difficulty.wordsPerLevel);
     case 'chooseLetter':
-      return chooseLetter(test.recent, difficulty, test.roll, test.favored || '');
+      return chooseLetter(test.recent, difficulty, test.roll, test.favored || '', test.branch || '');
+    case 'branchLetters':
+      return branchLetters(test.board, test.cleared, difficulty, rules.words, commonWords);
     case 'chooseSpawnColumn':
       return chooseSpawnColumn(test.grid, difficulty, test.roll);
     case 'findWordCells':

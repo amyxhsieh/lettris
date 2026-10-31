@@ -172,6 +172,7 @@ function Game() {
   const difficultyRef = useRef(difficulty);
   const challengeRef = useRef(challenge);
   const recentLettersRef = useRef([]);
+  const branchRef = useRef({ letters: '', left: 0 });
   const collectsRef = useRef(0);
   const dailyWordRef = useRef('');
   const rollsRef = useRef(null);
@@ -290,7 +291,10 @@ function Game() {
     }
 
     const favored = challengeRef.current === 'daily' ? dailyWordRef.current : '';
-    const letter = engine.chooseLetter(recentLettersRef.current, mode, nextRoll(), favored);
+    const branchState = branchRef.current;
+    const branch = branchState.left > 0 ? branchState.letters : '';
+    if (branch) branchState.left -= 1;
+    const letter = engine.chooseLetter(recentLettersRef.current, mode, nextRoll(), favored, branch);
     recentLettersRef.current = [...recentLettersRef.current, letter].slice(-12);
     const color = getLetterColor(letter);
     const newFalling = { letter, row: 0, col, color };
@@ -401,6 +405,7 @@ function Game() {
     gameOverRef.current = false;
     fallingRef.current = null;
     pausedRef.current = false;
+    branchRef.current = { letters: '', left: 0 };
     setFalling(null);
     setStarted(false);
     setGameOver(false);
@@ -427,6 +432,7 @@ function Game() {
     difficultyRef.current = mode;
     challengeRef.current = goal;
     recentLettersRef.current = [];
+    branchRef.current = { letters: '', left: 0 };
     collectsRef.current = 0;
     dailyWordRef.current = '';
     rollsRef.current = null;
@@ -491,6 +497,17 @@ function Game() {
     const g = gridRef.current;
     const cells = engine.findWordCells(word, g);
     if (!cells) return;
+    const gone = new Set(cells.map(({ row, col }) => `${row}:${col}`));
+    const remaining = [];
+    for (let row = 0; row < g.length; row += 1) {
+      for (let col = 0; col < g[row].length; col += 1) {
+        if (gone.has(`${row}:${col}`)) continue;
+        const letter = g[row][col]?.letter;
+        if (letter) remaining.push(letter);
+      }
+    }
+    const opened = engine.branchLetters(remaining, word, mode);
+    branchRef.current = { letters: opened, left: opened ? RULES.branchDrops : 0 };
 
     const spec = engine.difficulty(mode);
     const now = Date.now();

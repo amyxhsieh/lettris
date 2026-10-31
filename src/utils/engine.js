@@ -88,8 +88,10 @@ export function chooseSpawnColumn(grid, difficulty, roll) {
 const VOWELS = new Set(['A', 'E', 'I', 'O', 'U']);
 
 const DAILY_LETTER_WEIGHT = 16;
+const BRANCH_LETTER_LIMIT = 3;
+const BRANCH_BONUS = 6;
 
-export function chooseLetter(recent, difficulty, roll, favored = '') {
+export function chooseLetter(recent, difficulty, roll, favored = '', branch = '') {
   const history = recent.map((letter) => letter.toUpperCase());
   const window = history.slice(-difficulty.vowelWindow);
   const vowelCount = window.filter((letter) => VOWELS.has(letter)).length;
@@ -105,14 +107,97 @@ export function chooseLetter(recent, difficulty, roll, favored = '') {
   for (const letter of String(favored || '').toUpperCase()) {
     if (letter >= 'A' && letter <= 'Z') counts[letter] = (counts[letter] || 0) + 1;
   }
+  const boost = new Set();
+  for (const letter of String(branch || '').toUpperCase()) {
+    if (letter >= 'A' && letter <= 'Z') boost.add(letter);
+  }
   return weightedPick(
     pool.map(([letter]) => letter),
     pool.map(([letter, weight]) => {
+      let next = boost.has(letter) ? weight + BRANCH_BONUS : weight;
       const copies = counts[letter] || 0;
-      return copies ? Math.max(weight, DAILY_LETTER_WEIGHT * copies) : weight;
+      if (copies) next = Math.max(next, DAILY_LETTER_WEIGHT * copies);
+      return next;
     }),
     roll,
   );
+}
+
+function letterCounts(text) {
+  const counts = Array(26).fill(0);
+  for (const character of text || []) {
+    const code = String(character).toLowerCase().charCodeAt(0);
+    if (code >= 97 && code <= 122) counts[code - 97] += 1;
+  }
+  return counts;
+}
+
+function oneShort(word, have) {
+  const need = Array(26).fill(0);
+  for (let index = 0; index < word.length; index += 1) {
+    need[word.charCodeAt(index) - 97] += 1;
+  }
+  let missing = -1;
+  let extra = 0;
+  for (let index = 0; index < 26; index += 1) {
+    if (need[index] > have[index]) {
+      extra += need[index] - have[index];
+      if (extra > 1) return null;
+      missing = index;
+    }
+  }
+  if (extra !== 1) return null;
+  return String.fromCharCode(97 + missing);
+}
+
+function branchHits(words, have, blocked, bag, difficulty, common, cleared, exactLength = 0) {
+  const hits = new Map();
+  for (const word of words) {
+    const length = word.length;
+    if (length < difficulty.branchMinLength || length > difficulty.branchMaxLength || word === cleared) {
+      continue;
+    }
+    if (exactLength && length !== exactLength) continue;
+    if (difficulty.branchCommon && common && !common.has(word)) continue;
+    const missing = oneShort(word, have);
+    if (!missing || blocked.has(missing) || !bag.has(missing)) continue;
+    hits.set(missing, (hits.get(missing) || 0) + 1);
+  }
+  return hits;
+}
+
+function pickBranch(hits) {
+  return [...hits.keys()]
+    .sort((a, b) => (hits.get(b) - hits.get(a)) || (a < b ? -1 : a > b ? 1 : 0))
+    .slice(0, BRANCH_LETTER_LIMIT)
+    .join('');
+}
+
+export function branchLetters(boardLetters, cleared, difficulty, words, common = null) {
+  const normalized = String(cleared || '').toLowerCase().replace(/[^a-z]/g, '');
+  const blocked = new Set(normalized);
+  const bag = new Set(difficulty.letterWeights.map(([letter]) => letter.toLowerCase()));
+  const hits = branchHits(
+    words,
+    letterCounts(boardLetters),
+    blocked,
+    bag,
+    difficulty,
+    common,
+    normalized,
+  );
+  if (hits.size) return pickBranch(hits);
+  if (!normalized) return '';
+  return pickBranch(branchHits(
+    words,
+    letterCounts(normalized),
+    blocked,
+    bag,
+    difficulty,
+    common,
+    normalized,
+    normalized.length + 1,
+  ));
 }
 
 export function findWordCells(word, grid) {
@@ -214,7 +299,18 @@ export function isValidWord(word, difficulty, words) {
 }
 
 export function createEngine(rules) {
+  const pickBranchLetters = branchLetters;
   const words = new Set(rules.words);
+  const common = new Set(rules.commonWords || []);
+  const branchPools = {};
+  for (const difficultyId of rules.order) {
+    const spec = rules.difficulties[difficultyId];
+    branchPools[difficultyId] = rules.words.filter((word) => (
+      word.length >= spec.branchMinLength
+      && word.length <= spec.branchMaxLength
+      && (!spec.branchCommon || common.has(word))
+    ));
+  }
 
   return {
     rules,
@@ -234,8 +330,11 @@ export function createEngine(rules) {
     canFormWord(word, grid) {
       return findWordCells(word, grid) !== null;
     },
-    chooseLetter(recent, difficultyId, roll, favored = '') {
-      return chooseLetter(recent, rules.difficulties[difficultyId], roll, favored);
+    chooseLetter(recent, difficultyId, roll, favored = '', branch = '') {
+      return chooseLetter(recent, rules.difficulties[difficultyId], roll, favored, branch);
+    },
+    branchLetters(board, cleared, difficultyId) {
+      return pickBranchLetters(board, cleared, rules.difficulties[difficultyId], branchPools[difficultyId]);
     },
     chooseSpawnColumn(grid, difficultyId, roll) {
       return chooseSpawnColumn(grid, rules.difficulties[difficultyId], roll);

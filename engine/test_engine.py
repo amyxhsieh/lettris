@@ -129,6 +129,34 @@ class BoardTest(unittest.TestCase):
             game.VOWELS,
         )
 
+    def test_a_clear_deals_toward_a_different_word(self):
+        easy = game.DIFFICULTIES["easy"]
+        medium = game.DIFFICULTIES["medium"]
+        hard = game.DIFFICULTIES["hard"]
+        words = ["cat", "car", "cart", "cast", "coat", "cats", "card", "dogs", "carts", "stone"]
+        common = set(words)
+        # Clearing cat raises the extra letter of cart, cast, coat, and cats.
+        self.assertEqual(game.branch_letters("", "CAT", easy, words, common), "sor")
+        # Letters still on the board win. T would rebuild cat, so it stays put.
+        self.assertEqual(game.branch_letters("ca", "cat", easy, words, common), "r")
+        # D is in the cleared word, so card does not ask for another D.
+        self.assertEqual(game.branch_letters("car", "dog", easy, words, common), "t")
+        self.assertNotIn("s", game.branch_letters("car", "dog", easy, words, common))
+        # Easy stays on short common words. Hard and medium can open a longer one.
+        longer = ["carts", "stone"]
+        self.assertEqual(game.branch_letters("cart", "drum", easy, longer, set(longer)), "")
+        self.assertEqual(game.branch_letters("cart", "drum", hard, longer, set(longer)), "s")
+        self.assertEqual(game.branch_letters("ston", "drum", easy, longer, set(longer)), "")
+        self.assertEqual(game.branch_letters("ston", "drum", medium, longer, set(longer)), "e")
+        self.assertEqual(game.branch_letters("", "cat", easy, ["cat", "cart"], {"cat"}), "")
+        roll = 62 / 115
+        self.assertEqual(game.choose_letter([], medium, roll), "R")
+        self.assertEqual(game.choose_letter([], medium, roll, branch="s"), "S")
+        self.assertIn(
+            game.choose_letter(["B", "C", "D"], easy, 0.99, branch="rst"),
+            game.VOWELS,
+        )
+
 
 class DictionaryTest(unittest.TestCase):
     @classmethod
@@ -142,6 +170,15 @@ class DictionaryTest(unittest.TestCase):
         self.assertEqual(self.payload["cols"], game.COLS)
         self.assertEqual(self.payload["order"], list(game.DIFFICULTY_ORDER))
         self.assertEqual(len(self.payload["dailyWords"]), game.DAILY_POOL_SIZE)
+        self.assertEqual(self.payload["branchDrops"], game.BRANCH_DROPS)
+        self.assertEqual(self.payload["difficulties"]["easy"]["branchMinLength"], 3)
+        self.assertEqual(self.payload["difficulties"]["easy"]["branchMaxLength"], 4)
+        self.assertEqual(self.payload["difficulties"]["hard"]["branchMinLength"], 5)
+        self.assertTrue(self.payload["commonWords"])
+        opened = game.branch_letters("", "cat", game.DIFFICULTIES["easy"], self.words, set(self.payload["commonWords"]))
+        self.assertGreaterEqual(len(opened), 1)
+        self.assertLessEqual(len(opened), game.BRANCH_LETTER_LIMIT)
+        self.assertTrue(set(opened).isdisjoint("cat"))
         self.assertTrue(all(len(word) == 4 and word in self.words for word in self.payload["dailyWords"]))
         self.assertEqual(
             game.daily_word(self.payload["dailyWords"], 2026, 10, 31),

@@ -114,6 +114,21 @@ def parity_cases(payload):
         roll=0.2,
         favored="mode",
     )
+    add(
+        "chooseLetter",
+        game.choose_letter([], game.DIFFICULTIES["medium"], 62 / 115, branch="s"),
+        difficultyId="medium",
+        recent=[],
+        roll=62 / 115,
+        branch="s",
+    )
+    add(
+        "branchLetters",
+        game.branch_letters("ca", "dog", game.DIFFICULTIES["easy"], payload["words"], set(payload["commonWords"])),
+        difficultyId="easy",
+        board="ca",
+        cleared="dog",
+    )
 
     open_grid = [[None, None, None] for _ in range(4)]
     add(
@@ -259,7 +274,8 @@ def main():
     ]
     words = game.build_word_list(load_dictionary(), ranked, three_letter, load_places())
     daily_words = game.build_daily_pool(ranked, words)
-    payload = game.build_payload(words, daily_words)
+    common_words = game.common_branch_words(ranked, words)
+    payload = game.build_payload(words, daily_words, common_words)
     RULES_PATH.parent.mkdir(parents=True, exist_ok=True)
     FIXTURES_PATH.parent.mkdir(parents=True, exist_ok=True)
     RULES_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")

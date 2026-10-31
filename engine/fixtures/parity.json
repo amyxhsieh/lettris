@@ -297,6 +297,21 @@
     "favored": "mode"
   },
   {
+    "fn": "chooseLetter",
+    "expect": "S",
+    "difficultyId": "medium",
+    "recent": [],
+    "roll": 0.5391304347826087,
+    "branch": "s"
+  },
+  {
+    "fn": "branchLetters",
+    "expect": "mpr",
+    "difficultyId": "easy",
+    "board": "ca",
+    "cleared": "dog"
+  },
+  {
     "fn": "chooseSpawnColumn",
     "expect": 1,
     "difficultyId": "medium",
