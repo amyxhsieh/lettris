@@ -54,6 +54,32 @@ CONTRACTIONS = frozenset({
     "oclock", "yall", "aint",
 })
 
+# Chopped-off common words. "gues" is not a word; "guest" and "guess" are.
+# A real word that happens to begin another word (hell, boar, forgo) stays out of this set.
+FRAGMENT_WORDS = frozenset({
+    "aahed", "aahing", "aahs",
+    "actin", "agen", "alway", "anyon", "artis",
+    "beaut", "bein", "borde", "boun", "brin",
+    "carbo", "carr", "chang", "commo", "cour", "cours", "crim", "cuzzes", "cuzzie",
+    "delt", "deman",
+    "empt",
+    "femal", "fille", "finis", "fores", "forme",
+    "gamin", "goog", "gree", "guar", "gues", "guid",
+    "heigh", "hond", "hors", "hote", "huma",
+    "kell", "kerne", "kore",
+    "lase", "lati", "lear", "leve", "loca", "longe", "lowe", "lowes",
+    "menta", "metho", "mille", "mino", "moder", "mous",
+    "neve", "norma",
+    "orang",
+    "pape", "phon", "phot", "pian", "pleas", "porta", "proo", "puls",
+    "rais", "rathe", "regar", "relie", "revie",
+    "sain", "sant", "savin", "scop", "selle", "sens", "shir", "signa", "slee", "smit", "smoot", "soli", "sout", "supe", "swee",
+    "takin", "teste", "thir", "trave", "trie",
+    "unde",
+    "vali",
+    "wast", "wate", "whee",
+})
+
 # Spoken fillers and given names that ride along in frequency lists.
 # Real words that are also names (mark, rose, grace, march) stay out of this set.
 BLOCKED_WORDS = frozenset({
@@ -696,8 +722,10 @@ def build_word_list(dictionary, ranked, three_letter, places=(), cutoff=FREQUENC
 
     Words of four letters or more come from the English dictionary, so an
     uncommon word like "vein" still clears. There is no shorter cap than the
-    board itself.     Three-letter words stay on the curated list, plus common
-    dictionary words such as "mom" when the frequency list also contains them.
+    board itself. A chopped piece of a longer word does not, so "gues" stays
+    out while "guest" and "guess" clear. Three-letter words stay on the curated
+    list, plus common dictionary words such as "mom" when the frequency list
+    also contains them.
     A few common short words the dictionary omits, such as "zen", are added too.
     That leaves codes such as "dvd" out. Contractions join as letters only,
     so "don't" clears as "dont". Day and month names the dictionary omits
@@ -708,7 +736,7 @@ def build_word_list(dictionary, ranked, three_letter, places=(), cutoff=FREQUENC
     chosen = set()
 
     def take(word):
-        if word in BLOCKED_WORDS or not usable_word(word):
+        if word in BLOCKED_WORDS or word in FRAGMENT_WORDS or not usable_word(word):
             return
         chosen.add(word)
 

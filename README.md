@@ -33,7 +33,7 @@ Letters drop one at a time into a 13×8 grid. Pick a mode, then a difficulty, th
 | Medium | A normal mix, words from 3 letters | ×2 |
 | Hard | Rarer letters, words from 4 letters | ×3 |
 
-A word can be as long as the board. Easy and Medium clear from 3 letters, including ordinary words such as **cue**, **did**, **git**, **gin**, and **zen**. Hard clears from 4. Days, months, and one-word place names count. A contraction clears without the apostrophe, so **don't** clears as **dont**.
+A word can be as long as the board. Easy and Medium clear from 3 letters, including ordinary words such as **cue**, **did**, **git**, **gin**, and **zen**. Hard clears from 4. Days, months, and one-word place names count. A contraction clears without the apostrophe, so **don't** clears as **dont**. A chopped piece of a longer word does not clear, so **gues** does not, while **guest** and **guess** do.
 
 After a clear, the next few letters lean toward a different word. The game looks at the letters still on the board and raises up to three letters that would finish another common word. Easy aims at words of 3 or 4 letters, Medium up to 6, and Hard at words of 5 to 8. The letters from the word you just cleared stay at their normal rate, so the same word is not simply rebuilt. On Daily, today's word keeps its own boost on top of that.
 
