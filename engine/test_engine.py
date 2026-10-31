@@ -149,7 +149,7 @@ class DictionaryTest(unittest.TestCase):
     def test_word_list_accepts_real_words_and_places(self):
         self.assertGreater(len(self.words), 90_000)
         self.assertLess(len(self.words), 500_000)
-        for word in ("cat", "stone", "the", "letter", "queue", "quiz", "mom", "mum", "vein", "rome", "italy", "gin", "dont", "doesnt", "monday", "saturday", "wednesday", "september"):
+        for word in ("cat", "stone", "the", "letter", "queue", "quiz", "mom", "mum", "vein", "rome", "italy", "gin", "cue", "did", "dont", "doesnt", "monday", "saturday", "wednesday", "september"):
             self.assertIn(word, self.words)
         for word in ("nth", "aah", "john", "gonna", "cuz", "lol", "dvd"):
             self.assertNotIn(word, self.words)
