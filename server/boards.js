@@ -4,6 +4,7 @@ export const CHALLENGES = {
   survival: { rankBy: 'score' },
   words: { rankBy: 'score', targetWords: 50 },
   timed: { rankBy: 'score' },
+  daily: { rankBy: 'collects', lockedDifficulty: 'medium' },
 };
 
 export class HttpError extends Error {
@@ -33,6 +34,10 @@ export function cleanRun(body) {
     throw new HttpError(400, 'invalid player');
   }
 
+  if (spec.lockedDifficulty && difficulty !== spec.lockedDifficulty) {
+    throw new HttpError(400, 'unknown board');
+  }
+
   const name = String(source.name || 'ANON').replace(/[\u0000-\u001f]/g, '').trim().slice(0, 20) || 'ANON';
   const words = wholeNumber(source.words, 0, 999);
   return {
@@ -52,6 +57,10 @@ export function cleanRun(body) {
 export function isBetter(rankBy, candidate, entry) {
   if (rankBy === 'time') {
     if (candidate.timeMs !== entry.timeMs) return candidate.timeMs < entry.timeMs;
+    return candidate.score > entry.score;
+  }
+  if (rankBy === 'collects') {
+    if (candidate.words !== entry.words) return candidate.words > entry.words;
     return candidate.score > entry.score;
   }
   return candidate.score > entry.score;

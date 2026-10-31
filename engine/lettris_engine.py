@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import unicodedata
 from dataclasses import dataclass
+from datetime import date
 
 
 ROWS = 13
@@ -17,6 +18,18 @@ VOWELS = frozenset("AEIOU")
 FREQUENCY_CUTOFF = 10000
 # Cities below this are small enough that a random letter run should not clear them.
 MIN_CITY_POPULATION = 100_000
+# One common 4-letter word per calendar day, then the list repeats.
+DAILY_POOL_SIZE = 366
+# Each letter in today's word is raised to this weight, once per copy in the word.
+# A light letter such as D is then dealt as often as E. The rest of the bag stays.
+DAILY_LETTER_WEIGHT = 16
+# Python date.toordinal() for 1970-01-01. The browser adds this to UTC day counts.
+UNIX_EPOCH_ORDINAL = 719163
+
+# Common three-letter words the dictionary leaves out. Codes such as "dvd" stay out.
+SHORT_WORDS = frozenset({
+    "zen", "dna", "eww",
+})
 
 # Day and month names the dictionary leaves out.
 CALENDAR_WORDS = frozenset({
@@ -175,6 +188,7 @@ class Challenge:
     target_words: int | None
     limit_ms: int | None
     rank_by: str
+    locked_difficulty: str | None = None
 
     def as_json(self):
         return {
@@ -185,6 +199,7 @@ class Challenge:
             "targetWords": self.target_words,
             "limitMs": self.limit_ms,
             "rankBy": self.rank_by,
+            "lockedDifficulty": self.locked_difficulty,
         }
 
 
@@ -217,9 +232,19 @@ CHALLENGES = {
         limit_ms=180_000,
         rank_by="score",
     ),
+    "daily": Challenge(
+        id="daily",
+        label="DAILY",
+        tagline="Clear today's word the most times",
+        goal="daily",
+        target_words=None,
+        limit_ms=180_000,
+        rank_by="collects",
+        locked_difficulty="medium",
+    ),
 }
 
-CHALLENGE_ORDER = ("survival", "words", "timed")
+CHALLENGE_ORDER = ("survival", "words", "timed", "daily")
 
 
 def session_result(challenge, words, elapsed_ms, topped_out):
@@ -227,7 +252,8 @@ def session_result(challenge, words, elapsed_ms, topped_out):
 
     `reason` is "topout", "target", "time", or None.
     A failed 50-word run stays off the board. A timed run that fills
-    early still ranks, because that contest is the score.
+    early still ranks, because that contest is the score. Daily ends the
+    same way and ranks by how many times today's word was cleared.
     """
     if challenge.goal == "survival":
         if topped_out:
@@ -241,7 +267,7 @@ def session_result(challenge, words, elapsed_ms, topped_out):
             return _result(True, False, "topout", False)
         return _result(False, False, None, False)
 
-    if challenge.goal == "time":
+    if challenge.goal == "time" or challenge.goal == "daily":
         if elapsed_ms >= challenge.limit_ms:
             return _result(True, True, "time", True)
         if topped_out:
@@ -253,6 +279,70 @@ def session_result(challenge, words, elapsed_ms, topped_out):
 
 def _result(over, cleared, reason, ranks):
     return {"over": over, "cleared": cleared, "reason": reason, "ranks": ranks}
+
+
+def _u32(value):
+    return value & 0xFFFFFFFF
+
+
+def _imul(left, right):
+    """Low 32 bits of a 32-bit multiply. The bits match JavaScript Math.imul."""
+    left = _u32(left)
+    right = _u32(right)
+    left_hi, left_lo = left >> 16, left & 0xFFFF
+    right_hi, right_lo = right >> 16, right & 0xFFFF
+    return _u32(left_lo * right_lo + _u32((left_hi * right_lo + left_lo * right_hi) << 16))
+
+
+def create_rolls(seed):
+    """Mulberry32. Each call is a float in [0, 1), the same stream in the browser.
+
+    Daily deals letters from this stream so every player sees the same sequence.
+    """
+    state = _u32(seed)
+
+    def roll():
+        nonlocal state
+        state = _u32(state + 0x6D2B79F5)
+        mixed = _imul(state ^ (state >> 15), state | 1)
+        mixed = _u32(mixed + _imul(mixed ^ (mixed >> 7), mixed | 61)) ^ mixed
+        mixed = _u32(mixed ^ (mixed >> 14))
+        return mixed / 4294967296
+
+    return roll
+
+
+def build_daily_pool(ranked, words, size=DAILY_POOL_SIZE):
+    """Common 4-letter words in frequency order.
+
+    A calendar day picks one entry. The pool stays in this order so the
+    same date keeps the same word.
+    """
+    known = set(words)
+    pool = []
+    for word in ranked:
+        if len(word) != 4 or word not in known:
+            continue
+        pool.append(word)
+        if len(pool) == size:
+            return pool
+    raise ValueError("daily pool is short")
+
+
+def daily_word(pool, year, month, day):
+    if not pool:
+        raise ValueError("empty daily pool")
+    return pool[date(year, month, day).toordinal() % len(pool)]
+
+
+def daily_seed(year, month, day):
+    """FNV-1a of the UTC date. The letter stream for that day starts here."""
+    text = f"{year:04d}-{month:02d}-{day:02d}"
+    hash_value = 2166136261
+    for character in text:
+        hash_value ^= ord(character)
+        hash_value = _u32(hash_value * 16777619)
+    return hash_value
 
 
 def weighted_pick(items, weights, roll):
@@ -352,8 +442,13 @@ def choose_spawn_column(grid, difficulty, roll):
     return weighted_pick(candidates, weights, roll)
 
 
-def choose_letter(recent, difficulty, roll):
-    """Next letter. Forces a vowel when the recent window is too dry."""
+def choose_letter(recent, difficulty, roll, favored=""):
+    """Next letter. Forces a vowel when the recent window is too dry.
+
+    `favored` is today's word on a daily run. Each of its letters is
+    raised to the same weight, once per copy, so a light letter is dealt
+    as often as a common one. Letters outside the word keep their weights.
+    """
     history = [letter.upper() for letter in recent]
     window = history[-difficulty.vowel_window :]
     vowel_count = sum(1 for letter in window if letter in VOWELS)
@@ -364,8 +459,17 @@ def choose_letter(recent, difficulty, roll):
         and vowel_count < difficulty.min_vowels_in_window
     ):
         pool = tuple(pair for pair in pool if pair[0] in VOWELS)
+    counts = {}
+    for letter in favored.upper():
+        if letter.isalpha():
+            counts[letter] = counts.get(letter, 0) + 1
     items = [letter for letter, _weight in pool]
-    weights = [weight for _letter, weight in pool]
+    weights = []
+    for letter, weight in pool:
+        copies = counts.get(letter, 0)
+        if copies:
+            weight = max(weight, DAILY_LETTER_WEIGHT * copies)
+        weights.append(weight)
     return weighted_pick(items, weights, roll)
 
 
@@ -455,8 +559,9 @@ def build_word_list(dictionary, ranked, three_letter, places=(), cutoff=FREQUENC
 
     Words of four letters or more come from the English dictionary, so an
     uncommon word like "vein" still clears. There is no shorter cap than the
-    board itself. Three-letter words stay on the curated list, plus common
+    board itself.     Three-letter words stay on the curated list, plus common
     dictionary words such as "mom" when the frequency list also contains them.
+    A few common short words the dictionary omits, such as "zen", are added too.
     That leaves codes such as "dvd" out. Contractions join as letters only,
     so "don't" clears as "dont". Day and month names the dictionary omits
     are added too. Place names arrive separately, already limited to one word.
@@ -486,15 +591,18 @@ def build_word_list(dictionary, ranked, three_letter, places=(), cutoff=FREQUENC
         take(word)
     for word in CALENDAR_WORDS:
         take(word)
+    for word in SHORT_WORDS:
+        take(word)
     return sorted(chosen)
 
 
-def build_payload(words):
+def build_payload(words, daily_words):
     return {
         "rows": ROWS,
         "cols": COLS,
         "order": list(DIFFICULTY_ORDER),
         "words": words,
+        "dailyWords": list(daily_words),
         "difficulties": {
             difficulty_id: DIFFICULTIES[difficulty_id].as_json()
             for difficulty_id in DIFFICULTY_ORDER

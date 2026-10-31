@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+from datetime import date
 import random
 import sys
 import unittest
@@ -140,6 +141,12 @@ class DictionaryTest(unittest.TestCase):
         self.assertEqual(self.payload["rows"], game.ROWS)
         self.assertEqual(self.payload["cols"], game.COLS)
         self.assertEqual(self.payload["order"], list(game.DIFFICULTY_ORDER))
+        self.assertEqual(len(self.payload["dailyWords"]), game.DAILY_POOL_SIZE)
+        self.assertTrue(all(len(word) == 4 and word in self.words for word in self.payload["dailyWords"]))
+        self.assertEqual(
+            game.daily_word(self.payload["dailyWords"], 2026, 10, 31),
+            self.payload["dailyWords"][date(2026, 10, 31).toordinal() % game.DAILY_POOL_SIZE],
+        )
         for difficulty_id in game.DIFFICULTY_ORDER:
             self.assertEqual(
                 self.payload["difficulties"][difficulty_id],
@@ -149,7 +156,7 @@ class DictionaryTest(unittest.TestCase):
     def test_word_list_accepts_real_words_and_places(self):
         self.assertGreater(len(self.words), 90_000)
         self.assertLess(len(self.words), 500_000)
-        for word in ("cat", "stone", "the", "letter", "queue", "quiz", "mom", "mum", "vein", "rome", "italy", "gin", "cue", "did", "dont", "doesnt", "monday", "saturday", "wednesday", "september"):
+        for word in ("cat", "stone", "the", "letter", "queue", "quiz", "mom", "mum", "vein", "rome", "italy", "gin", "cue", "did", "git", "zen", "soy", "veg", "dont", "doesnt", "monday", "saturday", "wednesday", "september"):
             self.assertIn(word, self.words)
         for word in ("nth", "aah", "john", "gonna", "cuz", "lol", "dvd"):
             self.assertNotIn(word, self.words)
@@ -162,6 +169,7 @@ class DictionaryTest(unittest.TestCase):
         self.assertIn("doesnt", words)
         self.assertIn("monday", words)
         self.assertIn("wednesday", words)
+        self.assertIn("zen", words)
         self.assertNotIn("don't", words)
         self.assertNotIn("lol", words)
 
@@ -221,13 +229,18 @@ class PlaceNameTest(unittest.TestCase):
 
 
 class ChallengeTest(unittest.TestCase):
-    def test_three_challenges_keep_their_goals(self):
-        self.assertEqual(game.CHALLENGE_ORDER, ("survival", "words", "timed"))
+    def test_challenges_keep_their_goals(self):
+        self.assertEqual(game.CHALLENGE_ORDER, ("survival", "words", "timed", "daily"))
         self.assertEqual(game.CHALLENGES["words"].target_words, 50)
         self.assertEqual(game.CHALLENGES["words"].rank_by, "score")
         self.assertEqual(game.CHALLENGES["timed"].limit_ms, 180_000)
         self.assertEqual(game.CHALLENGES["timed"].rank_by, "score")
         self.assertEqual(game.CHALLENGES["survival"].rank_by, "score")
+        daily = game.CHALLENGES["daily"]
+        self.assertEqual(daily.limit_ms, 180_000)
+        self.assertEqual(daily.rank_by, "collects")
+        self.assertEqual(daily.locked_difficulty, "medium")
+        self.assertEqual(date(1970, 1, 1).toordinal(), game.UNIX_EPOCH_ORDINAL)
 
     def test_survival_ends_only_when_the_board_fills(self):
         survival = game.CHALLENGES["survival"]
@@ -260,6 +273,38 @@ class ChallengeTest(unittest.TestCase):
         self.assertEqual(early["reason"], "topout")
         self.assertFalse(early["cleared"])
         self.assertTrue(early["ranks"])
+
+    def test_daily_word_is_stable_and_the_run_ranks_by_collects(self):
+        pool = ["able", "bake", "cake", "date"]
+        self.assertEqual(game.daily_word(pool, 2026, 10, 31), game.daily_word(pool, 2026, 10, 31))
+        self.assertNotEqual(game.daily_word(pool, 2026, 10, 31), game.daily_word(pool, 2026, 11, 1))
+        seed = game.daily_seed(2026, 10, 31)
+        self.assertEqual(seed, game.daily_seed(2026, 10, 31))
+        self.assertNotEqual(seed, game.daily_seed(2026, 11, 1))
+        first = [game.create_rolls(seed)() for _ in range(1)]
+        again = game.create_rolls(seed)()
+        self.assertEqual(first[0], again)
+        daily = game.CHALLENGES["daily"]
+        self.assertFalse(game.session_result(daily, 3, 179_999, False)["over"])
+        done = game.session_result(daily, 3, 180_000, False)
+        self.assertEqual(done["reason"], "time")
+        self.assertTrue(done["ranks"])
+        early = game.session_result(daily, 1, 20_000, True)
+        self.assertEqual(early["reason"], "topout")
+        self.assertTrue(early["ranks"])
+
+    def test_daily_deals_todays_letters_at_the_same_weight(self):
+        medium = game.DIFFICULTIES["medium"]
+        rolls = [index / 400 for index in range(400)]
+        plain = Counter(game.choose_letter([], medium, roll) for roll in rolls)
+        favored = Counter(game.choose_letter([], medium, roll, "mode") for roll in rolls)
+        counts = [favored[letter] for letter in "MODE"]
+        self.assertLessEqual(max(counts) - min(counts), 2)
+        self.assertGreater(favored["D"], plain["D"] * 2)
+        outside = sum(count for letter, count in favored.items() if letter not in "MODE")
+        self.assertGreater(outside, 0)
+        doubled = Counter(game.choose_letter([], medium, roll, "book") for roll in rolls)
+        self.assertGreater(doubled["O"], doubled["B"])
 
 
 if __name__ == "__main__":

@@ -106,6 +106,14 @@ def parity_cases(payload):
         recent=[],
         roll=0.5,
     )
+    add(
+        "chooseLetter",
+        game.choose_letter([], game.DIFFICULTIES["medium"], 0.2, "mode"),
+        difficultyId="medium",
+        recent=[],
+        roll=0.2,
+        favored="mode",
+    )
 
     open_grid = [[None, None, None] for _ in range(4)]
     add(
@@ -209,6 +217,14 @@ def parity_cases(payload):
     # Touch the dumped difficulty table so a renamed field fails parity too.
     add("difficultyCount", len(difficulties), count=len(difficulties))
 
+    add("dailyWord", game.daily_word(payload["dailyWords"], 1970, 1, 1), year=1970, month=1, day=1)
+    add("dailyWord", game.daily_word(payload["dailyWords"], 2026, 10, 31), year=2026, month=10, day=31)
+    add("dailyWord", game.daily_word(payload["dailyWords"], 2026, 11, 1), year=2026, month=11, day=1)
+    seed = game.daily_seed(2026, 10, 31)
+    rolls = game.create_rolls(seed)
+    add("dailySeed", seed, year=2026, month=10, day=31)
+    add("rolls", [rolls() for _ in range(8)], seed=seed, count=8)
+
     for challenge_id in game.CHALLENGE_ORDER:
         challenge = game.CHALLENGES[challenge_id]
         add("challenge", challenge.as_json(), challengeId=challenge_id)
@@ -242,13 +258,15 @@ def main():
         if line.strip()
     ]
     words = game.build_word_list(load_dictionary(), ranked, three_letter, load_places())
-    payload = game.build_payload(words)
+    daily_words = game.build_daily_pool(ranked, words)
+    payload = game.build_payload(words, daily_words)
     RULES_PATH.parent.mkdir(parents=True, exist_ok=True)
     FIXTURES_PATH.parent.mkdir(parents=True, exist_ok=True)
     RULES_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     fixtures = parity_cases(payload)
     FIXTURES_PATH.write_text(json.dumps(fixtures, indent=2) + "\n", encoding="utf-8")
     print(f"words {len(words)}")
+    print(f"daily pool {len(daily_words)}")
     for difficulty_id in game.DIFFICULTY_ORDER:
         spec = payload["difficulties"][difficulty_id]
         print(

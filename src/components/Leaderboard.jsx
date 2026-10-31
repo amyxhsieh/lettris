@@ -76,7 +76,11 @@ function Leaderboard({ scores, currentName, emptyLabel = 'NO RECORDS YET', rankB
                 flexShrink: 0,
               }}
             >
-              {rankBy === 'time' ? formatClock(entry.timeMs || 0) : entry.score.toLocaleString()}
+              {rankBy === 'time'
+                ? formatClock(entry.timeMs || 0)
+                : rankBy === 'collects'
+                  ? entry.words
+                  : entry.score.toLocaleString()}
             </span>
             <span
               style={{
@@ -85,7 +89,7 @@ function Leaderboard({ scores, currentName, emptyLabel = 'NO RECORDS YET', rankB
                 flexShrink: 0,
               }}
             >
-              {rankBy === 'time' ? entry.score.toLocaleString() : `${entry.words}w`}
+              {rankBy === 'time' || rankBy === 'collects' ? entry.score.toLocaleString() : `${entry.words}w`}
             </span>
           </div>
         );

@@ -1,11 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import PixelBackground from './PixelBackground';
 import NameEntry from './NameEntry';
 import Leaderboard from './Leaderboard';
+import DailyWord from './DailyWord';
 import { getUsername, saveUsername, clearUsername, getDifficulty, saveDifficulty, getChallenge, saveChallenge, scoresFor } from '../utils/storage';
 import { fetchLeaderboard, fetchStats } from '../utils/remote';
 import { clickSound, playPageMusic } from '../utils/sound';
-import { RULES, MODE_COLOR, CHALLENGE_COLOR } from '../utils/dictionary';
+import { RULES, MODE_COLOR, CHALLENGE_COLOR, todayDaily } from '../utils/dictionary';
 
 
 const CONTROLS = [
@@ -21,6 +22,7 @@ const MODE_MARK = {
   survival: 'SRV',
   words: '50W',
   timed: '3MN',
+  daily: 'DAY',
 };
 
 function PixelIcon({ cells, color, accent, accentCells = [], viewBox }) {
@@ -163,7 +165,7 @@ function ModeList({ order, selected, cursor, onChange, locked }) {
   );
 }
 
-function ChoiceRow({ label, order, selected, cursor, colors, specs, onChange }) {
+function ChoiceRow({ label, order, selected, cursor, colors, specs, onChange, lockedId = null }) {
   const preview = selected || cursor;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
@@ -183,14 +185,16 @@ function ChoiceRow({ label, order, selected, cursor, colors, specs, onChange }) 
           const active = id === selected;
           const focused = !active && id === cursor;
           const color = colors[id];
+          const lockedOut = Boolean(lockedId) && id !== lockedId;
           return (
             <button
               key={id}
               type="button"
               role="radio"
               aria-checked={active}
+              aria-disabled={lockedOut}
               className="pressable"
-              onClick={() => onChange(id)}
+              onClick={() => { if (!lockedOut) onChange(id); }}
               style={{
                 fontFamily: "'BoutiqueBitmap', sans-serif",
                 fontSize: 13,
@@ -200,7 +204,8 @@ function ChoiceRow({ label, order, selected, cursor, colors, specs, onChange }) 
                 border: `2px solid ${active ? color : focused ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.2)'}`,
                 borderRadius: 4,
                 color: active ? color : focused ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.45)',
-                cursor: 'pointer',
+                cursor: lockedOut ? 'default' : 'pointer',
+                opacity: lockedOut ? 0.35 : 1,
                 textShadow: active ? `0 0 8px ${color}` : 'none',
                 boxShadow: active ? `0 0 10px ${color}44` : 'none',
               }}
@@ -293,10 +298,16 @@ function StartScreen({ onStart }) {
   const [boardScores, setBoardScores] = useState([]);
   const [boardStatus, setBoardStatus] = useState('idle');
   const [boardChallenge, setBoardChallenge] = useState(() => getChallenge());
+  const dailyPanelRef = useRef(null);
 
   useEffect(() => {
     playPageMusic();
   }, []);
+
+  useEffect(() => {
+    if (challenge !== 'daily' || !difficultyChosen) return;
+    dailyPanelRef.current?.scrollIntoView({ block: 'center', inline: 'nearest' });
+  }, [challenge, difficultyChosen]);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
@@ -329,12 +340,20 @@ function StartScreen({ onStart }) {
     return () => { cancel = true; };
   }, [panel, boardChallenge]);
 
+  const applyLockedDifficulty = useCallback((id, chosen) => {
+    const locked = RULES.challenges[id]?.lockedDifficulty;
+    if (!locked) return;
+    setDifficulty(locked);
+    if (chosen) setDifficultyChosen(true);
+  }, []);
+
   const moveChallenge = useCallback((id) => {
     if (!RULES.challenges[id] || id === challenge) return;
     clickSound();
     saveChallenge(id);
     setChallenge(id);
-  }, [challenge]);
+    applyLockedDifficulty(id, modeChosen);
+  }, [challenge, modeChosen, applyLockedDifficulty]);
 
   const confirmMode = useCallback((id) => {
     if (!RULES.challenges[id]) return;
@@ -347,7 +366,8 @@ function StartScreen({ onStart }) {
       clickSound();
     }
     setModeChosen(true);
-  }, [challenge, modeChosen]);
+    applyLockedDifficulty(id, true);
+  }, [challenge, modeChosen, applyLockedDifficulty]);
 
   const moveDifficulty = useCallback((id) => {
     if (!RULES.difficulties[id] || id === difficulty) return;
@@ -396,7 +416,9 @@ function StartScreen({ onStart }) {
         const index = Math.max(0, order.indexOf(challenge));
         moveChallenge(order[(index + step + order.length) % order.length]);
       };
+      const lockedDifficulty = RULES.challenges[challenge]?.lockedDifficulty;
       const moveLevel = (step) => {
+        if (lockedDifficulty) return;
         const order = RULES.order;
         const index = Math.max(0, order.indexOf(difficulty));
         moveDifficulty(order[(index + step + order.length) % order.length]);
@@ -417,14 +439,14 @@ function StartScreen({ onStart }) {
       if (!difficultyChosen) {
         if (e.key === 'ArrowRight') moveLevel(1);
         if (e.key === 'ArrowLeft') moveLevel(-1);
-        if (e.key === '1' || e.key === '2' || e.key === '3') confirmDifficulty(RULES.order[Number(e.key) - 1]);
+        if (!lockedDifficulty && (e.key === '1' || e.key === '2' || e.key === '3')) confirmDifficulty(RULES.order[Number(e.key) - 1]);
         if (e.key === 'Enter' && !(e.target instanceof HTMLButtonElement)) confirmDifficulty(difficulty);
         return;
       }
 
       if (e.key === 'ArrowRight') moveLevel(1);
       if (e.key === 'ArrowLeft') moveLevel(-1);
-      if (e.key === '1' || e.key === '2' || e.key === '3') moveDifficulty(RULES.order[Number(e.key) - 1]);
+      if (!lockedDifficulty && (e.key === '1' || e.key === '2' || e.key === '3')) moveDifficulty(RULES.order[Number(e.key) - 1]);
       if (e.key === 'Enter' && !(e.target instanceof HTMLButtonElement)) onStart(difficulty, challenge);
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -599,6 +621,7 @@ function StartScreen({ onStart }) {
                   colors={MODE_COLOR}
                   specs={RULES.difficulties}
                   onChange={confirmDifficulty}
+                  lockedId={RULES.challenges[challenge]?.lockedDifficulty || null}
                 />
               </div>
             )}
@@ -613,9 +636,15 @@ function StartScreen({ onStart }) {
             >
               {!modeChosen && '← → · ENTER'}
               {modeChosen && !difficultyChosen && '← → · 1 2 3 · ENTER'}
-              {difficultyChosen && '↑ ↓ MODE · ← → LEVEL'}
+              {difficultyChosen && challenge !== 'daily' && '↑ ↓ MODE · ← → LEVEL'}
             </div>
           </div>
+
+          {difficultyChosen && challenge === 'daily' && (
+            <div ref={dailyPanelRef} className="menu-step" style={{ width: 'min(520px, 100%)' }}>
+              <DailyWord word={todayDaily().word} />
+            </div>
+          )}
 
           {difficultyChosen && (
             <div className="menu-step" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 8 }}>
@@ -801,6 +830,7 @@ function StartScreen({ onStart }) {
                   Easy and Medium clear from 3 letters. Hard clears from 4.
                   Chain words quickly for a combo.
                   Survival fills the board. 50 Words is 50 clears. 3 Minutes ends at 0:00.
+                  Daily is today's 4-letter word on Medium, with the same letters for everyone. Clear that word the most times. Other words still clear.
                   Easy scores ×1, Medium ×2, Hard ×3.
                 </p>
                 <div
@@ -851,13 +881,18 @@ function StartScreen({ onStart }) {
                     </button>
                   ))}
                 </div>
+                {boardChallenge === 'daily' && (
+                  <div style={{ marginBottom: 14 }}>
+                    <DailyWord word={todayDaily().word} layout="board" />
+                  </div>
+                )}
                 <Leaderboard
                   scores={boardStatus === 'loading' ? [] : boardScores}
                   currentName={username}
                   rankBy={RULES.challenges[boardChallenge].rankBy}
                   emptyLabel={boardStatus === 'loading'
                     ? 'LOADING'
-                    : boardChallenge === 'words'
+                    : boardChallenge === 'words' || boardChallenge === 'daily'
                       ? 'NO CLEARS YET'
                       : 'NO RECORDS YET'}
                 />

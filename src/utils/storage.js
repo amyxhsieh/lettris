@@ -1,4 +1,4 @@
-import { RULES } from './dictionary';
+import { RULES, todayDaily } from './dictionary';
 
 const USERNAME_KEY = 'lettris_username';
 const PLAYER_KEY = 'lettris_player_id';
@@ -67,10 +67,19 @@ function difficultyOf(entry) {
   return DIFFICULTIES.has(entry.difficulty) ? entry.difficulty : 'medium';
 }
 
+function utcDayKey() {
+  const { year, month, day } = todayDaily();
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
 function compareEntries(challenge, a, b) {
-  if (RULES.challenges[challenge]?.rankBy === 'time') {
+  const rankBy = RULES.challenges[challenge]?.rankBy;
+  if (rankBy === 'time') {
     const delta = (a.timeMs ?? Number.MAX_SAFE_INTEGER) - (b.timeMs ?? Number.MAX_SAFE_INTEGER);
     if (delta !== 0) return delta;
+  }
+  if (rankBy === 'collects') {
+    if (b.words !== a.words) return b.words - a.words;
   }
   return b.score - a.score;
 }
@@ -86,10 +95,21 @@ export function getScores() {
 export function scoresFor(challenge = 'survival') {
   const goal = CHALLENGES.has(challenge) ? challenge : 'survival';
   const target = goal === 'words' ? RULES.challenges.words.targetWords : null;
-  return getScores()
+  let rows = getScores()
     .filter((entry) => challengeOf(entry) === goal)
-    .filter((entry) => target == null || entry.words >= target)
-    .sort((a, b) => compareEntries(goal, a, b));
+    .filter((entry) => target == null || entry.words >= target);
+  if (RULES.challenges[goal]?.rankBy === 'collects') {
+    const today = utcDayKey();
+    const best = new Map();
+    for (const entry of rows) {
+      if (entry.day !== today) continue;
+      const key = entry.name.toUpperCase();
+      const current = best.get(key);
+      if (!current || compareEntries(goal, entry, current) < 0) best.set(key, entry);
+    }
+    rows = [...best.values()];
+  }
+  return rows.sort((a, b) => compareEntries(goal, a, b));
 }
 
 export function saveScore({ name, score, words, level, difficulty, challenge = 'survival', timeMs = 0 }) {
@@ -108,6 +128,7 @@ export function saveScore({ name, score, words, level, difficulty, challenge = '
     challenge: goal,
     timeMs,
     date: new Date().toLocaleDateString(),
+    day: goal === 'daily' ? utcDayKey() : undefined,
   });
 
   const buckets = new Map();

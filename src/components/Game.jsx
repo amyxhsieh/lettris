@@ -9,9 +9,11 @@ import StatsBar from './StatsBar';
 import InputBar from './InputBar';
 import StartScreen from './StartScreen';
 import GameOverScreen from './GameOverScreen';
+import DailyWord from './DailyWord';
 import PixelBackground from './PixelBackground';
 import { getLetterColor } from '../utils/letters';
 import { RULES, engine, MODE_COLOR, CHALLENGE_COLOR } from '../utils/dictionary';
+import { utcToday } from '../utils/engine';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { useBoardScale } from '../hooks/useBoardScale';
 import { getUsername, guestName, getDifficulty, getChallenge, saveScore, scoresFor } from '../utils/storage';
@@ -137,6 +139,8 @@ function Game() {
   const [paused, setPaused] = useState(false);
   const [difficulty, setDifficulty] = useState(() => getDifficulty());
   const [challenge, setChallenge] = useState(() => getChallenge());
+  const [collects, setCollects] = useState(0);
+  const [dailyTarget, setDailyTarget] = useState('');
   const [elapsedMs, setElapsedMs] = useState(0);
   const [runResult, setRunResult] = useState(null);
   const [boardRank, setBoardRank] = useState(null);
@@ -168,6 +172,9 @@ function Game() {
   const difficultyRef = useRef(difficulty);
   const challengeRef = useRef(challenge);
   const recentLettersRef = useRef([]);
+  const collectsRef = useRef(0);
+  const dailyWordRef = useRef('');
+  const rollsRef = useRef(null);
   const scoreRef = useRef(0);
   const elapsedRef = useRef(0);
   const segmentStartRef = useRef(0);
@@ -225,7 +232,7 @@ function Game() {
     const entry = {
       name: getUsername() || guestName(),
       score: scoreRef.current,
-      words: wordsFoundRef.current,
+      words: challengeRef.current === 'daily' ? collectsRef.current : wordsFoundRef.current,
       level: levelRef.current,
       difficulty: difficultyRef.current,
       challenge: challengeRef.current,
@@ -244,10 +251,12 @@ function Game() {
       try {
         const { scores, combined } = await loadLeaderboard(entry.challenge);
         if (runIdRef.current !== finishedRun) return;
+        const spec = engine.challenge(entry.challenge);
         const index = scores.findIndex((row) => (
           row.score === entry.score
           && String(row.name).toUpperCase() === entry.name.toUpperCase()
           && row.difficulty === entry.difficulty
+          && (spec.rankBy !== 'collects' || row.words === entry.words)
         ));
         if (index !== -1) {
           setBoardRank(index + 1);
@@ -265,6 +274,7 @@ function Game() {
         row.score === entry.score
         && row.name.toUpperCase() === entry.name.toUpperCase()
         && (spec.rankBy !== 'time' || row.timeMs === entry.timeMs)
+        && (spec.rankBy !== 'collects' || row.words === entry.words)
       ));
       setBoardRank(index === -1 ? null : index + 1);
     });
@@ -272,13 +282,15 @@ function Game() {
 
   const spawnLetter = useCallback((currentGrid) => {
     const mode = difficultyRef.current;
-    const col = engine.chooseSpawnColumn(currentGrid, mode, Math.random());
+    const nextRoll = () => (rollsRef.current ? rollsRef.current() : Math.random());
+    const col = engine.chooseSpawnColumn(currentGrid, mode, nextRoll());
     if (col === null) {
       finishRun(true);
       return;
     }
 
-    const letter = engine.chooseLetter(recentLettersRef.current, mode, Math.random());
+    const favored = challengeRef.current === 'daily' ? dailyWordRef.current : '';
+    const letter = engine.chooseLetter(recentLettersRef.current, mode, nextRoll(), favored);
     recentLettersRef.current = [...recentLettersRef.current, letter].slice(-12);
     const color = getLetterColor(letter);
     const newFalling = { letter, row: 0, col, color };
@@ -398,8 +410,9 @@ function Game() {
 
   // ── Start game ─────────────────────────────────────────────
   const startGame = useCallback((difficultyId, challengeId) => {
-    const mode = RULES.difficulties[difficultyId] ? difficultyId : difficultyRef.current;
     const goal = RULES.challenges[challengeId] ? challengeId : challengeRef.current;
+    const locked = RULES.challenges[goal]?.lockedDifficulty;
+    const mode = locked || (RULES.difficulties[difficultyId] ? difficultyId : difficultyRef.current);
     const emptyGrid = makeEmptyGrid();
     runIdRef.current += 1;
     gridRef.current = emptyGrid;
@@ -414,6 +427,14 @@ function Game() {
     difficultyRef.current = mode;
     challengeRef.current = goal;
     recentLettersRef.current = [];
+    collectsRef.current = 0;
+    dailyWordRef.current = '';
+    rollsRef.current = null;
+    if (goal === 'daily') {
+      const today = utcToday();
+      dailyWordRef.current = engine.dailyWord(today.year, today.month, today.day);
+      rollsRef.current = engine.createRolls(engine.dailySeed(today.year, today.month, today.day));
+    }
     scoreRef.current = 0;
     elapsedRef.current = 0;
     segmentStartRef.current = 0;
@@ -424,6 +445,8 @@ function Game() {
     setScore(0);
     setLevel(1);
     setWordsFound(0);
+    setCollects(0);
+    setDailyTarget(dailyWordRef.current);
     setCombo(0);
     setTyped('');
     setFloatingWord('');
@@ -491,6 +514,10 @@ function Game() {
     const newWordsFound = wordsFoundRef.current + 1;
     wordsFoundRef.current = newWordsFound;
     setWordsFound(newWordsFound);
+    if (challengeRef.current === 'daily' && word.toLowerCase() === dailyWordRef.current) {
+      collectsRef.current += 1;
+      setCollects(collectsRef.current);
+    }
 
     const newLevel = engine.levelForWords(newWordsFound, mode);
     if (newLevel !== levelRef.current) {
@@ -631,7 +658,12 @@ function Game() {
     ? { label: 'Level', value: level, color: '#00ccee' }
     : challengeSpec.goal === 'words'
       ? { label: 'Time', value: formatClock(elapsedMs), color: '#33ff66' }
-      : { label: 'Time', value: formatRemaining(Math.max(0, challengeSpec.limitMs - elapsedMs)), color: '#ffaa44' };
+      : {
+          label: 'Time',
+          value: formatRemaining(Math.max(0, challengeSpec.limitMs - elapsedMs)),
+          color: challengeSpec.goal === 'daily' ? CHALLENGE_COLOR.daily : '#ffaa44',
+        };
+  const dailyPlay = challengeSpec.goal === 'daily';
   const wordsLabel = challengeSpec.goal === 'words'
     ? `${wordsFound}/${challengeSpec.targetWords}`
     : wordsFound;
@@ -671,6 +703,11 @@ function Game() {
           <div style={{ color: MODE_COLOR[difficulty], textShadow: `0 0 8px ${MODE_COLOR[difficulty]}`, marginTop: 4 }}>
             {engine.difficulty(difficulty).label}
           </div>
+          {challengeSpec.goal === 'daily' && (
+            <div style={{ color: CHALLENGE_COLOR.daily, textShadow: `0 0 8px ${CHALLENGE_COLOR.daily}`, marginTop: 4 }}>
+              {dailyTarget.toUpperCase()}
+            </div>
+          )}
         </div>
       )}
 
@@ -692,12 +729,13 @@ function Game() {
       {gameOver && started && (
         <GameOverScreen
           score={score}
-          wordsFound={wordsFound}
+          wordsFound={challengeSpec.goal === 'daily' ? collects : wordsFound}
           level={level}
           difficulty={difficulty}
           challenge={challenge}
           timeMs={elapsedMs}
           reason={runResult?.reason || 'topout'}
+          dailyWord={dailyTarget}
           onPlayAgain={() => startGame(difficulty, challenge)}
           onQuit={quitGame}
           playerName={getUsername() || guestName()}
@@ -735,9 +773,13 @@ function Game() {
           </h1>
 
           <StatsBar
-            score={score}
+            score={dailyPlay ? collects : score}
+            scoreLabel={dailyPlay ? dailyTarget.toUpperCase() : 'Score'}
+            scoreColor={dailyPlay ? CHALLENGE_COLOR.daily : '#33ff66'}
             middle={middleStat}
-            wordsLabel={wordsLabel}
+            wordsLabel={dailyPlay ? score.toLocaleString() : wordsLabel}
+            wordsCaption={dailyPlay ? 'Score' : 'Words'}
+            wordsColor={dailyPlay ? '#33ff66' : '#00ccee'}
             combo={combo}
             comboBanner={comboBanner}
           />
@@ -750,11 +792,21 @@ function Game() {
             />
 
             {countdown != null && (
-              <div className="countdown-veil" role="status" aria-live="assertive" aria-label={`Starting in ${countdown}`}>
+              <div
+                className="countdown-veil"
+                role="status"
+                aria-live="assertive"
+                aria-label={
+                  challengeSpec.goal === 'daily'
+                    ? `Starting in ${countdown}. Word of the day is ${dailyTarget}`
+                    : `Starting in ${countdown}`
+                }
+              >
+                {challengeSpec.goal === 'daily' && <DailyWord word={dailyTarget} layout="countdown" />}
                 <div
                   key={countdown}
                   className="countdown-num"
-                  style={{ '--ink': MODE_COLOR[difficulty] }}
+                  style={{ '--ink': challengeSpec.goal === 'daily' ? CHALLENGE_COLOR.daily : MODE_COLOR[difficulty] }}
                 >
                   {countdown}
                 </div>

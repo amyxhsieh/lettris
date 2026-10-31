@@ -31,7 +31,17 @@ function StatItem({ label, value, color }) {
   );
 }
 
-function StatsBar({ score, middle, wordsLabel, combo, comboBanner }) {
+function StatsBar({
+  score,
+  scoreLabel = 'Score',
+  scoreColor = '#33ff66',
+  middle,
+  wordsLabel,
+  wordsCaption = 'Words',
+  wordsColor = '#00ccee',
+  combo,
+  comboBanner,
+}) {
   const comboColor =
     combo >= 4 ? '#ff66aa'
     : combo === 3 ? '#ffaa44'
@@ -52,11 +62,11 @@ function StatsBar({ score, middle, wordsLabel, combo, comboBanner }) {
         background: 'rgba(0,0,0,0.25)',
       }}
     >
-      <StatItem label="Score" value={score.toLocaleString()} color="#33ff66" />
+      <StatItem label={scoreLabel} value={typeof score === 'number' ? score.toLocaleString() : score} color={scoreColor} />
       <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
       <StatItem label={middle.label} value={middle.value} color={middle.color} />
       <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
-      <StatItem label="Words" value={wordsLabel} color="#00ccee" />
+      <StatItem label={wordsCaption} value={wordsLabel} color={wordsColor} />
       <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.08)' }} />
       <div style={{ position: 'relative' }}>
         <StatItem

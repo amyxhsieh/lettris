@@ -583,13 +583,73 @@
   }
 }
 
+.daily-word {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: min(420px, 100%);
+  margin: 0 auto;
+  padding: 16px 18px 14px;
+  border-radius: 4px;
+  background: rgba(255, 213, 106, 0.08);
+  border: 1px solid rgba(255, 213, 106, 0.4);
+  text-align: center;
+}
+
+.daily-word p {
+  margin: 0;
+}
+
+.daily-word-kicker {
+  font-family: 'BoutiqueBitmap', sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(255, 213, 106, 0.72);
+}
+
+.daily-word-letters {
+  font-family: 'BoutiqueBitmap', sans-serif;
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 10px;
+  color: #ffd56a;
+  text-shadow: 0 0 12px #ffd56a, 0 0 28px rgba(255, 213, 106, 0.45);
+}
+
+.daily-word-note {
+  max-width: 320px;
+  font-family: 'BoutiqueBitmap', sans-serif;
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0.4px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.daily-word-countdown,
+.daily-word-board {
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.daily-word-countdown .daily-word-letters,
+.daily-word-board .daily-word-letters {
+  font-size: 28px;
+  letter-spacing: 8px;
+}
+
 .countdown-veil {
   position: absolute;
   inset: 0;
   z-index: 10;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 14px;
   border-radius: 4px;
   background: rgba(4, 4, 20, 0.72);
   backdrop-filter: blur(2px);

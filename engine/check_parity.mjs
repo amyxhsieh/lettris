@@ -6,6 +6,9 @@ import {
   calculateScore,
   chooseLetter,
   chooseSpawnColumn,
+  createRolls,
+  dailySeed,
+  dailyWord,
   fallInterval,
   findWordCells,
   isValidWord,
@@ -29,7 +32,7 @@ function run(test) {
     case 'levelForWords':
       return levelForWords(test.wordsFound, difficulty.wordsPerLevel);
     case 'chooseLetter':
-      return chooseLetter(test.recent, difficulty, test.roll);
+      return chooseLetter(test.recent, difficulty, test.roll, test.favored || '');
     case 'chooseSpawnColumn':
       return chooseSpawnColumn(test.grid, difficulty, test.roll);
     case 'findWordCells':
@@ -44,6 +47,14 @@ function run(test) {
       return rules.challenges[test.challengeId];
     case 'sessionResult':
       return sessionResult(rules.challenges[test.challengeId], test.words, test.elapsedMs, test.toppedOut);
+    case 'dailyWord':
+      return dailyWord(rules.dailyWords, test.year, test.month, test.day);
+    case 'dailySeed':
+      return dailySeed(test.year, test.month, test.day);
+    case 'rolls': {
+      const next = createRolls(test.seed);
+      return Array.from({ length: test.count }, () => next());
+    }
     default:
       throw new Error(`unknown fixture ${test.fn}`);
   }

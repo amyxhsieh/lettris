@@ -1,5 +1,5 @@
 import rules from '../generated/rules.json';
-import { createEngine } from './engine';
+import { createEngine, utcToday } from './engine';
 
 export const RULES = rules;
 export const engine = createEngine(rules);
@@ -14,7 +14,16 @@ export const CHALLENGE_COLOR = {
   survival: '#00ddff',
   words: '#33ff66',
   timed: '#ffaa44',
+  daily: '#ffd56a',
 };
+
+export function todayDaily(now = new Date()) {
+  const parts = utcToday(now);
+  return {
+    ...parts,
+    word: engine.dailyWord(parts.year, parts.month, parts.day),
+  };
+}
 
 export function isValidWord(word, difficultyId = 'medium') {
   return engine.isValidWord(word, difficultyId);

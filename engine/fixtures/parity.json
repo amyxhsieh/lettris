@@ -289,6 +289,14 @@
     "roll": 0.5
   },
   {
+    "fn": "chooseLetter",
+    "expect": "O",
+    "difficultyId": "medium",
+    "recent": [],
+    "roll": 0.2,
+    "favored": "mode"
+  },
+  {
     "fn": "chooseSpawnColumn",
     "expect": 1,
     "difficultyId": "medium",
@@ -657,6 +665,49 @@
     "count": 3
   },
   {
+    "fn": "dailyWord",
+    "expect": "tags",
+    "year": 1970,
+    "month": 1,
+    "day": 1
+  },
+  {
+    "fn": "dailyWord",
+    "expect": "mode",
+    "year": 2026,
+    "month": 10,
+    "day": 31
+  },
+  {
+    "fn": "dailyWord",
+    "expect": "fund",
+    "year": 2026,
+    "month": 11,
+    "day": 1
+  },
+  {
+    "fn": "dailySeed",
+    "expect": 1568334926,
+    "year": 2026,
+    "month": 10,
+    "day": 31
+  },
+  {
+    "fn": "rolls",
+    "expect": [
+      0.4883661831263453,
+      0.806743451859802,
+      0.5441829264163971,
+      0.7514508455060422,
+      0.8948394830804318,
+      0.09348330367356539,
+      0.02708168374374509,
+      0.5883283882867545
+    ],
+    "seed": 1568334926,
+    "count": 8
+  },
+  {
     "fn": "challenge",
     "expect": {
       "id": "survival",
@@ -665,7 +716,8 @@
       "goal": "survival",
       "targetWords": null,
       "limitMs": null,
-      "rankBy": "score"
+      "rankBy": "score",
+      "lockedDifficulty": null
     },
     "challengeId": "survival"
   },
@@ -795,7 +847,8 @@
       "goal": "words",
       "targetWords": 50,
       "limitMs": null,
-      "rankBy": "score"
+      "rankBy": "score",
+      "lockedDifficulty": null
     },
     "challengeId": "words"
   },
@@ -925,7 +978,8 @@
       "goal": "time",
       "targetWords": null,
       "limitMs": 180000,
-      "rankBy": "score"
+      "rankBy": "score",
+      "lockedDifficulty": null
     },
     "challengeId": "timed"
   },
@@ -1042,6 +1096,137 @@
       "ranks": true
     },
     "challengeId": "timed",
+    "words": 4,
+    "elapsedMs": 40000,
+    "toppedOut": true
+  },
+  {
+    "fn": "challenge",
+    "expect": {
+      "id": "daily",
+      "label": "DAILY",
+      "tagline": "Clear today's word the most times",
+      "goal": "daily",
+      "targetWords": null,
+      "limitMs": 180000,
+      "rankBy": "collects",
+      "lockedDifficulty": "medium"
+    },
+    "challengeId": "daily"
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "daily",
+    "words": 0,
+    "elapsedMs": 0,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "daily",
+    "words": 10,
+    "elapsedMs": 1000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "daily",
+    "words": 49,
+    "elapsedMs": 50000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": false,
+      "reason": "topout",
+      "ranks": true
+    },
+    "challengeId": "daily",
+    "words": 49,
+    "elapsedMs": 50000,
+    "toppedOut": true
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "daily",
+    "words": 50,
+    "elapsedMs": 50000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": false,
+      "reason": "topout",
+      "ranks": true
+    },
+    "challengeId": "daily",
+    "words": 50,
+    "elapsedMs": 50000,
+    "toppedOut": true
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
+    },
+    "challengeId": "daily",
+    "words": 4,
+    "elapsedMs": 179999,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": true,
+      "reason": "time",
+      "ranks": true
+    },
+    "challengeId": "daily",
+    "words": 4,
+    "elapsedMs": 180000,
+    "toppedOut": false
+  },
+  {
+    "fn": "sessionResult",
+    "expect": {
+      "over": true,
+      "cleared": false,
+      "reason": "topout",
+      "ranks": true
+    },
+    "challengeId": "daily",
     "words": 4,
     "elapsedMs": 40000,
     "toppedOut": true

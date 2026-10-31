@@ -2,7 +2,7 @@ import { clickSound } from '../utils/sound';
 import { engine, MODE_COLOR, CHALLENGE_COLOR } from '../utils/dictionary';
 import { formatClock, formatRemaining } from '../utils/time';
 
-function overview({ challenge, reason, wordsFound, score, level, difficulty, timeMs }) {
+function overview({ challenge, reason, wordsFound, score, level, difficulty, timeMs, dailyWord = '' }) {
   const mode = engine.difficulty(difficulty);
   const spec = engine.challenge(challenge);
   const difficultyRow = { label: 'DIFFICULTY', value: mode.label, color: MODE_COLOR[difficulty] };
@@ -30,6 +30,19 @@ function overview({ challenge, reason, wordsFound, score, level, difficulty, tim
         { label: 'TIME', value: formatClock(timeMs), color: '#00ccee' },
         scoreRow,
         difficultyRow,
+      ],
+    };
+  }
+
+  if (spec.goal === 'daily') {
+    return {
+      title: reason === 'time' ? 'TIME UP' : 'GAME OVER',
+      titleColor: reason === 'time' ? CHALLENGE_COLOR.daily : '#ff4466',
+      subtitle: dailyWord.toUpperCase(),
+      rows: [
+        { label: 'COLLECTS', value: wordsFound, color: CHALLENGE_COLOR.daily },
+        scoreRow,
+        { label: 'TIME', value: formatClock(timeMs), color: '#00ccee' },
       ],
     };
   }
@@ -82,12 +95,13 @@ function GameOverScreen({
   challenge = 'survival',
   timeMs = 0,
   reason = 'topout',
+  dailyWord = '',
   onPlayAgain,
   onQuit,
   playerName,
   rank = null,
 }) {
-  const board = overview({ challenge, reason, wordsFound, score, level, difficulty, timeMs });
+  const board = overview({ challenge, reason, wordsFound, score, level, difficulty, timeMs, dailyWord });
 
   return (
     <div

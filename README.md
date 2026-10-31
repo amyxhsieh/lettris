@@ -21,6 +21,7 @@ Letters drop one at a time into a 13×8 grid. Pick a mode, then a difficulty, th
 | Survival | Play until the board fills |
 | 50 Words | Clear 50 words. A run that fills early does not rank |
 | 3 Minutes | Score until the clock hits 0:00. Filling the board early still ranks |
+| Daily | Today's 4-letter word, on Medium, with the same letters for everyone. Most clears of that word wins. Other words still clear. The board resets at midnight UTC |
 
 **Difficulties**
 
@@ -30,7 +31,7 @@ Letters drop one at a time into a 13×8 grid. Pick a mode, then a difficulty, th
 | Medium | A normal mix, words from 3 letters | ×2 |
 | Hard | Rarer letters, words from 4 letters | ×3 |
 
-A word can be as long as the board. Easy and Medium clear from 3 letters, including ordinary words such as **cue**, **did**, and **gin**. Hard clears from 4. Days, months, and one-word place names count. A contraction clears without the apostrophe, so **don't** clears as **dont**.
+A word can be as long as the board. Easy and Medium clear from 3 letters, including ordinary words such as **cue**, **did**, **git**, **gin**, and **zen**. Hard clears from 4. Days, months, and one-word place names count. A contraction clears without the apostrophe, so **don't** clears as **dont**.
 
 **Vowels** show up in cyan, **consonants** in green.
 

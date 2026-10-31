@@ -148,6 +148,21 @@ function assertBoard(challenge) {
   if (!CHALLENGES[challenge]) throw new HttpError(400, 'unknown board');
 }
 
+function utcDayBounds(now = new Date()) {
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const end = new Date(start.getTime() + 86_400_000);
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
+function bestByPlayer(runs, rankBy) {
+  const best = new Map();
+  for (const run of runs) {
+    const current = best.get(run.playerId);
+    if (!current || isBetter(rankBy, run, current)) best.set(run.playerId, run);
+  }
+  return [...best.values()];
+}
+
 function assertCooldown(previousPlayedAt) {
   if (!previousPlayedAt) return;
   const elapsed = Date.now() - Date.parse(previousPlayedAt);
@@ -175,13 +190,47 @@ export async function readBoard(challenge) {
   const rankBy = CHALLENGES[challenge].rankBy;
   if (mode() === 'file') {
     const data = await readFileStore();
-    return data.runs
-      .filter((run) => run.ranks && run.challenge === challenge)
+    let runs = data.runs.filter((run) => run.ranks && run.challenge === challenge);
+    if (rankBy === 'collects') {
+      const { start, end } = utcDayBounds();
+      runs = bestByPlayer(
+        runs.filter((run) => run.playedAt >= start && run.playedAt < end),
+        rankBy,
+      );
+    }
+    return runs
       .sort((a, b) => compareRuns(rankBy, a, b))
       .slice(0, 10)
       .map(publicRun);
   }
   const sql = await postgres();
+  if (rankBy === 'collects') {
+    const { start, end } = utcDayBounds();
+    const rows = await sql`WITH best AS (
+      SELECT DISTINCT ON (player_id)
+        name, score, words, level, difficulty, challenge, time_ms, played_at
+      FROM runs
+      WHERE challenge = ${challenge}
+        AND ranks = TRUE
+        AND played_at >= ${start}::timestamptz
+        AND played_at < ${end}::timestamptz
+      ORDER BY player_id, words DESC, score DESC, played_at ASC
+    )
+    SELECT name, score, words, level, difficulty, challenge, time_ms, played_at
+    FROM best
+    ORDER BY words DESC, score DESC
+    LIMIT 10`;
+    return rows.map((row) => publicRun({
+      name: row.name,
+      score: Number(row.score),
+      words: Number(row.words),
+      level: Number(row.level),
+      difficulty: row.difficulty,
+      challenge: row.challenge,
+      timeMs: Number(row.time_ms),
+      playedAt: row.played_at,
+    }));
+  }
   const rows = rankBy === 'time'
     ? await sql`SELECT name, score, words, level, difficulty, challenge, time_ms, played_at
         FROM runs
@@ -215,6 +264,24 @@ async function recordInFile(entry) {
     data.runs.push({ ...entry, playedAt });
     await writeFileStore(data);
     if (!entry.ranks) return { rank: null, ranks: false };
+    if (entry.rankBy === 'collects') {
+      const { start, end } = utcDayBounds();
+      const today = data.runs.filter((run) => (
+        run.ranks
+        && run.challenge === entry.challenge
+        && run.playedAt >= start
+        && run.playedAt < end
+      ));
+      const standing = bestByPlayer(
+        today.filter((run) => run.playerId === entry.playerId),
+        entry.rankBy,
+      )[0];
+      const better = bestByPlayer(
+        today.filter((run) => run.playerId !== entry.playerId),
+        entry.rankBy,
+      ).filter((run) => isBetter(entry.rankBy, run, standing)).length;
+      return { rank: better + 1, ranks: true };
+    }
     const better = data.runs.filter((run) => (
       run.ranks
       && run.challenge === entry.challenge
@@ -247,6 +314,26 @@ async function recordInPostgres(entry) {
       ${entry.ranks}
     )`;
   if (!entry.ranks) return { rank: null, ranks: false };
+  if (entry.rankBy === 'collects') {
+    const { start, end } = utcDayBounds();
+    const rows = await sql`WITH best AS (
+      SELECT DISTINCT ON (player_id) player_id, words, score
+      FROM runs
+      WHERE challenge = ${entry.challenge}
+        AND ranks = TRUE
+        AND played_at >= ${start}::timestamptz
+        AND played_at < ${end}::timestamptz
+      ORDER BY player_id, words DESC, score DESC, played_at ASC
+    ),
+    mine AS (
+      SELECT words, score FROM best WHERE player_id = ${entry.playerId}
+    )
+    SELECT COUNT(*)::int AS better
+    FROM best, mine
+    WHERE best.player_id <> ${entry.playerId}
+      AND (best.words > mine.words OR (best.words = mine.words AND best.score > mine.score))`;
+    return { rank: Number(rows[0].better) + 1, ranks: true };
+  }
   const rows = entry.rankBy === 'time'
     ? await sql`SELECT COUNT(*)::int AS better FROM runs
         WHERE challenge = ${entry.challenge}
