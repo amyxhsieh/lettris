@@ -190,25 +190,25 @@
   },
   {
     "fn": "fallInterval",
-    "expect": 200,
+    "expect": 300,
     "difficultyId": "hard",
     "level": 1
   },
   {
     "fn": "fallInterval",
-    "expect": 180,
+    "expect": 284,
     "difficultyId": "hard",
     "level": 2
   },
   {
     "fn": "fallInterval",
-    "expect": 120,
+    "expect": 236,
     "difficultyId": "hard",
     "level": 5
   },
   {
     "fn": "fallInterval",
-    "expect": 80,
+    "expect": 140,
     "difficultyId": "hard",
     "level": 30
   },
