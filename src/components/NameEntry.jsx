@@ -1,13 +1,22 @@
 import { useState } from 'react';
+import { guestName } from '../utils/storage';
 import { clickSound } from '../utils/sound';
 
 function NameEntry({ onDone }) {
   const [value, setValue] = useState('');
   const [focused, setFocused] = useState(false);
 
+  const useGuest = () => {
+    clickSound();
+    onDone(guestName());
+  };
+
   const handleSubmit = () => {
     const trimmed = value.trim();
-    if (trimmed.length < 1) return;
+    if (!trimmed) {
+      useGuest();
+      return;
+    }
     clickSound();
     onDone(trimmed);
   };
@@ -17,6 +26,7 @@ function NameEntry({ onDone }) {
   };
 
   return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
       <input
         type="text"
@@ -68,6 +78,10 @@ function NameEntry({ onDone }) {
         }}
       >
         ENTER
+      </button>
+    </div>
+      <button type="button" className="name-skip pressable" onClick={useGuest}>
+        SKIP
       </button>
     </div>
   );

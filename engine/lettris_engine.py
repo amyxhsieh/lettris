@@ -68,6 +68,7 @@ class Difficulty:
     vowel_window: int
     min_vowels_in_window: int
     column_bias: int
+    score_multiplier: int
     letter_weights: tuple
 
     def as_json(self):
@@ -85,6 +86,7 @@ class Difficulty:
             "vowelWindow": self.vowel_window,
             "minVowelsInWindow": self.min_vowels_in_window,
             "columnBias": self.column_bias,
+            "scoreMultiplier": self.score_multiplier,
             "letterWeights": [list(pair) for pair in self.letter_weights],
         }
 
@@ -104,6 +106,7 @@ DIFFICULTIES = {
         vowel_window=3,
         min_vowels_in_window=1,
         column_bias=2,
+        score_multiplier=1,
         letter_weights=EASY_WEIGHTS,
     ),
     "medium": Difficulty(
@@ -120,6 +123,7 @@ DIFFICULTIES = {
         vowel_window=4,
         min_vowels_in_window=1,
         column_bias=1,
+        score_multiplier=2,
         letter_weights=MEDIUM_WEIGHTS,
     ),
     "hard": Difficulty(
@@ -136,6 +140,7 @@ DIFFICULTIES = {
         vowel_window=6,
         min_vowels_in_window=1,
         column_bias=1,
+        score_multiplier=3,
         letter_weights=HARD_WEIGHTS,
     ),
 }
@@ -178,12 +183,12 @@ CHALLENGES = {
     ),
     "words": Challenge(
         id="words",
-        label="30 WORDS",
-        tagline="Clear 30 words as fast as you can",
+        label="50 WORDS",
+        tagline="Clear 50 words for the highest score",
         goal="words",
-        target_words=30,
+        target_words=50,
         limit_ms=None,
-        rank_by="time",
+        rank_by="score",
     ),
     "timed": Challenge(
         id="timed",
@@ -203,7 +208,7 @@ def session_result(challenge, words, elapsed_ms, topped_out):
     """Whether this run is over, whether the goal was met, and why.
 
     `reason` is "topout", "target", "time", or None.
-    A failed 30-word run stays off the board. A timed run that fills
+    A failed 50-word run stays off the board. A timed run that fills
     early still ranks, because that contest is the score.
     """
     if challenge.goal == "survival":
@@ -261,9 +266,9 @@ def combo_parts(combo):
     return 1, 1
 
 
-def calculate_score(word_length, combo):
+def calculate_score(word_length, combo, multiplier=1):
     numerator, denominator = combo_parts(combo)
-    return (word_length * word_length * 10 * numerator) // denominator
+    return (word_length * word_length * 10 * numerator * multiplier) // denominator
 
 
 def fall_interval(level, difficulty):

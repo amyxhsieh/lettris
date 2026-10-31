@@ -117540,6 +117540,7 @@
       "vowelWindow": 3,
       "minVowelsInWindow": 1,
       "columnBias": 2,
+      "scoreMultiplier": 1,
       "letterWeights": [
         [
           "E",
@@ -117645,6 +117646,7 @@
       "vowelWindow": 4,
       "minVowelsInWindow": 1,
       "columnBias": 1,
+      "scoreMultiplier": 2,
       "letterWeights": [
         [
           "E",
@@ -117766,6 +117768,7 @@
       "vowelWindow": 6,
       "minVowelsInWindow": 1,
       "columnBias": 1,
+      "scoreMultiplier": 3,
       "letterWeights": [
         [
           "E",
@@ -117891,12 +117894,12 @@
     },
     "words": {
       "id": "words",
-      "label": "30 WORDS",
-      "tagline": "Clear 30 words as fast as you can",
+      "label": "50 WORDS",
+      "tagline": "Clear 50 words for the highest score",
       "goal": "words",
-      "targetWords": 30,
+      "targetWords": 50,
       "limitMs": null,
-      "rankBy": "time"
+      "rankBy": "score"
     },
     "timed": {
       "id": "timed",

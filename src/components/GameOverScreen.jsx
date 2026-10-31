@@ -1,4 +1,3 @@
-import { scoresFor } from '../utils/storage';
 import { clickSound } from '../utils/sound';
 import { engine, MODE_COLOR, CHALLENGE_COLOR } from '../utils/dictionary';
 import { formatClock, formatRemaining } from '../utils/time';
@@ -86,15 +85,9 @@ function GameOverScreen({
   onPlayAgain,
   onQuit,
   playerName,
+  rank = null,
 }) {
-  const spec = engine.challenge(challenge);
   const board = overview({ challenge, reason, wordsFound, score, level, difficulty, timeMs });
-  const rankIndex = scoresFor(difficulty, challenge).findIndex((entry) => (
-    entry.score === score
-    && entry.name.toUpperCase() === (playerName || '').toUpperCase()
-    && (spec.rankBy !== 'time' || entry.timeMs === timeMs)
-  ));
-  const rank = rankIndex === -1 ? null : rankIndex + 1;
 
   return (
     <div
@@ -113,7 +106,7 @@ function GameOverScreen({
         style={{
           background: 'rgba(8,8,28,0.95)',
           border: '1px solid rgba(0,200,240,0.3)',
-          borderRadius: 8,
+          borderRadius: 4,
           padding: '40px 52px',
           textAlign: 'center',
           boxShadow: '0 0 40px rgba(0,180,220,0.12), 0 0 80px rgba(0,0,0,0.6)',

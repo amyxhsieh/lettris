@@ -14,13 +14,114 @@ import { getLetterColor } from '../utils/letters';
 import { RULES, engine, MODE_COLOR, CHALLENGE_COLOR } from '../utils/dictionary';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { useBoardScale } from '../hooks/useBoardScale';
-import { getUsername, getDifficulty, getChallenge, saveScore } from '../utils/storage';
+import { getUsername, guestName, getDifficulty, getChallenge, saveScore, scoresFor } from '../utils/storage';
+import { loadLeaderboard, submitRun } from '../utils/remote';
 import { formatClock, formatRemaining } from '../utils/time';
-import { clickSound, startBGM, stopBGM, playSound } from '../utils/sound';
+import { clickSound, playGameMusic, playPageMusic, shuffleGameMusic, pauseMusic, resumeMusic, stopMusic, fadeOutMusic, playSound } from '../utils/sound';
 import '../styles/animations.css';
 
 const ROWS = RULES.rows;
 const COLS = RULES.cols;
+
+const SHUFFLE_MARK = [
+  [0, 8], [1, 8], [2, 8], [3, 8], [4, 7], [5, 6], [6, 5], [7, 4], [8, 3], [9, 2], [10, 2], [11, 2], [12, 2], [13, 2],
+  [13, 1], [14, 1], [15, 2], [13, 3], [14, 3],
+  [0, 2], [1, 2], [2, 2], [3, 2], [4, 3], [5, 4], [7, 6], [8, 7], [9, 8], [10, 8], [11, 8], [12, 8], [13, 8],
+  [13, 7], [14, 7], [15, 8], [13, 9], [14, 9],
+];
+
+function ShuffleMark() {
+  return (
+    <svg width="24" height="15" viewBox="0 0 16 10" aria-hidden="true" style={{ display: 'block', imageRendering: 'pixelated' }}>
+      {SHUFFLE_MARK.map(([x, y]) => (
+        <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill="currentColor" />
+      ))}
+    </svg>
+  );
+}
+
+const QUIT_HOLD_MS = 750;
+
+function QuitButton({ onQuit }) {
+  const holdRef = useRef(null);
+  const [holding, setHolding] = useState(false);
+
+  const clearHold = useCallback(() => {
+    if (holdRef.current) {
+      clearTimeout(holdRef.current);
+      holdRef.current = null;
+    }
+    setHolding(false);
+  }, []);
+
+  useEffect(() => () => {
+    if (holdRef.current) clearTimeout(holdRef.current);
+  }, []);
+
+  const begin = useCallback((event) => {
+    if (holdRef.current) return;
+    if (event.button != null && event.button !== 0) return;
+    if (event.currentTarget?.setPointerCapture && event.pointerId != null) {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+    setHolding(true);
+    holdRef.current = setTimeout(() => {
+      holdRef.current = null;
+      clickSound();
+      onQuit();
+    }, QUIT_HOLD_MS);
+  }, [onQuit]);
+
+  const end = useCallback(() => {
+    if (!holdRef.current) return;
+    clearHold();
+  }, [clearHold]);
+
+  const leave = useCallback((event) => {
+    if (!holdRef.current) return;
+    const box = event.currentTarget.getBoundingClientRect();
+    const inside = event.clientX >= box.left && event.clientX <= box.right
+      && event.clientY >= box.top && event.clientY <= box.bottom;
+    if (!inside) clearHold();
+  }, [clearHold]);
+
+  return (
+    <button
+      type="button"
+      className="corner-chip quit-hold"
+      aria-label="Hold to quit"
+      data-holding={holding ? 'true' : 'false'}
+      onPointerDown={begin}
+      onPointerUp={end}
+      onPointerMove={leave}
+      onPointerCancel={clearHold}
+      onContextMenu={(event) => event.preventDefault()}
+      onKeyDown={(event) => {
+        if (event.repeat) return;
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        begin(event);
+      }}
+      onKeyUp={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        end();
+      }}
+      onBlur={clearHold}
+      style={{
+        '--ink': '#00ddff',
+        '--quit-hold': `${QUIT_HOLD_MS}ms`,
+        position: 'fixed',
+        top: 16,
+        left: 16,
+        zIndex: 50,
+      }}
+    >
+      <span className="quit-hold-fill" aria-hidden="true" />
+      <span className="quit-hold-label">← QUIT</span>
+    </button>
+  );
+}
 
 function makeEmptyGrid() {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
@@ -31,12 +132,14 @@ function Game() {
   const board = useBoardScale(columnRef);
   // ── UI state ──────────────────────────────────────────────
   const [started, setStarted] = useState(false);
+  const [countdown, setCountdown] = useState(null);
   const [gameOver, setGameOver] = useState(false);
   const [paused, setPaused] = useState(false);
   const [difficulty, setDifficulty] = useState(() => getDifficulty());
   const [challenge, setChallenge] = useState(() => getChallenge());
   const [elapsedMs, setElapsedMs] = useState(0);
   const [runResult, setRunResult] = useState(null);
+  const [boardRank, setBoardRank] = useState(null);
 
   // ── Grid / falling state ──────────────────────────────────
   const [grid, setGrid] = useState(makeEmptyGrid());
@@ -69,6 +172,7 @@ function Game() {
   const elapsedRef = useRef(0);
   const segmentStartRef = useRef(0);
   const runIdRef = useRef(0);
+  const countTokenRef = useRef(0);
 
   // ── Combo banner ──────────────────────────────────────────
   useEffect(() => {
@@ -115,21 +219,55 @@ function Game() {
     setFalling(null);
     setElapsedMs(elapsed);
     setRunResult(result);
-    stopBGM();
+    stopMusic();
     if (result.reason === 'topout') playSound('/sound/gameover.wav');
     else if (result.reason !== 'target') playSound('/sound/points.wav');
-    if (result.ranks) {
-      saveScore({
-        name: getUsername() || 'ANON',
-        score: scoreRef.current,
-        words: wordsFoundRef.current,
-        level: levelRef.current,
-        difficulty: difficultyRef.current,
-        challenge: challengeRef.current,
-        timeMs: elapsed,
-      });
-    }
+    const entry = {
+      name: getUsername() || guestName(),
+      score: scoreRef.current,
+      words: wordsFoundRef.current,
+      level: levelRef.current,
+      difficulty: difficultyRef.current,
+      challenge: challengeRef.current,
+      timeMs: elapsed,
+    };
+    if (result.ranks) saveScore(entry);
+    const finishedRun = runIdRef.current;
+    setBoardRank(null);
     setGameOver(true);
+    submitRun(entry).then(async (saved) => {
+      if (runIdRef.current !== finishedRun) return;
+      if (!result.ranks) {
+        setBoardRank(null);
+        return;
+      }
+      try {
+        const { scores, combined } = await loadLeaderboard(entry.challenge);
+        if (runIdRef.current !== finishedRun) return;
+        const index = scores.findIndex((row) => (
+          row.score === entry.score
+          && String(row.name).toUpperCase() === entry.name.toUpperCase()
+          && row.difficulty === entry.difficulty
+        ));
+        if (index !== -1) {
+          setBoardRank(index + 1);
+          return;
+        }
+        setBoardRank(combined && typeof saved.rank === 'number' ? saved.rank : null);
+      } catch {
+        if (runIdRef.current !== finishedRun) return;
+        setBoardRank(typeof saved.rank === 'number' ? saved.rank : null);
+      }
+    }).catch(() => {
+      if (runIdRef.current !== finishedRun || !result.ranks) return;
+      const spec = engine.challenge(entry.challenge);
+      const index = scoresFor(entry.challenge).findIndex((row) => (
+        row.score === entry.score
+        && row.name.toUpperCase() === entry.name.toUpperCase()
+        && (spec.rankBy !== 'time' || row.timeMs === entry.timeMs)
+      ));
+      setBoardRank(index === -1 ? null : index + 1);
+    });
   }, [readElapsed]);
 
   const spawnLetter = useCallback((currentGrid) => {
@@ -218,17 +356,17 @@ function Game() {
     }
   }, []);
 
-  // Restart loop when level changes
+  // Restart loop when level changes. The countdown holds the first drop.
   useEffect(() => {
-    if (started && !gameOver) {
+    if (started && !gameOver && countdown == null) {
       startLoop();
     }
     return stopLoop;
-  }, [level, started, gameOver, startLoop, stopLoop]);
+  }, [level, started, gameOver, countdown, startLoop, stopLoop]);
 
   // Playing time. Pause freezes it. Only the timed challenge ends from the clock.
   useEffect(() => {
-    if (!started || gameOver) return undefined;
+    if (!started || gameOver || countdown != null) return undefined;
     const spec = engine.challenge(challengeRef.current);
     if (spec.goal === 'survival') return undefined;
     const id = setInterval(() => {
@@ -238,12 +376,14 @@ function Game() {
       if (spec.goal === 'time') finishRun(false);
     }, 100);
     return () => clearInterval(id);
-  }, [started, gameOver, readElapsed, finishRun]);
+  }, [started, gameOver, countdown, readElapsed, finishRun]);
 
   // ── Quit to start screen ───────────────────────────────────
   const quitGame = useCallback(() => {
     stopLoop();
-    stopBGM();
+    countTokenRef.current += 1;
+    setCountdown(null);
+    playPageMusic();
     runIdRef.current += 1;
     segmentStartRef.current = 0;
     gameOverRef.current = false;
@@ -253,6 +393,7 @@ function Game() {
     setStarted(false);
     setGameOver(false);
     setPaused(false);
+    setBoardRank(null);
   }, [stopLoop]);
 
   // ── Start game ─────────────────────────────────────────────
@@ -275,7 +416,8 @@ function Game() {
     recentLettersRef.current = [];
     scoreRef.current = 0;
     elapsedRef.current = 0;
-    segmentStartRef.current = performance.now();
+    segmentStartRef.current = 0;
+    countTokenRef.current += 1;
 
     setGrid(emptyGrid);
     setFalling(null);
@@ -292,14 +434,33 @@ function Game() {
     setChallenge(goal);
     setElapsedMs(0);
     setRunResult(null);
+    setBoardRank(null);
     setStarted(true);
-    startBGM();
-    spawnLetter(emptyGrid);
-  }, [spawnLetter]);
+    setCountdown(3);
+    fadeOutMusic();
+  }, []);
+
+  // 3, 2, 1. Pieces, the clock, and the game track wait until it ends.
+  useEffect(() => {
+    if (!started || countdown == null) return undefined;
+    const token = countTokenRef.current;
+    const id = setTimeout(() => {
+      if (countTokenRef.current !== token) return;
+      if (countdown > 1) {
+        setCountdown(countdown - 1);
+        return;
+      }
+      segmentStartRef.current = performance.now();
+      playGameMusic();
+      spawnLetter(gridRef.current);
+      setCountdown(null);
+    }, 1000);
+    return () => clearTimeout(id);
+  }, [started, countdown, spawnLetter]);
 
   // ── Submit word ────────────────────────────────────────────
   const submitWord = useCallback(() => {
-    if (pausedRef.current || gameOverRef.current || clearingRef.current) return;
+    if (pausedRef.current || gameOverRef.current || clearingRef.current || countdown != null) return;
     const mode = difficultyRef.current;
     const word = typed.toUpperCase();
     if (!engine.isValidWord(word, mode)) return;
@@ -320,7 +481,7 @@ function Game() {
     comboRef.current = newCombo;
     setCombo(newCombo);
 
-    const pts = engine.calculateScore(word.length, newCombo);
+    const pts = engine.calculateScore(word.length, newCombo, spec.scoreMultiplier || 1);
     setScore((prev) => {
       const next = prev + pts;
       scoreRef.current = next;
@@ -363,7 +524,7 @@ function Game() {
       setClearedCells([]);
       clearingRef.current = false;
     }, 320);
-  }, [typed, finishRun]);
+  }, [typed, finishRun, countdown]);
 
   // ── Keyboard controls ─────────────────────────────────────
   const handleLeft = useCallback(() => {
@@ -417,7 +578,7 @@ function Game() {
   }, [settlePiece, spawnLetter]);
 
   const handleEscape = useCallback(() => {
-    if (gameOverRef.current) return;
+    if (gameOverRef.current || countdown != null) return;
     setPaused((prev) => {
       const next = !prev;
       const now = performance.now();
@@ -427,13 +588,15 @@ function Game() {
           segmentStartRef.current = 0;
         }
         setElapsedMs(Math.floor(elapsedRef.current));
+        pauseMusic();
       } else {
         segmentStartRef.current = now;
+        resumeMusic();
       }
       pausedRef.current = next;
       return next;
     });
-  }, []);
+  }, [countdown]);
 
   useKeyboard({
     onLeft: handleLeft,
@@ -441,12 +604,12 @@ function Game() {
     onDown: handleDown,
     onSpace: handleSpace,
     onEscape: handleEscape,
-    enabled: started && !gameOver,
+    enabled: started && !gameOver && countdown == null,
   });
 
   // ── Global letter input (no focus required) ────────────────
   useEffect(() => {
-    if (!started || gameOver) return;
+    if (!started || gameOver || countdown != null) return;
     const handler = (e) => {
       if (pausedRef.current) return;
       if (/^[a-zA-Z]$/.test(e.key)) {
@@ -460,7 +623,7 @@ function Game() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [started, gameOver, submitWord]);
+  }, [started, gameOver, countdown, submitWord]);
 
   // ── Render ─────────────────────────────────────────────────
   const challengeSpec = engine.challenge(challenge);
@@ -511,25 +674,17 @@ function Game() {
         </div>
       )}
 
-      {started && !gameOver && (
+      {started && !gameOver && <QuitButton onQuit={quitGame} />}
+
+      {started && !gameOver && countdown == null && (
         <button
-          onClick={() => { clickSound(); quitGame(); }}
-          style={{
-            position: 'fixed',
-            top: 16,
-            left: 20,
-            background: 'none',
-            border: 'none',
-            fontFamily: "'BoutiqueBitmap', sans-serif",
-            fontSize: 12,
-            letterSpacing: 2,
-            color: 'rgba(255,255,255,0.35)',
-            cursor: 'pointer',
-            padding: '4px 0',
-            zIndex: 50,
-          }}
+          type="button"
+          className="music-shuffle"
+          aria-label="Shuffle music"
+          onClick={() => { clickSound(); shuffleGameMusic(); }}
         >
-          ← QUIT
+          <ShuffleMark />
+          BGM
         </button>
       )}
 
@@ -545,7 +700,8 @@ function Game() {
           reason={runResult?.reason || 'topout'}
           onPlayAgain={() => startGame(difficulty, challenge)}
           onQuit={quitGame}
-          playerName={getUsername()}
+          playerName={getUsername() || guestName()}
+          rank={boardRank}
         />
       )}
 
@@ -593,7 +749,19 @@ function Game() {
               clearedCells={clearedCells}
             />
 
-            {paused && (
+            {countdown != null && (
+              <div className="countdown-veil" role="status" aria-live="assertive" aria-label={`Starting in ${countdown}`}>
+                <div
+                  key={countdown}
+                  className="countdown-num"
+                  style={{ '--ink': MODE_COLOR[difficulty] }}
+                >
+                  {countdown}
+                </div>
+              </div>
+            )}
+
+            {paused && countdown == null && (
               <div
                 style={{
                   position: 'absolute',
@@ -603,7 +771,7 @@ function Game() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   zIndex: 10,
-                  borderRadius: 10,
+                  borderRadius: 4,
                   backdropFilter: 'blur(2px)',
                 }}
               >

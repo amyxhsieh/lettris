@@ -3,7 +3,8 @@ import PixelBackground from './PixelBackground';
 import NameEntry from './NameEntry';
 import Leaderboard from './Leaderboard';
 import { getUsername, saveUsername, clearUsername, getDifficulty, saveDifficulty, getChallenge, saveChallenge, scoresFor } from '../utils/storage';
-import { clickSound } from '../utils/sound';
+import { fetchLeaderboard, fetchStats } from '../utils/remote';
+import { clickSound, playPageMusic } from '../utils/sound';
 import { RULES, MODE_COLOR, CHALLENGE_COLOR } from '../utils/dictionary';
 
 
@@ -18,7 +19,7 @@ const CONTROLS = [
 
 const MODE_MARK = {
   survival: 'SRV',
-  words: '30W',
+  words: '50W',
   timed: '3MN',
 };
 
@@ -35,17 +36,17 @@ function PixelIcon({ cells, color, accent, accentCells = [], viewBox }) {
   );
 }
 
-const BOOK = [
-  [3, 3], [4, 3], [5, 3], [6, 3], [9, 3], [10, 3], [11, 3], [12, 3],
-  [3, 4], [4, 4], [5, 4], [6, 4], [9, 4], [10, 4], [12, 4],
-  [3, 5], [4, 5], [5, 5], [6, 5], [9, 5], [10, 5], [11, 5], [12, 5],
-  [3, 6], [4, 6], [5, 6], [6, 6], [9, 6], [10, 6], [11, 6], [12, 6],
-  [3, 7], [4, 7], [5, 7], [6, 7], [7, 7], [8, 7], [9, 7], [10, 7], [11, 7], [12, 7],
-  [4, 8], [5, 8], [6, 8], [7, 8], [8, 8], [9, 8], [10, 8], [11, 8],
-  [7, 3], [8, 3], [7, 4], [8, 4], [7, 5], [8, 5], [7, 6], [8, 6],
+const QUESTION = [
+  [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0],
+  [4, 1], [5, 1], [10, 1], [11, 1],
+  [4, 2], [5, 2], [10, 2], [11, 2],
+  [10, 3], [11, 3],
+  [8, 4], [9, 4], [10, 4],
+  [7, 5], [8, 5],
+  [7, 6], [8, 6],
+  [7, 8], [8, 8],
+  [7, 9], [8, 9],
 ];
-
-const BOOK_MARK = [[11, 1], [11, 2], [10, 3], [11, 3], [12, 3], [11, 4]];
 
 const TROPHY = [
   [4, 3], [5, 3], [6, 3], [7, 3], [8, 3], [9, 3], [10, 3], [11, 3],
@@ -59,6 +60,71 @@ const TROPHY = [
 ];
 
 const TROPHY_STAR = [[7, 0], [6, 1], [7, 1], [8, 1], [7, 2]];
+
+const PAGES = {
+  legal: {
+    title: 'TERMS & PRIVACY',
+    updated: 'October 30, 2026',
+    intro: 'This page is the terms of use and the privacy policy. Playing means you have read it.',
+    sections: [
+      {
+        heading: '1. No account',
+        body: 'Lettris is free in the browser. You pick a name and play. There is no sign-up, no password, and no email.',
+      },
+      {
+        heading: '2. Your name',
+        body: 'The name is public. It shows on the leaderboard with your score, the level, and the game type. This browser also keeps a random id, so two people with the same name stay two players.',
+      },
+      {
+        heading: '3. A finished game',
+        body: 'When a run ends, the board saves your name, score, words, level, difficulty, game type, and time. Quit does not save a run. A 50 Words run that stops before 50 words counts as a game played, and it does not rank.',
+      },
+      {
+        heading: '4. This browser',
+        body: 'The name and the id stay on this computer, in this browser. “not you?” clears the name here. Runs already on the board stay on the board.',
+      },
+      {
+        heading: '5. Visits',
+        body: 'Vercel Analytics counts visits to the site. That count is not tied to your name.',
+      },
+      {
+        heading: '6. The board',
+        body: 'A score stays as the run left it. It comes off only when it breaks the rules.',
+      },
+      {
+        heading: '7. Changes',
+        body: 'The game can change, and so can this page. The version on this screen is the current one.',
+      },
+    ],
+  },
+  rules: {
+    title: 'RULES',
+    updated: 'October 30, 2026',
+    intro: 'These rules keep the board honest. How the pieces fall is under the question mark.',
+    sections: [
+      {
+        heading: '1. Be one player',
+        body: 'This browser is your seat. Don’t stack extra ids so the ranks are full of you, and don’t post a finished run under someone else’s name.',
+      },
+      {
+        heading: '2. Clear the words yourself',
+        body: 'The score comes from words you clear in the game. No bots, no macros, no solvers, and no scores sent from outside.',
+      },
+      {
+        heading: '3. The name is public',
+        body: 'Pick a name you are fine leaving on the board. Don’t pretend to be someone else. Don’t put hate, or a private detail, in the name.',
+      },
+      {
+        heading: '4. A run is a real run',
+        body: 'Play the mode you started. Don’t dump empty games just to push the counts around.',
+      },
+      {
+        heading: '5. If a run breaks this',
+        body: 'That run can come off the board. A name that keeps breaking the rules can be left off later boards.',
+      },
+    ],
+  },
+};
 
 function ModeList({ order, selected, cursor, onChange, locked }) {
   return (
@@ -163,6 +229,58 @@ function ChoiceRow({ label, order, selected, cursor, colors, specs, onChange }) 
   );
 }
 
+function formatCount(value) {
+  return String(Math.max(0, Math.floor(Number(value) || 0))).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function HomeTotals({ stats }) {
+  return (
+    <footer
+      aria-label="Players and games"
+      style={{
+        position: 'relative',
+        zIndex: 2,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        gap: 'clamp(28px, 8vw, 88px)',
+        flexShrink: 0,
+        padding: '12px 24px 8px',
+        visibility: stats ? 'visible' : 'hidden',
+      }}
+    >
+      {[
+        [stats?.players, 'TOTAL PLAYERS'],
+        [stats?.games, 'GAMES PLAYED'],
+      ].map(([value, label]) => (
+        <div key={label} style={{ textAlign: 'center', minWidth: 120 }}>
+          <div
+            style={{
+              fontFamily: "'BoutiqueBitmap', sans-serif",
+              fontSize: 'clamp(26px, 4vw, 36px)',
+              lineHeight: 1,
+              color: 'rgba(186, 186, 186, 0.82)',
+            }}
+          >
+            {formatCount(value)}
+          </div>
+          <div
+            style={{
+              marginTop: 8,
+              fontFamily: "'BoutiqueBitmap', sans-serif",
+              fontSize: 11,
+              letterSpacing: 2,
+              color: 'rgba(160, 160, 160, 0.55)',
+            }}
+          >
+            {label}
+          </div>
+        </div>
+      ))}
+    </footer>
+  );
+}
+
 function StartScreen({ onStart }) {
   const [username, setUsername] = useState(() => getUsername());
   const [blink, setBlink] = useState(true);
@@ -171,12 +289,45 @@ function StartScreen({ onStart }) {
   const [challenge, setChallenge] = useState(() => getChallenge());
   const [modeChosen, setModeChosen] = useState(false);
   const [difficultyChosen, setDifficultyChosen] = useState(false);
+  const [totals, setTotals] = useState(null);
+  const [boardScores, setBoardScores] = useState([]);
+  const [boardStatus, setBoardStatus] = useState('idle');
+  const [boardChallenge, setBoardChallenge] = useState(() => getChallenge());
+
+  useEffect(() => {
+    playPageMusic();
+  }, []);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
     const id = setInterval(() => setBlink((b) => !b), 1100);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    let cancel = false;
+    fetchStats()
+      .then((stats) => { if (!cancel) setTotals(stats); })
+      .catch(() => {});
+    return () => { cancel = true; };
+  }, []);
+
+  useEffect(() => {
+    if (panel !== 'board') return undefined;
+    let cancel = false;
+    fetchLeaderboard(boardChallenge)
+      .then((scores) => {
+        if (cancel) return;
+        setBoardScores(scores);
+        setBoardStatus('ready');
+      })
+      .catch(() => {
+        if (cancel) return;
+        setBoardScores(scoresFor(boardChallenge));
+        setBoardStatus('local');
+      });
+    return () => { cancel = true; };
+  }, [panel, boardChallenge]);
 
   const moveChallenge = useCallback((id) => {
     if (!RULES.challenges[id] || id === challenge) return;
@@ -224,7 +375,17 @@ function StartScreen({ onStart }) {
       const arrows = e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown';
       if (panel) {
         if (arrows || e.key === 'Escape') e.preventDefault();
+        if (e.repeat) return;
         if (e.key === 'Escape') setPanel(null);
+        if (panel === 'board' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+          const order = RULES.challengeOrder;
+          const index = Math.max(0, order.indexOf(boardChallenge));
+          const step = e.key === 'ArrowRight' ? 1 : -1;
+          const next = order[(index + step + order.length) % order.length];
+          clickSound();
+          setBoardStatus('loading');
+          setBoardChallenge(next);
+        }
         return;
       }
       if (arrows) e.preventDefault();
@@ -276,6 +437,7 @@ function StartScreen({ onStart }) {
     modeChosen,
     difficultyChosen,
     panel,
+    boardChallenge,
     moveChallenge,
     confirmMode,
     moveDifficulty,
@@ -295,6 +457,10 @@ function StartScreen({ onStart }) {
 
   const openPanel = (next) => {
     clickSound();
+    if (next === 'board') {
+      setBoardChallenge(challenge);
+      setBoardStatus('loading');
+    }
     setPanel(next);
   };
 
@@ -308,12 +474,8 @@ function StartScreen({ onStart }) {
         background: 'linear-gradient(180deg, #03030e 0%, #07091e 25%, #090e38 55%, #0e1458 80%, #141870 100%)',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'safe center',
         zIndex: 100,
-        gap: 48,
-        overflowY: 'auto',
-        padding: '48px 24px 40px',
+        overflow: 'hidden',
       }}
     >
       <PixelBackground shootingStars />
@@ -322,27 +484,51 @@ function StartScreen({ onStart }) {
         <button
           type="button"
           className="corner-icon"
-          data-on={panel === 'how' ? 'true' : 'false'}
-          style={{ '--ink': '#7ee8ff' }}
-          aria-label="How to play"
-          onClick={() => openPanel('how')}
-        >
-          <PixelIcon cells={BOOK} color="#9aefff" accent="#ff8ad4" accentCells={BOOK_MARK} viewBox="3 1 10 8" />
-        </button>
-        <button
-          type="button"
-          className="corner-icon"
           data-on={panel === 'board' ? 'true' : 'false'}
-          style={{ '--ink': '#ffd56a' }}
+          style={{ '--ink': '#7ee8ff' }}
           aria-label="Leaderboard"
           onClick={() => openPanel('board')}
         >
           <PixelIcon cells={TROPHY} color="#ffd56a" accent="#fff6c8" accentCells={TROPHY_STAR} viewBox="3 0 10 11" />
         </button>
+        <button
+          type="button"
+          className="corner-icon"
+          data-on={panel === 'how' ? 'true' : 'false'}
+          style={{ '--ink': '#7ee8ff' }}
+          aria-label="How to play"
+          onClick={() => openPanel('how')}
+        >
+          <PixelIcon cells={QUESTION} color="#9aefff" viewBox="4 0 8 10" />
+        </button>
       </div>
 
-      {/* All content sits above PixelBackground in the stacking order */}
-      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 48, width: '100%', maxWidth: 560 }}>
+      <div
+        className="pixel-scroll"
+        style={{
+          '--ink': '#7ee8ff',
+          position: 'relative',
+          zIndex: 1,
+          flex: 1,
+          minHeight: 0,
+          width: '100%',
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+      <div
+        style={{
+          flex: '1 0 auto',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'safe center',
+          padding: '48px 24px 24px',
+          width: '100%',
+        }}
+      >
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 48, width: '100%', maxWidth: 560 }}>
 
       {/* Title */}
       <div style={{ textAlign: 'center', position: 'relative' }}>
@@ -480,7 +666,23 @@ function StartScreen({ onStart }) {
         </div>
       )}
 
-      </div>{/* end content wrapper */}
+      </div>
+      </div>
+
+      <HomeTotals stats={totals} />
+      </div>
+
+      <nav className="site-footer" aria-label="Lettris">
+        <p className="site-footer-credit">@LETTRIS 2026</p>
+        <div className="site-footer-links">
+          <button type="button" className="site-link pressable" onClick={() => openPanel('legal')}>
+            Terms of use / Privacy policy
+          </button>
+          <button type="button" className="site-link pressable" onClick={() => openPanel('rules')}>
+            Rules
+          </button>
+        </div>
+      </nav>
 
       {panel && (
         <div
@@ -488,10 +690,11 @@ function StartScreen({ onStart }) {
           onClick={closePanel}
         >
           <div
-            className="home-modal"
+            className="home-modal pixel-scroll"
             role="dialog"
             aria-modal="true"
             aria-labelledby="home-panel-title"
+            style={{ '--ink': '#7ee8ff' }}
             onClick={(event) => event.stopPropagation()}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 18 }}>
@@ -502,10 +705,10 @@ function StartScreen({ onStart }) {
                   fontFamily: "'BoutiqueBitmap', sans-serif",
                   fontSize: 16,
                   letterSpacing: 3,
-                  color: panel === 'how' ? '#7ee8ff' : '#ffd56a',
+                  color: '#7ee8ff',
                 }}
               >
-                {panel === 'how' ? 'HOW TO PLAY' : 'LEADERBOARD'}
+                {PAGES[panel]?.title || (panel === 'how' ? 'HOW TO PLAY' : 'LEADERBOARD')}
               </h2>
               <button
                 type="button"
@@ -526,6 +729,62 @@ function StartScreen({ onStart }) {
               </button>
             </div>
 
+            {PAGES[panel] && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <p
+                  style={{
+                    fontFamily: "'BoutiqueBitmap', sans-serif",
+                    color: 'rgba(255,255,255,0.38)',
+                    fontSize: 11,
+                    letterSpacing: 0.6,
+                    margin: 0,
+                  }}
+                >
+                  Updated {PAGES[panel].updated}
+                </p>
+                <p
+                  style={{
+                    fontFamily: "'BoutiqueBitmap', sans-serif",
+                    color: 'rgba(255,255,255,0.62)',
+                    fontSize: 12,
+                    lineHeight: 1.7,
+                    letterSpacing: 0.4,
+                    margin: 0,
+                  }}
+                >
+                  {PAGES[panel].intro}
+                </p>
+                {PAGES[panel].sections.map((section) => (
+                  <div key={section.heading}>
+                    <h3
+                      style={{
+                        margin: '0 0 6px',
+                        fontFamily: "'BoutiqueBitmap', sans-serif",
+                        fontSize: 12,
+                        fontWeight: 400,
+                        letterSpacing: 1,
+                        color: '#7ee8ff',
+                      }}
+                    >
+                      {section.heading}
+                    </h3>
+                    <p
+                      style={{
+                        fontFamily: "'BoutiqueBitmap', sans-serif",
+                        color: 'rgba(255,255,255,0.62)',
+                        fontSize: 12,
+                        lineHeight: 1.7,
+                        letterSpacing: 0.4,
+                        margin: 0,
+                      }}
+                    >
+                      {section.body}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {panel === 'how' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                 <p
@@ -541,7 +800,8 @@ function StartScreen({ onStart }) {
                   <span style={{ color: '#00eeff' }}>Cyan</span> vowels, <span style={{ color: '#44ff88' }}>green</span> consonants.
                   Easy and Medium clear from 3 letters. Hard clears from 4.
                   Chain words quickly for a combo.
-                  Survival fills the board. 30 Words is a race. 3 Minutes ends at 0:00.
+                  Survival fills the board. 50 Words is 50 clears. 3 Minutes ends at 0:00.
+                  Easy scores ×1, Medium ×2, Hard ×3.
                 </p>
                 <div
                   style={{
@@ -571,25 +831,35 @@ function StartScreen({ onStart }) {
 
             {panel === 'board' && (
               <div>
-                <p
-                  style={{
-                    margin: '0 0 12px',
-                    textAlign: 'center',
-                    fontFamily: "'BoutiqueBitmap', sans-serif",
-                    fontSize: 11,
-                    letterSpacing: 2,
-                    color: 'rgba(255,255,255,0.4)',
-                  }}
-                >
-                  {RULES.challenges[challenge].label} · {RULES.difficulties[difficulty].label}
-                </p>
+                <div className="board-tabs" role="tablist" aria-label="Game type">
+                  {RULES.challengeOrder.map((id) => (
+                    <button
+                      key={id}
+                      type="button"
+                      role="tab"
+                      className="board-tab"
+                      aria-selected={boardChallenge === id}
+                      style={{ '--ink': CHALLENGE_COLOR[id] }}
+                      onClick={() => {
+                        if (id === boardChallenge) return;
+                        clickSound();
+                        setBoardStatus('loading');
+                        setBoardChallenge(id);
+                      }}
+                    >
+                      <span className="board-tab-label">{RULES.challenges[id].label}</span>
+                    </button>
+                  ))}
+                </div>
                 <Leaderboard
-                  scores={scoresFor(difficulty, challenge)}
+                  scores={boardStatus === 'loading' ? [] : boardScores}
                   currentName={username}
-                  rankBy={RULES.challenges[challenge].rankBy}
-                  emptyLabel={challenge === 'words'
-                    ? `NO ${RULES.difficulties[difficulty].label} CLEARS YET`
-                    : `NO ${RULES.difficulties[difficulty].label} RECORDS YET`}
+                  rankBy={RULES.challenges[boardChallenge].rankBy}
+                  emptyLabel={boardStatus === 'loading'
+                    ? 'LOADING'
+                    : boardChallenge === 'words'
+                      ? 'NO CLEARS YET'
+                      : 'NO RECORDS YET'}
                 />
               </div>
             )}

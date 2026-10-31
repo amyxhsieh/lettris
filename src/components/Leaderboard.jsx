@@ -1,4 +1,5 @@
 import { formatClock } from '../utils/time';
+import { MODE_COLOR } from '../utils/dictionary';
 
 function Leaderboard({ scores, currentName, emptyLabel = 'NO RECORDS YET', rankBy = 'score' }) {
   if (!scores || scores.length === 0) {
@@ -57,6 +58,18 @@ function Leaderboard({ scores, currentName, emptyLabel = 'NO RECORDS YET', rankB
             >
               {entry.name.toUpperCase()}
             </span>
+            {MODE_COLOR[entry.difficulty] && (
+              <span
+                style={{
+                  color: MODE_COLOR[entry.difficulty],
+                  fontSize: 9,
+                  letterSpacing: 1,
+                  flexShrink: 0,
+                }}
+              >
+                {entry.difficulty === 'medium' ? 'MED' : entry.difficulty === 'hard' ? 'HARD' : 'EASY'}
+              </span>
+            )}
             <span
               style={{
                 color: '#33ff66',

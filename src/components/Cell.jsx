@@ -22,7 +22,7 @@ const Cell = memo(function Cell({ letter, isClearing, isFalling }) {
       style={{
         width: '100%',
         height: '100%',
-        borderRadius: 'max(4px, calc(var(--cell) * 0.12))',
+        borderRadius: 4,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

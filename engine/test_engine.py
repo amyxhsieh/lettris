@@ -29,6 +29,13 @@ class ScoringTest(unittest.TestCase):
         self.assertEqual(game.calculate_score(3, 3), 180)
         self.assertEqual(game.calculate_score(4, 4), 400)
         self.assertEqual(game.calculate_score(8, 6), 1600)
+        self.assertEqual(game.calculate_score(5, 1, 1), 250)
+        self.assertEqual(game.calculate_score(5, 1, 2), 500)
+        self.assertEqual(game.calculate_score(5, 1, 3), 750)
+        self.assertGreater(
+            game.calculate_score(4, 1, game.DIFFICULTIES["hard"].score_multiplier),
+            game.calculate_score(4, 1, game.DIFFICULTIES["easy"].score_multiplier),
+        )
 
     def test_speed_ramps_and_then_holds(self):
         easy = game.DIFFICULTIES["easy"]
@@ -202,8 +209,8 @@ class PlaceNameTest(unittest.TestCase):
 class ChallengeTest(unittest.TestCase):
     def test_three_challenges_keep_their_goals(self):
         self.assertEqual(game.CHALLENGE_ORDER, ("survival", "words", "timed"))
-        self.assertEqual(game.CHALLENGES["words"].target_words, 30)
-        self.assertEqual(game.CHALLENGES["words"].rank_by, "time")
+        self.assertEqual(game.CHALLENGES["words"].target_words, 50)
+        self.assertEqual(game.CHALLENGES["words"].rank_by, "score")
         self.assertEqual(game.CHALLENGES["timed"].limit_ms, 180_000)
         self.assertEqual(game.CHALLENGES["timed"].rank_by, "score")
         self.assertEqual(game.CHALLENGES["survival"].rank_by, "score")
@@ -217,13 +224,13 @@ class ChallengeTest(unittest.TestCase):
         self.assertTrue(ended["ranks"])
         self.assertFalse(ended["cleared"])
 
-    def test_thirty_words_ranks_only_a_finished_clear(self):
+    def test_fifty_words_ranks_only_a_finished_clear(self):
         words = game.CHALLENGES["words"]
-        self.assertFalse(game.session_result(words, 29, 50_000, False)["over"])
-        missed = game.session_result(words, 29, 50_000, True)
+        self.assertFalse(game.session_result(words, 49, 50_000, False)["over"])
+        missed = game.session_result(words, 49, 50_000, True)
         self.assertEqual(missed["reason"], "topout")
         self.assertFalse(missed["ranks"])
-        cleared = game.session_result(words, 30, 50_000, True)
+        cleared = game.session_result(words, 50, 50_000, True)
         self.assertEqual(cleared["reason"], "target")
         self.assertTrue(cleared["cleared"])
         self.assertTrue(cleared["ranks"])

@@ -20,9 +20,9 @@ function comboParts(combo) {
   return [1, 1];
 }
 
-export function calculateScore(wordLength, combo) {
+export function calculateScore(wordLength, combo, multiplier = 1) {
   const [numerator, denominator] = comboParts(combo);
-  return Math.floor((wordLength * wordLength * 10 * numerator) / denominator);
+  return Math.floor((wordLength * wordLength * 10 * numerator * multiplier) / denominator);
 }
 
 export function fallInterval(level, difficulty) {

@@ -16,6 +16,7 @@
     "all-the-cities": "^3.1.0",
     "an-array-of-english-words": "^2.0.0",
     "country-list": "^2.4.1",
+    "postgres": "^4.0.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },

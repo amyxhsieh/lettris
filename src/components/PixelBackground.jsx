@@ -181,7 +181,7 @@ export default function PixelBackground({ shootingStars = false }) {
       }} />
 
       {/* Clouds — varied shapes and scales for depth */}
-      <PixelCloud cells={C_LG}   x="1%"   y="8%"  scale={7} />  {/* large  — left top, biggest */}
+      <PixelCloud cells={C_LG}   x="56px" y="108px" scale={7} />  {/* large  — left, clear of the quit chip */}
       <PixelCloud cells={C_MD}   x="62%"  y="5%"  scale={6} />  {/* medium — right top */}
       <PixelCloud cells={C_TALL} x="78%"  y="42%" scale={6} />  {/* tall   — far right mid */}
       <PixelCloud cells={C_WIDE} x="5%"   y="78%" scale={5} />  {/* wide   — bottom left */}

@@ -1,12 +1,29 @@
 import { RULES } from './dictionary';
 
 const USERNAME_KEY = 'lettris_username';
+const PLAYER_KEY = 'lettris_player_id';
 const SCORES_KEY   = 'lettris_scores';
 const DIFFICULTY_KEY = 'lettris_difficulty';
 const CHALLENGE_KEY = 'lettris_challenge';
 const MAX_SCORES   = 10;
 const DIFFICULTIES = new Set(RULES.order);
 const CHALLENGES = new Set(RULES.challengeOrder);
+
+export function getPlayerId() {
+  const existing = localStorage.getItem(PLAYER_KEY) || '';
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(existing)) {
+    return existing;
+  }
+  const id = crypto.randomUUID();
+  localStorage.setItem(PLAYER_KEY, id);
+  return id;
+}
+
+export function guestName() {
+  const slice = getPlayerId().replace(/-/g, '').slice(0, 5);
+  const number = String(Number.parseInt(slice, 16) % 100000).padStart(5, '0');
+  return `PLAYER - ${number}`;
+}
 
 export function getUsername() {
   return localStorage.getItem(USERNAME_KEY) || '';
@@ -66,17 +83,21 @@ export function getScores() {
   }
 }
 
-export function scoresFor(difficulty, challenge = 'survival') {
-  const mode = DIFFICULTIES.has(difficulty) ? difficulty : 'medium';
+export function scoresFor(challenge = 'survival') {
   const goal = CHALLENGES.has(challenge) ? challenge : 'survival';
+  const target = goal === 'words' ? RULES.challenges.words.targetWords : null;
   return getScores()
-    .filter((entry) => difficultyOf(entry) === mode && challengeOf(entry) === goal)
+    .filter((entry) => challengeOf(entry) === goal)
+    .filter((entry) => target == null || entry.words >= target)
     .sort((a, b) => compareEntries(goal, a, b));
 }
 
 export function saveScore({ name, score, words, level, difficulty, challenge = 'survival', timeMs = 0 }) {
   const mode = DIFFICULTIES.has(difficulty) ? difficulty : 'medium';
   const goal = CHALLENGES.has(challenge) ? challenge : 'survival';
+  if (goal === 'words' && words < RULES.challenges.words.targetWords) {
+    return getScores();
+  }
   const scores = getScores();
   scores.push({
     name,
@@ -93,7 +114,7 @@ export function saveScore({ name, score, words, level, difficulty, challenge = '
   for (const entry of scores) {
     const entryMode = difficultyOf(entry);
     const entryGoal = challengeOf(entry);
-    const key = `${entryGoal}:${entryMode}`;
+    const key = entryGoal;
     if (!buckets.has(key)) buckets.set(key, []);
     buckets.get(key).push({ ...entry, difficulty: entryMode, challenge: entryGoal });
   }

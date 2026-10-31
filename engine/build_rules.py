@@ -51,6 +51,14 @@ def parity_cases(payload):
         (4, 1), (5, 2), (8, 4),
     ):
         add("calculateScore", game.calculate_score(length, combo), length=length, combo=combo)
+    for multiplier in (1, 2, 3):
+        add(
+            "calculateScore",
+            game.calculate_score(5, 1, multiplier),
+            length=5,
+            combo=1,
+            multiplier=multiplier,
+        )
 
     for difficulty_id in game.DIFFICULTY_ORDER:
         difficulty = game.DIFFICULTIES[difficulty_id]
@@ -207,10 +215,10 @@ def parity_cases(payload):
         for words_found, elapsed_ms, topped_out in (
             (0, 0, False),
             (10, 1000, False),
-            (29, 50_000, False),
-            (29, 50_000, True),
-            (30, 50_000, False),
-            (30, 50_000, True),
+            (49, 50_000, False),
+            (49, 50_000, True),
+            (50, 50_000, False),
+            (50, 50_000, True),
             (4, 179_999, False),
             (4, 180_000, False),
             (4, 40_000, True),

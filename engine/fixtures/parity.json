@@ -48,6 +48,27 @@
     "combo": 4
   },
   {
+    "fn": "calculateScore",
+    "expect": 250,
+    "length": 5,
+    "combo": 1,
+    "multiplier": 1
+  },
+  {
+    "fn": "calculateScore",
+    "expect": 500,
+    "length": 5,
+    "combo": 1,
+    "multiplier": 2
+  },
+  {
+    "fn": "calculateScore",
+    "expect": 750,
+    "length": 5,
+    "combo": 1,
+    "multiplier": 3
+  },
+  {
     "fn": "fallInterval",
     "expect": 620,
     "difficultyId": "easy",
@@ -683,7 +704,7 @@
       "ranks": false
     },
     "challengeId": "survival",
-    "words": 29,
+    "words": 49,
     "elapsedMs": 50000,
     "toppedOut": false
   },
@@ -696,7 +717,7 @@
       "ranks": true
     },
     "challengeId": "survival",
-    "words": 29,
+    "words": 49,
     "elapsedMs": 50000,
     "toppedOut": true
   },
@@ -709,7 +730,7 @@
       "ranks": false
     },
     "challengeId": "survival",
-    "words": 30,
+    "words": 50,
     "elapsedMs": 50000,
     "toppedOut": false
   },
@@ -722,7 +743,7 @@
       "ranks": true
     },
     "challengeId": "survival",
-    "words": 30,
+    "words": 50,
     "elapsedMs": 50000,
     "toppedOut": true
   },
@@ -769,12 +790,12 @@
     "fn": "challenge",
     "expect": {
       "id": "words",
-      "label": "30 WORDS",
-      "tagline": "Clear 30 words as fast as you can",
+      "label": "50 WORDS",
+      "tagline": "Clear 50 words for the highest score",
       "goal": "words",
-      "targetWords": 30,
+      "targetWords": 50,
       "limitMs": null,
-      "rankBy": "time"
+      "rankBy": "score"
     },
     "challengeId": "words"
   },
@@ -813,7 +834,7 @@
       "ranks": false
     },
     "challengeId": "words",
-    "words": 29,
+    "words": 49,
     "elapsedMs": 50000,
     "toppedOut": false
   },
@@ -826,7 +847,7 @@
       "ranks": false
     },
     "challengeId": "words",
-    "words": 29,
+    "words": 49,
     "elapsedMs": 50000,
     "toppedOut": true
   },
@@ -839,7 +860,7 @@
       "ranks": true
     },
     "challengeId": "words",
-    "words": 30,
+    "words": 50,
     "elapsedMs": 50000,
     "toppedOut": false
   },
@@ -852,7 +873,7 @@
       "ranks": true
     },
     "challengeId": "words",
-    "words": 30,
+    "words": 50,
     "elapsedMs": 50000,
     "toppedOut": true
   },
@@ -943,7 +964,7 @@
       "ranks": false
     },
     "challengeId": "timed",
-    "words": 29,
+    "words": 49,
     "elapsedMs": 50000,
     "toppedOut": false
   },
@@ -956,7 +977,7 @@
       "ranks": true
     },
     "challengeId": "timed",
-    "words": 29,
+    "words": 49,
     "elapsedMs": 50000,
     "toppedOut": true
   },
@@ -969,7 +990,7 @@
       "ranks": false
     },
     "challengeId": "timed",
-    "words": 30,
+    "words": 50,
     "elapsedMs": 50000,
     "toppedOut": false
   },
@@ -982,7 +1003,7 @@
       "ranks": true
     },
     "challengeId": "timed",
-    "words": 30,
+    "words": 50,
     "elapsedMs": 50000,
     "toppedOut": true
   },

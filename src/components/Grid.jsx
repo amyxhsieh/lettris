@@ -19,7 +19,7 @@ function Grid({ grid, falling, clearedCells }) {
         padding: 'var(--pad)',
         background: 'rgba(8,8,28,0.85)',
         border: '1px solid rgba(0,200,240,0.2)',
-        borderRadius: 6,
+        borderRadius: 4,
         boxShadow: '0 0 30px rgba(0,180,220,0.08), inset 0 0 40px rgba(0,0,0,0.4)',
       }}
     >

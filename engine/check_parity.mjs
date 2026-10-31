@@ -23,7 +23,7 @@ function run(test) {
   const difficulty = rules.difficulties[test.difficultyId];
   switch (test.fn) {
     case 'calculateScore':
-      return calculateScore(test.length, test.combo);
+      return calculateScore(test.length, test.combo, test.multiplier ?? 1);
     case 'fallInterval':
       return fallInterval(test.level, difficulty);
     case 'levelForWords':
