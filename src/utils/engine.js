@@ -20,9 +20,19 @@ function comboParts(combo) {
   return [1, 1];
 }
 
-export function calculateScore(wordLength, combo, multiplier = 1) {
-  const [numerator, denominator] = comboParts(combo);
-  return Math.floor((wordLength * wordLength * 10 * numerator * multiplier) / denominator);
+function repeatParts(times) {
+  if (times <= 1) return [1, 1];
+  if (times === 2) return [1, 2];
+  return [1, 4];
+}
+
+export function calculateScore(wordLength, combo, multiplier = 1, times = 1) {
+  const [comboNumerator, comboDenominator] = comboParts(combo);
+  const [repeatNumerator, repeatDenominator] = repeatParts(times);
+  return Math.floor(
+    (wordLength * wordLength * 10 * comboNumerator * multiplier * repeatNumerator)
+    / (comboDenominator * repeatDenominator),
+  );
 }
 
 export function fallInterval(level, difficulty) {

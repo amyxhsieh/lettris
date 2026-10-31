@@ -2,6 +2,8 @@
 
 **Tetris meets word game.** Letters fall from the sky — you move them into place, then type a word to clear them. Simple idea, surprisingly hard to put down.
 
+Play at [lettris-game.vercel.app](https://lettris-game.vercel.app/).
+
 ---
 
 ## Game demo
@@ -21,7 +23,7 @@ Letters drop one at a time into a 13×8 grid. Pick a mode, then a difficulty, th
 | Survival | Play until the board fills |
 | 50 Words | Clear 50 words. A run that fills early does not rank |
 | 3 Minutes | Score until the clock hits 0:00. Filling the board early still ranks |
-| Daily | Today's 4-letter word, on Medium, with the same letters for everyone. Most clears of that word wins. Other words still clear. The board resets at midnight UTC |
+| Daily | Today's 4-letter word, on Medium, with the same letters for everyone. Most clears of that word wins, then score breaks the tie. Other words still clear. The board resets at midnight UTC |
 
 **Difficulties**
 
@@ -32,6 +34,8 @@ Letters drop one at a time into a 13×8 grid. Pick a mode, then a difficulty, th
 | Hard | Rarer letters, words from 4 letters | ×3 |
 
 A word can be as long as the board. Easy and Medium clear from 3 letters, including ordinary words such as **cue**, **did**, **git**, **gin**, and **zen**. Hard clears from 4. Days, months, and one-word place names count. A contraction clears without the apostrophe, so **don't** clears as **dont**.
+
+After a clear, the next few letters lean toward a different word. The game looks at the letters still on the board and raises up to three letters that would finish another common word. Easy aims at words of 3 or 4 letters, Medium up to 6, and Hard at words of 5 to 8. The letters from the word you just cleared stay at their normal rate, so the same word is not simply rebuilt. On Daily, today's word keeps its own boost on top of that.
 
 **Vowels** show up in cyan, **consonants** in green.
 
@@ -56,6 +60,7 @@ Hold **QUIT** (top left) to leave. A short press stays in the game, and quitting
 ## Scoring
 
 - Longer words score more: length² × 10, then the combo, then the difficulty multiplier
+- Clearing the same word again in a run scores half, then a quarter. The letters still clear
 - Clear words quickly back-to-back to build a **combo** (×1, ×1.5, ×2, up to ×2.5)
 - The same word is worth twice as much on Medium and three times as much on Hard
 
@@ -63,8 +68,8 @@ Hold **QUIT** (top left) to leave. A short press stays in the game, and quitting
 
 ## Features
 
-- 🏆 Shared leaderboard — one board per mode, ranked by score, with each run marked Easy, Medium, or Hard
-- 👤 Name entry — enter once, remembered on this browser
+- 🏆 Shared leaderboard — one board per mode. Survival, 50 Words, and 3 Minutes rank by score. Daily ranks by how many times today's word was cleared, then by score. Each run is marked Easy, Medium, or Hard
+- 👤 Name entry — enter once, remembered on this browser. Skipping the name still ranks, as `PLAYER` plus a number from this browser
 - 🎵 Background music with fade in and out, plus sound effects
 - Pixel art background with shooting stars on the start screen
 - Combo animations, word clear animations

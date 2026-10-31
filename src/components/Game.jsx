@@ -173,6 +173,7 @@ function Game() {
   const challengeRef = useRef(challenge);
   const recentLettersRef = useRef([]);
   const branchRef = useRef({ letters: '', left: 0 });
+  const seenWordsRef = useRef(new Map());
   const collectsRef = useRef(0);
   const dailyWordRef = useRef('');
   const rollsRef = useRef(null);
@@ -406,6 +407,7 @@ function Game() {
     fallingRef.current = null;
     pausedRef.current = false;
     branchRef.current = { letters: '', left: 0 };
+    seenWordsRef.current = new Map();
     setFalling(null);
     setStarted(false);
     setGameOver(false);
@@ -433,6 +435,7 @@ function Game() {
     challengeRef.current = goal;
     recentLettersRef.current = [];
     branchRef.current = { letters: '', left: 0 };
+    seenWordsRef.current = new Map();
     collectsRef.current = 0;
     dailyWordRef.current = '';
     rollsRef.current = null;
@@ -521,7 +524,10 @@ function Game() {
     comboRef.current = newCombo;
     setCombo(newCombo);
 
-    const pts = engine.calculateScore(word.length, newCombo, spec.scoreMultiplier || 1);
+    const seen = seenWordsRef.current;
+    const times = (seen.get(word) || 0) + 1;
+    seen.set(word, times);
+    const pts = engine.calculateScore(word.length, newCombo, spec.scoreMultiplier || 1, times);
     setScore((prev) => {
       const next = prev + pts;
       scoreRef.current = next;
@@ -544,7 +550,7 @@ function Game() {
 
     // Floating word + points sound
     playSound('/sound/points.wav');
-    setFloatingWord(word);
+    setFloatingWord({ word, points: pts, repeat: times > 1 });
     setTimeout(() => setFloatingWord(''), 900);
 
     // Clear cells with animation
@@ -872,14 +878,20 @@ function Game() {
                   fontWeight: 700,
                   fontSize: 'max(22px, calc(var(--cell) * 0.5))',
                   letterSpacing: 5,
-                  color: '#33ff66',
-                  textShadow: '0 0 10px #33ff66, 0 0 30px #33ff6666',
+                  color: floatingWord.repeat ? '#ffaa33' : '#33ff66',
+                  textShadow: floatingWord.repeat
+                    ? '0 0 10px #ffaa33, 0 0 30px #ffaa3366'
+                    : '0 0 10px #33ff66, 0 0 30px #33ff6666',
                   pointerEvents: 'none',
                   whiteSpace: 'nowrap',
                   zIndex: 20,
+                  textAlign: 'center',
                 }}
               >
-                {floatingWord}
+                {floatingWord.word}
+                <span style={{ display: 'block', marginTop: 6, fontSize: '0.62em', letterSpacing: 3 }}>
+                  +{floatingWord.points.toLocaleString()}
+                </span>
               </div>
             )}
           </div>

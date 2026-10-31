@@ -59,6 +59,15 @@ def parity_cases(payload):
             combo=1,
             multiplier=multiplier,
         )
+    for times in (1, 2, 3, 4):
+        add(
+            "calculateScore",
+            game.calculate_score(3, 2, 2, times),
+            length=3,
+            combo=2,
+            multiplier=2,
+            times=times,
+        )
 
     for difficulty_id in game.DIFFICULTY_ORDER:
         difficulty = game.DIFFICULTIES[difficulty_id]

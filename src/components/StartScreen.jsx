@@ -829,6 +829,7 @@ function StartScreen({ onStart }) {
                   <span style={{ color: '#00eeff' }}>Cyan</span> vowels, <span style={{ color: '#44ff88' }}>green</span> consonants.
                   Easy and Medium clear from 3 letters. Hard clears from 4.
                   Chain words quickly for a combo.
+                  Clearing a word again scores half, then a quarter.
                   After a clear, the next letters lean toward a different word.
                   Survival fills the board. 50 Words is 50 clears. 3 Minutes ends at 0:00.
                   Daily is today's 4-letter word on Medium, with the same letters for everyone. Clear that word the most times. Other words still clear.

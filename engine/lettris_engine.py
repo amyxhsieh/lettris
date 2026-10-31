@@ -394,9 +394,24 @@ def combo_parts(combo):
     return 1, 1
 
 
-def calculate_score(word_length, combo, multiplier=1):
-    numerator, denominator = combo_parts(combo)
-    return (word_length * word_length * 10 * numerator * multiplier) // denominator
+def repeat_parts(times):
+    """How many times this word has been cleared in the run.
+
+    The first clear is full. The second is half. The third and after is a quarter.
+    """
+    if times <= 1:
+        return 1, 1
+    if times == 2:
+        return 1, 2
+    return 1, 4
+
+
+def calculate_score(word_length, combo, multiplier=1, times=1):
+    combo_numerator, combo_denominator = combo_parts(combo)
+    repeat_numerator, repeat_denominator = repeat_parts(times)
+    return (
+        word_length * word_length * 10 * combo_numerator * multiplier * repeat_numerator
+    ) // (combo_denominator * repeat_denominator)
 
 
 def fall_interval(level, difficulty):

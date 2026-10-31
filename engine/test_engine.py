@@ -37,6 +37,11 @@ class ScoringTest(unittest.TestCase):
             game.calculate_score(4, 1, game.DIFFICULTIES["hard"].score_multiplier),
             game.calculate_score(4, 1, game.DIFFICULTIES["easy"].score_multiplier),
         )
+        self.assertEqual(game.calculate_score(3, 1, 1, 1), 90)
+        self.assertEqual(game.calculate_score(3, 1, 1, 2), 45)
+        self.assertEqual(game.calculate_score(3, 1, 1, 3), 22)
+        self.assertEqual(game.calculate_score(3, 1, 1, 4), 22)
+        self.assertEqual(game.calculate_score(4, 2, 2, 2), 240)
 
     def test_speed_ramps_and_then_holds(self):
         easy = game.DIFFICULTIES["easy"]

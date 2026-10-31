@@ -69,6 +69,38 @@
     "multiplier": 3
   },
   {
+    "fn": "calculateScore",
+    "expect": 270,
+    "length": 3,
+    "combo": 2,
+    "multiplier": 2,
+    "times": 1
+  },
+  {
+    "fn": "calculateScore",
+    "expect": 135,
+    "length": 3,
+    "combo": 2,
+    "multiplier": 2,
+    "times": 2
+  },
+  {
+    "fn": "calculateScore",
+    "expect": 67,
+    "length": 3,
+    "combo": 2,
+    "multiplier": 2,
+    "times": 3
+  },
+  {
+    "fn": "calculateScore",
+    "expect": 67,
+    "length": 3,
+    "combo": 2,
+    "multiplier": 2,
+    "times": 4
+  },
+  {
     "fn": "fallInterval",
     "expect": 620,
     "difficultyId": "easy",
