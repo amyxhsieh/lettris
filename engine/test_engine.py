@@ -280,11 +280,29 @@ class ChallengeTest(unittest.TestCase):
         self.assertEqual(game.CHALLENGES["timed"].limit_ms, 180_000)
         self.assertEqual(game.CHALLENGES["timed"].rank_by, "score")
         self.assertEqual(game.CHALLENGES["survival"].rank_by, "score")
+        self.assertEqual(game.CHALLENGES["survival"].locked_difficulty, "easy")
+        self.assertTrue(game.CHALLENGES["survival"].hide_difficulty)
+        self.assertEqual(game.CHALLENGES["survival"].word_gates, ((5, 4), (10, 5)))
         daily = game.CHALLENGES["daily"]
         self.assertEqual(daily.limit_ms, 180_000)
         self.assertEqual(daily.rank_by, "collects")
         self.assertEqual(daily.locked_difficulty, "medium")
         self.assertEqual(date(1970, 1, 1).toordinal(), game.UNIX_EPOCH_ORDINAL)
+
+    def test_survival_speeds_up_faster_and_asks_for_longer_words(self):
+        survival = game.CHALLENGES["survival"]
+        easy = game.DIFFICULTIES["easy"]
+        self.assertLess(game.fall_interval(1, easy, survival), game.fall_interval(1, easy))
+        self.assertLess(game.fall_interval(15, easy, survival), game.fall_interval(1, easy, survival))
+        self.assertLess(game.fall_interval(15, easy, survival), game.fall_interval(15, easy))
+        self.assertEqual(game.min_word_length(easy, 4, survival), 3)
+        self.assertEqual(game.min_word_length(easy, 5, survival), 4)
+        self.assertEqual(game.min_word_length(easy, 9, survival), 4)
+        self.assertEqual(game.min_word_length(easy, 10, survival), 5)
+        self.assertTrue(game.is_valid_word("cat", easy, {"cat"}, 3))
+        self.assertFalse(game.is_valid_word("cat", easy, {"cat"}, 4))
+        self.assertFalse(game.is_valid_word("cats", easy, {"cats"}, 5))
+        self.assertTrue(game.is_valid_word("stone", easy, {"stone"}, 5))
 
     def test_survival_ends_only_when_the_board_fills(self):
         survival = game.CHALLENGES["survival"]

@@ -25,8 +25,8 @@ export function todayDaily(now = new Date()) {
   };
 }
 
-export function isValidWord(word, difficultyId = 'medium') {
-  return engine.isValidWord(word, difficultyId);
+export function isValidWord(word, difficultyId = 'medium', minLength = null) {
+  return engine.isValidWord(word, difficultyId, minLength);
 }
 
 export function canFormWord(word, grid) {

@@ -14,16 +14,32 @@ Play at [lettris-game.vercel.app](https://lettris-game.vercel.app/).
 
 ## How it works
 
-Letters drop one at a time into a 13×8 grid. Pick a mode, then a difficulty, then start. A 3-second countdown runs before the first letter, the clock, and the game music. Use the arrow keys to position letters, then type any word you can spot on the board and hit Enter to clear those letters. The grid fills up faster as you level up, so you'll need to think and type quickly.
+Letters drop one at a time into a 13×8 grid. On the menu, ↑ and ↓ choose the mode and Enter confirms it. ← and → choose the difficulty and Enter confirms it. Enter again starts the game. Survival and Daily skip the difficulty. A 3-second countdown runs before the first letter, the clock, and the game music.
+
+**Letters**
+
+Vowels are cyan. Consonants are green.
+
+**Clear**
+
+Type a word, then press Enter. Those letters leave the board.
+
+Easy and Medium need 3 letters or more. Hard needs 4 or more. A word can be as long as the board. Ordinary short words count, including **cue**, **did**, **git**, **gin**, and **zen**. Days, months, and one-word place names count. A contraction clears without the apostrophe, so **don't** clears as **dont**. A chopped piece of a longer word does not clear, so **gues** does not, while **guest** and **guess** do.
+
+**Score**
+
+Clear words quickly to build a combo. The same word scores full, then half, then a quarter. Easy scores ×1, Medium ×2, and Hard ×3.
+
+After a clear, the next letters lean toward a different word. The game looks at the letters still on the board and raises up to three letters that would finish another common word. Easy aims at words of 3 or 4 letters, Medium up to 6, and Hard at words of 5 to 8. The letters from the word you just cleared stay at their normal rate, so the same word is not simply rebuilt. On Daily, today's word keeps its own boost on top of that.
 
 **Modes**
 
-| Mode | How it ends |
-|------|-------------|
-| Survival | Play until the board fills |
-| 60 Words | Clear 60 words. A run that fills early does not rank. Highest score wins, then the faster time |
-| 3 Minutes | Score until the clock hits 0:00. Filling the board early still ranks |
-| Daily | Today's 4-letter word, on Medium, with the same letters for everyone. Most clears of that word wins, then score breaks the tie. Other words still clear. The board resets at midnight UTC |
+| Mode | How it plays |
+|------|----------------|
+| Survival | Play until the board fills. No difficulty choice. Level 5 needs 4 letters. Level 10 needs 5. A notice appears at each of those levels. Drops start faster than Easy and keep speeding up |
+| 60 Words | Clear 60 words. A run that fills early does not rank. Best score wins. A faster time breaks a tie |
+| 3 Minutes | The clock ends at 0:00. Filling the board early still ranks |
+| Daily | Everyone shares the same 4-letter word, on Medium. Clear it the most times. Score breaks a tie. Other words still clear. The board resets at midnight UTC |
 
 **Difficulties**
 
@@ -33,11 +49,7 @@ Letters drop one at a time into a 13×8 grid. Pick a mode, then a difficulty, th
 | Medium | A normal mix, words from 3 letters | ×2 |
 | Hard | Rarer letters, words from 4 letters | ×3 |
 
-A word can be as long as the board. Easy and Medium clear from 3 letters, including ordinary words such as **cue**, **did**, **git**, **gin**, and **zen**. Hard clears from 4. Days, months, and one-word place names count. A contraction clears without the apostrophe, so **don't** clears as **dont**. A chopped piece of a longer word does not clear, so **gues** does not, while **guest** and **guess** do.
-
-After a clear, the next few letters lean toward a different word. The game looks at the letters still on the board and raises up to three letters that would finish another common word. Easy aims at words of 3 or 4 letters, Medium up to 6, and Hard at words of 5 to 8. The letters from the word you just cleared stay at their normal rate, so the same word is not simply rebuilt. On Daily, today's word keeps its own boost on top of that.
-
-**Vowels** show up in cyan, **consonants** in green.
+Survival uses the Easy letter mix and scores at ×1.
 
 **Controls**
 
@@ -68,7 +80,7 @@ Hold **QUIT** (top left) to leave. A short press stays in the game, and quitting
 
 ## Features
 
-- 🏆 Shared leaderboard — one board per mode. Survival and 3 Minutes rank by score. 60 Words ranks by score, then by the faster time. Daily ranks by how many times today's word was cleared, then by score. Each run is marked Easy, Medium, or Hard
+- 🏆 Shared leaderboard — one board per mode. Survival and 3 Minutes rank by score. 60 Words ranks by score, then by the faster time. Daily ranks by how many times today's word was cleared, then by score. 60 Words, 3 Minutes, and Daily runs are marked Easy, Medium, or Hard
 - 👤 Name entry — enter once, remembered on this browser. Skipping the name still ranks, as `PLAYER` plus a number from this browser
 - 🎵 Background music with fade in and out, plus sound effects
 - Pixel art background with shooting stars on the start screen

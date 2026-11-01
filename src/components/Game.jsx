@@ -157,6 +157,7 @@ function Game() {
   const [combo, setCombo] = useState(0);
   const [typed, setTyped] = useState('');
   const [floatingWord, setFloatingWord] = useState('');
+  const [levelNotice, setLevelNotice] = useState('');
   const [comboBanner, setComboBanner] = useState(null); // { text, color, key }
 
   // ── Refs for use inside intervals (avoid stale closures) ──
@@ -167,6 +168,7 @@ function Game() {
   const comboRef = useRef(0);
   const levelRef = useRef(1);
   const wordsFoundRef = useRef(0);
+  const noticeTimerRef = useRef(null);
   const lastWordTimeRef = useRef(0);
   const clearingRef = useRef(false); // prevent overlapping clears
   const difficultyRef = useRef(difficulty);
@@ -364,7 +366,7 @@ function Game() {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       tickRef.current();
-    }, engine.fallInterval(levelRef.current, difficultyRef.current));
+    }, engine.fallInterval(levelRef.current, difficultyRef.current, challengeRef.current));
   }, []);
 
   const stopLoop = useCallback(() => {
@@ -410,6 +412,8 @@ function Game() {
     branchRef.current = { letters: '', left: 0 };
     seenWordsRef.current = new Map();
     setFalling(null);
+    if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
+    setLevelNotice('');
     setStarted(false);
     setGameOver(false);
     setPaused(false);
@@ -461,6 +465,8 @@ function Game() {
     setTyped('');
     setFloatingWord('');
     setClearedCells([]);
+    if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
+    setLevelNotice('');
     setGameOver(false);
     setPaused(false);
     setDifficulty(mode);
@@ -497,7 +503,8 @@ function Game() {
     const mode = difficultyRef.current;
     const word = typed.toUpperCase();
     if (!engine.isValidWord(word, mode)) return;
-
+    const minimum = engine.minWordLength(mode, levelRef.current, challengeRef.current);
+    if (!engine.isValidWord(word, mode, minimum)) return;
     const g = gridRef.current;
     const cells = engine.findWordCells(word, g);
     if (!cells) return;
@@ -543,8 +550,18 @@ function Game() {
       setCollects(collectsRef.current);
     }
 
-    const newLevel = engine.levelForWords(newWordsFound, mode);
+    const newLevel = engine.levelForWords(newWordsFound, mode, challengeRef.current);
     if (newLevel !== levelRef.current) {
+      const pace = engine.challenge(challengeRef.current);
+      const crossed = (pace.wordGates || []).filter(
+        (gate) => levelRef.current < gate.level && newLevel >= gate.level,
+      );
+      if (crossed.length) {
+        const gate = crossed[crossed.length - 1];
+        if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
+        setLevelNotice(`LEVEL ${gate.level}\n${gate.length}+ LETTERS`);
+        noticeTimerRef.current = setTimeout(() => setLevelNotice(''), 1400);
+      }
       levelRef.current = newLevel;
       setLevel(newLevel);
     }
@@ -724,9 +741,20 @@ function Game() {
           <div style={{ color: CHALLENGE_COLOR[challenge], textShadow: `0 0 8px ${CHALLENGE_COLOR[challenge]}` }}>
             {engine.challenge(challenge).label}
           </div>
-          <div style={{ color: MODE_COLOR[difficulty], textShadow: `0 0 8px ${MODE_COLOR[difficulty]}`, marginTop: 4 }}>
-            {engine.difficulty(difficulty).label}
-          </div>
+          {engine.challenge(challenge).hideDifficulty ? (
+            <div style={{
+              color: engine.minWordLength(difficulty, level, challenge) > engine.difficulty(difficulty).minWordLength ? '#ffd56a' : '#33ff66',
+              textShadow: '0 0 8px currentColor',
+              marginTop: 4,
+            }}
+            >
+              {engine.minWordLength(difficulty, level, challenge)}+ LETTERS
+            </div>
+          ) : (
+            <div style={{ color: MODE_COLOR[difficulty], textShadow: `0 0 8px ${MODE_COLOR[difficulty]}`, marginTop: 4 }}>
+              {engine.difficulty(difficulty).label}
+            </div>
+          )}
           {challengeSpec.goal === 'daily' && (
             <div style={{ color: CHALLENGE_COLOR.daily, textShadow: `0 0 8px ${CHALLENGE_COLOR.daily}`, marginTop: 4 }}>
               {dailyTarget.toUpperCase()}
@@ -866,7 +894,29 @@ function Game() {
               </div>
             )}
 
-            {/* Floating word animation */}
+            {levelNotice && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '18%',
+                  left: 0,
+                  right: 0,
+                  textAlign: 'center',
+                  fontFamily: "'BoutiqueBitmap', sans-serif",
+                  fontWeight: 900,
+                  fontSize: 'max(18px, calc(var(--cell) * 0.42))',
+                  letterSpacing: 3,
+                  color: '#ffd56a',
+                  textShadow: '0 0 12px #ffd56a, 0 0 28px #ffd56a88',
+                  whiteSpace: 'pre-line',
+                  pointerEvents: 'none',
+                  zIndex: 5,
+                }}
+              >
+                {levelNotice}
+              </div>
+            )}
+
             {floatingWord && (
               <div
                 className="anim-float-up"
@@ -904,6 +954,7 @@ function Game() {
             paused={paused}
             grid={grid}
             difficulty={difficulty}
+            minLetters={engine.minWordLength(difficulty, level, challenge)}
           />
 
           <p

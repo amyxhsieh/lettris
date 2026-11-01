@@ -78,9 +78,9 @@ function overview({ challenge, reason, wordsFound, score, level, difficulty, tim
     title: 'GAME OVER',
     titleColor: '#ff4466',
     subtitle: 'COLUMN OVERFLOW',
-    rows: [
+      rows: [
       scoreRow,
-      difficultyRow,
+      ...(spec.hideDifficulty ? [] : [difficultyRow]),
       { label: 'WORDS FOUND', value: wordsFound, color: '#00ccee' },
       { label: 'LEVEL REACHED', value: level, color: '#00ccee' },
     ],
@@ -227,8 +227,8 @@ function GameOverScreen({
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
           <button
             onClick={() => { clickSound(); onPlayAgain(); }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(51,255,102,0.12)'; e.currentTarget.style.boxShadow = '0 0 16px #33ff6644'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.boxShadow = '0 0 8px #33ff6622'; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(51,255,102,0.12)'; e.currentTarget.style.boxShadow = '0 0 16px color-mix(in srgb, #33ff66 28%, transparent)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.boxShadow = '0 0 14px color-mix(in srgb, #33ff66 18%, transparent)'; }}
             style={{
               fontFamily: "'BoutiqueBitmap', sans-serif",
               fontWeight: 700,
@@ -236,11 +236,11 @@ function GameOverScreen({
               letterSpacing: 4,
               padding: '12px 40px',
               background: 'transparent',
-              border: '2px solid #33ff66',
+              border: '1px solid color-mix(in srgb, #33ff66 46%, transparent)',
               borderRadius: 4,
               color: '#33ff66',
               cursor: 'pointer',
-              boxShadow: '0 0 8px #33ff6622',
+              boxShadow: '0 0 14px color-mix(in srgb, #33ff66 18%, transparent)',
               textShadow: '0 0 8px #33ff66',
               transition: 'background 0.15s, box-shadow 0.15s',
             }}

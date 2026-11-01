@@ -35,9 +35,20 @@ export function calculateScore(wordLength, combo, multiplier = 1, times = 1) {
   );
 }
 
-export function fallInterval(level, difficulty) {
-  const raw = difficulty.startSpeed - (level - 1) * difficulty.speedStep;
-  return Math.max(difficulty.minSpeed, raw);
+export function fallInterval(level, difficulty, challenge = null) {
+  const start = challenge?.paceStartSpeed ?? difficulty.startSpeed;
+  const step = challenge?.paceSpeedStep ?? difficulty.speedStep;
+  const floor = challenge?.paceMinSpeed ?? difficulty.minSpeed;
+  const raw = start - (level - 1) * step;
+  return Math.max(floor, raw);
+}
+
+export function minWordLength(difficulty, level = 1, challenge = null) {
+  let floor = difficulty.minWordLength;
+  for (const gate of challenge?.wordGates || []) {
+    if (level >= gate.level) floor = Math.max(floor, gate.length);
+  }
+  return floor;
 }
 
 export function levelForWords(wordsFound, wordsPerLevel) {
@@ -299,10 +310,11 @@ export function createRolls(seed) {
   };
 }
 
-export function isValidWord(word, difficulty, words) {
+export function isValidWord(word, difficulty, words, minimum = null) {
   if (!word || !/^[a-zA-Z]+$/.test(word)) return false;
   const normalized = word.toLowerCase();
-  if (normalized.length < difficulty.minWordLength || normalized.length > difficulty.maxWordLength) {
+  const floor = minimum ?? difficulty.minWordLength;
+  if (normalized.length < floor || normalized.length > difficulty.maxWordLength) {
     return false;
   }
   return words.has(normalized);
@@ -333,8 +345,15 @@ export function createEngine(rules) {
     sessionResult(challengeId, words, elapsedMs, toppedOut) {
       return sessionResult(rules.challenges[challengeId], words, elapsedMs, toppedOut);
     },
-    isValidWord(word, difficultyId) {
-      return isValidWord(word, rules.difficulties[difficultyId], words);
+    isValidWord(word, difficultyId, minimum = null) {
+      return isValidWord(word, rules.difficulties[difficultyId], words, minimum);
+    },
+    minWordLength(difficultyId, level, challengeId) {
+      return minWordLength(
+        rules.difficulties[difficultyId],
+        level,
+        rules.challenges[challengeId],
+      );
     },
     findWordCells,
     canFormWord(word, grid) {
@@ -349,11 +368,14 @@ export function createEngine(rules) {
     chooseSpawnColumn(grid, difficultyId, roll) {
       return chooseSpawnColumn(grid, rules.difficulties[difficultyId], roll);
     },
-    fallInterval(level, difficultyId) {
-      return fallInterval(level, rules.difficulties[difficultyId]);
+    fallInterval(level, difficultyId, challengeId = null) {
+      const challenge = challengeId ? rules.challenges[challengeId] : null;
+      return fallInterval(level, rules.difficulties[difficultyId], challenge);
     },
-    levelForWords(wordsFound, difficultyId) {
-      return levelForWords(wordsFound, rules.difficulties[difficultyId].wordsPerLevel);
+    levelForWords(wordsFound, difficultyId, challengeId = null) {
+      const challenge = challengeId ? rules.challenges[challengeId] : null;
+      const per = challenge?.paceWordsPerLevel || rules.difficulties[difficultyId].wordsPerLevel;
+      return levelForWords(wordsFound, per);
     },
     calculateScore,
     applyGravity,

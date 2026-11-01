@@ -201,13 +201,13 @@ function ChoiceRow({ label, order, selected, cursor, colors, specs, onChange, lo
                 letterSpacing: 2,
                 padding: '10px 16px',
                 background: active ? `${color}18` : 'transparent',
-                border: `2px solid ${active ? color : focused ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.2)'}`,
+                border: `1px solid ${active ? `color-mix(in srgb, ${color} 46%, transparent)` : focused ? 'rgba(255,255,255,0.32)' : 'rgba(255,255,255,0.14)'}`,
                 borderRadius: 4,
                 color: active ? color : focused ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.45)',
                 cursor: lockedOut ? 'default' : 'pointer',
                 opacity: lockedOut ? 0.35 : 1,
                 textShadow: active ? `0 0 8px ${color}` : 'none',
-                boxShadow: active ? `0 0 10px ${color}44` : 'none',
+                boxShadow: active ? `0 0 14px color-mix(in srgb, ${color} 28%, transparent)` : 'none',
               }}
             >
               {spec.label}
@@ -340,11 +340,18 @@ function StartScreen({ onStart }) {
     return () => { cancel = true; };
   }, [panel, boardChallenge]);
 
-  const applyLockedDifficulty = useCallback((id, chosen) => {
-    const locked = RULES.challenges[id]?.lockedDifficulty;
-    if (!locked) return;
-    setDifficulty(locked);
-    if (chosen) setDifficultyChosen(true);
+  const applyModeDifficulty = useCallback((id, previousId, chosen) => {
+    const next = RULES.challenges[id];
+    const previous = previousId ? RULES.challenges[previousId] : null;
+    if (next?.lockedDifficulty) {
+      setDifficulty(next.lockedDifficulty);
+      if (chosen) setDifficultyChosen(true);
+      return;
+    }
+    if (chosen && previous?.hideDifficulty) {
+      setDifficulty(getDifficulty());
+      setDifficultyChosen(false);
+    }
   }, []);
 
   const moveChallenge = useCallback((id) => {
@@ -352,8 +359,8 @@ function StartScreen({ onStart }) {
     clickSound();
     saveChallenge(id);
     setChallenge(id);
-    applyLockedDifficulty(id, modeChosen);
-  }, [challenge, modeChosen, applyLockedDifficulty]);
+    applyModeDifficulty(id, challenge, modeChosen);
+  }, [challenge, modeChosen, applyModeDifficulty]);
 
   const confirmMode = useCallback((id) => {
     if (!RULES.challenges[id]) return;
@@ -366,8 +373,8 @@ function StartScreen({ onStart }) {
       clickSound();
     }
     setModeChosen(true);
-    applyLockedDifficulty(id, true);
-  }, [challenge, modeChosen, applyLockedDifficulty]);
+    applyModeDifficulty(id, challenge, true);
+  }, [challenge, modeChosen, applyModeDifficulty]);
 
   const moveDifficulty = useCallback((id) => {
     if (!RULES.difficulties[id] || id === difficulty) return;
@@ -424,10 +431,15 @@ function StartScreen({ onStart }) {
         moveDifficulty(order[(index + step + order.length) % order.length]);
       };
 
+      const onChoice = e.target instanceof Element
+        && (e.target.closest('.mode-card') || e.target.closest('[aria-label="DIFFICULTY"]'));
+      const enterAdvances = e.key === 'Enter' && (!(e.target instanceof HTMLButtonElement) || onChoice);
+      if (enterAdvances) e.preventDefault();
+
       if (!modeChosen) {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') moveMode(1);
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') moveMode(-1);
-        if (e.key === 'Enter' && !(e.target instanceof HTMLButtonElement)) confirmMode(challenge);
+        if (e.key === 'ArrowDown') moveMode(1);
+        if (e.key === 'ArrowUp') moveMode(-1);
+        if (enterAdvances) confirmMode(challenge);
         return;
       }
 
@@ -439,15 +451,13 @@ function StartScreen({ onStart }) {
       if (!difficultyChosen) {
         if (e.key === 'ArrowRight') moveLevel(1);
         if (e.key === 'ArrowLeft') moveLevel(-1);
-        if (!lockedDifficulty && (e.key === '1' || e.key === '2' || e.key === '3')) confirmDifficulty(RULES.order[Number(e.key) - 1]);
-        if (e.key === 'Enter' && !(e.target instanceof HTMLButtonElement)) confirmDifficulty(difficulty);
+        if (enterAdvances) confirmDifficulty(difficulty);
         return;
       }
 
       if (e.key === 'ArrowRight') moveLevel(1);
       if (e.key === 'ArrowLeft') moveLevel(-1);
-      if (!lockedDifficulty && (e.key === '1' || e.key === '2' || e.key === '3')) moveDifficulty(RULES.order[Number(e.key) - 1]);
-      if (e.key === 'Enter' && !(e.target instanceof HTMLButtonElement)) onStart(difficulty, challenge);
+      if (enterAdvances) onStart(difficulty, challenge);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -611,7 +621,7 @@ function StartScreen({ onStart }) {
               locked={modeChosen}
               onChange={confirmMode}
             />
-            {modeChosen && (
+            {modeChosen && !RULES.challenges[challenge]?.hideDifficulty && (
               <div className="menu-step">
                 <ChoiceRow
                   label="DIFFICULTY"
@@ -634,9 +644,11 @@ function StartScreen({ onStart }) {
                 color: 'rgba(255,255,255,0.28)',
               }}
             >
-              {!modeChosen && '← → · ENTER'}
-              {modeChosen && !difficultyChosen && '← → · 1 2 3 · ENTER'}
-              {difficultyChosen && challenge !== 'daily' && '↑ ↓ MODE · ← → LEVEL'}
+              {!modeChosen && '↑ ↓ · ENTER'}
+              {modeChosen && !difficultyChosen && !RULES.challenges[challenge]?.lockedDifficulty && '↑ ↓ MODE · ← → DIFFICULTY · ENTER'}
+              {modeChosen && !difficultyChosen && RULES.challenges[challenge]?.lockedDifficulty && '↑ ↓ MODE · ENTER'}
+              {difficultyChosen && !RULES.challenges[challenge]?.lockedDifficulty && '↑ ↓ MODE · ← → DIFFICULTY · ENTER'}
+              {difficultyChosen && RULES.challenges[challenge]?.lockedDifficulty && '↑ ↓ MODE · ENTER'}
             </div>
           </div>
 
@@ -815,26 +827,99 @@ function StartScreen({ onStart }) {
             )}
 
             {panel === 'how' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                <p
-                  style={{
-                    fontFamily: "'BoutiqueBitmap', sans-serif",
-                    color: 'rgba(255,255,255,0.62)',
-                    fontSize: 12,
-                    lineHeight: 1.7,
-                    letterSpacing: 0.4,
-                    margin: 0,
-                  }}
-                >
-                  <span style={{ color: '#00eeff' }}>Cyan</span> vowels, <span style={{ color: '#44ff88' }}>green</span> consonants.
-                  Easy and Medium clear from 3 letters. Hard clears from 4.
-                  Chain words quickly for a combo.
-                  Clearing a word again scores half, then a quarter.
-                  After a clear, the next letters lean toward a different word.
-                  Survival fills the board. 60 Words is 60 clears, ranked by score and then by time. 3 Minutes ends at 0:00.
-                  Daily is today's 4-letter word on Medium, with the same letters for everyone. Clear that word the most times. Other words still clear.
-                  Easy scores ×1, Medium ×2, Hard ×3.
-                </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {[
+                  {
+                    heading: 'LETTERS',
+                    lines: [
+                      <>
+                        <span style={{ color: '#00eeff' }}>Cyan</span> vowels.{' '}
+                        <span style={{ color: '#44ff88' }}>Green</span> consonants.
+                      </>,
+                    ],
+                  },
+                  {
+                    heading: 'CLEAR',
+                    lines: [
+                      'Type a word, then press Enter.',
+                      'Easy and Medium need 3 letters or more.',
+                      'Hard needs 4 letters or more.',
+                    ],
+                  },
+                  {
+                    heading: 'SCORE',
+                    lines: [
+                      'Clear words quickly to build a combo.',
+                      'The same word scores full, then half, then a quarter.',
+                      'Easy ×1. Medium ×2. Hard ×3.',
+                      'After a clear, the next letters lean toward a new word.',
+                    ],
+                  },
+                  {
+                    heading: 'MODES',
+                    lines: [
+                      <>
+                        <span style={{ color: CHALLENGE_COLOR.survival }}>Survival.</span> Play until the board fills.
+                      </>,
+                      <span style={{ display: 'block', paddingLeft: 12 }}>Level 5 needs 4 letters. Level 10 needs 5.</span>,
+                      <>
+                        <span style={{ color: CHALLENGE_COLOR.words }}>60 Words.</span> Clear 60 words.
+                      </>,
+                      <span style={{ display: 'block', paddingLeft: 12 }}>Best score wins. A faster time breaks a tie.</span>,
+                      <>
+                        <span style={{ color: CHALLENGE_COLOR.timed }}>3 Minutes.</span> The clock ends at 0:00.
+                      </>,
+                      <>
+                        <span style={{ color: CHALLENGE_COLOR.daily }}>Daily.</span> Everyone shares the same 4-letter word.
+                      </>,
+                      <span style={{ display: 'block', paddingLeft: 12 }}>Clear it the most times. Other words still clear.</span>,
+                    ],
+                  },
+                ].map((section) => (
+                  <div key={section.heading}>
+                    <h3
+                      style={{
+                        margin: '0 0 8px',
+                        fontFamily: "'BoutiqueBitmap', sans-serif",
+                        fontSize: 11,
+                        fontWeight: 400,
+                        letterSpacing: 1.4,
+                        color: '#7ee8ff',
+                      }}
+                    >
+                      {section.heading}
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {section.lines.map((line, index) => (
+                        <p
+                          key={index}
+                          style={{
+                            fontFamily: "'BoutiqueBitmap', sans-serif",
+                            color: 'rgba(255,255,255,0.82)',
+                            fontSize: 13,
+                            lineHeight: 1.45,
+                            margin: 0,
+                          }}
+                        >
+                          {line}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                <div>
+                  <h3
+                    style={{
+                      margin: '0 0 10px',
+                      fontFamily: "'BoutiqueBitmap', sans-serif",
+                      fontSize: 11,
+                      fontWeight: 400,
+                      letterSpacing: 1.4,
+                      color: '#7ee8ff',
+                    }}
+                  >
+                    CONTROLS
+                  </h3>
                 <div
                   style={{
                     display: 'grid',
@@ -857,6 +942,7 @@ function StartScreen({ onStart }) {
                       <span style={{ color: 'rgba(255,255,255,0.78)' }}>{action}</span>
                     </div>
                   ))}
+                </div>
                 </div>
               </div>
             )}
@@ -892,6 +978,7 @@ function StartScreen({ onStart }) {
                   scores={boardStatus === 'loading' ? [] : boardScores}
                   currentName={username}
                   rankBy={RULES.challenges[boardChallenge].rankBy}
+                  showDifficulty={!RULES.challenges[boardChallenge].hideDifficulty}
                   emptyLabel={boardStatus === 'loading'
                     ? 'LOADING'
                     : boardChallenge === 'words' || boardChallenge === 'daily'

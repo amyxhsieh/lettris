@@ -29,7 +29,7 @@ function NeonButton({ onClick, disabled, children, color, square }) {
       onMouseLeave={() => { if (ref.current) ref.current.style.opacity = '1'; }}
       style={{
         background: 'transparent',
-        border: `2px solid ${dimColor}`,
+        border: `1px solid ${disabled ? dimColor : `color-mix(in srgb, ${color} 46%, transparent)`}`,
         borderRadius: 4,
         color: dimColor,
         fontFamily: "'BoutiqueBitmap', sans-serif",
@@ -43,7 +43,7 @@ function NeonButton({ onClick, disabled, children, color, square }) {
         justifyContent: 'center',
         cursor: disabled ? 'not-allowed' : 'pointer',
         letterSpacing: 1,
-        boxShadow: disabled ? 'none' : `0 0 8px ${color}44`,
+        boxShadow: disabled ? 'none' : `0 0 14px color-mix(in srgb, ${color} 28%, transparent)`,
         textShadow: disabled ? 'none' : `0 0 6px ${color}`,
         transition: 'opacity 0.1s',
         flexShrink: 0,
@@ -54,7 +54,7 @@ function NeonButton({ onClick, disabled, children, color, square }) {
   );
 }
 
-function InputBar({ typed, onSubmit, onPause, paused, grid, difficulty = 'medium' }) {
+function InputBar({ typed, onSubmit, onPause, paused, grid, difficulty = 'medium', minLetters = null }) {
   const inputRef = useRef(null);
 
   // Keep input blurred — keyboard handled globally in Game

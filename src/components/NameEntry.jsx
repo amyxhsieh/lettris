@@ -64,7 +64,7 @@ function NameEntry({ onDone }) {
         onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; }}
         style={{
           background: 'none',
-          border: '1px solid #00ddff',
+          border: '1px solid color-mix(in srgb, #00ddff 46%, transparent)',
           color: '#00ddff',
           fontFamily: "'BoutiqueBitmap', sans-serif",
           fontSize: 14,
@@ -73,7 +73,7 @@ function NameEntry({ onDone }) {
           borderRadius: 4,
           cursor: 'pointer',
           textShadow: '0 0 8px #00ddff',
-          boxShadow: '0 0 10px rgba(0,180,220,0.2)',
+          boxShadow: '0 0 14px color-mix(in srgb, #00ddff 28%, transparent)',
           transition: 'background 0.15s',
         }}
       >

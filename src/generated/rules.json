@@ -284642,12 +284642,27 @@
     "survival": {
       "id": "survival",
       "label": "SURVIVAL",
-      "tagline": "Play until the board fills",
+      "tagline": "Level 5 takes 4 letters, level 10 takes 5",
       "goal": "survival",
       "targetWords": null,
       "limitMs": null,
       "rankBy": "score",
-      "lockedDifficulty": null
+      "lockedDifficulty": "easy",
+      "hideDifficulty": true,
+      "paceStartSpeed": 440,
+      "paceMinSpeed": 160,
+      "paceSpeedStep": 36,
+      "paceWordsPerLevel": 4,
+      "wordGates": [
+        {
+          "level": 5,
+          "length": 4
+        },
+        {
+          "level": 10,
+          "length": 5
+        }
+      ]
     },
     "words": {
       "id": "words",
@@ -284657,7 +284672,13 @@
       "targetWords": 60,
       "limitMs": null,
       "rankBy": "scoreTime",
-      "lockedDifficulty": null
+      "lockedDifficulty": null,
+      "hideDifficulty": false,
+      "paceStartSpeed": null,
+      "paceMinSpeed": null,
+      "paceSpeedStep": null,
+      "paceWordsPerLevel": null,
+      "wordGates": []
     },
     "timed": {
       "id": "timed",
@@ -284667,7 +284688,13 @@
       "targetWords": null,
       "limitMs": 180000,
       "rankBy": "score",
-      "lockedDifficulty": null
+      "lockedDifficulty": null,
+      "hideDifficulty": false,
+      "paceStartSpeed": null,
+      "paceMinSpeed": null,
+      "paceSpeedStep": null,
+      "paceWordsPerLevel": null,
+      "wordGates": []
     },
     "daily": {
       "id": "daily",
@@ -284677,7 +284704,13 @@
       "targetWords": null,
       "limitMs": 180000,
       "rankBy": "collects",
-      "lockedDifficulty": "medium"
+      "lockedDifficulty": "medium",
+      "hideDifficulty": false,
+      "paceStartSpeed": null,
+      "paceMinSpeed": null,
+      "paceSpeedStep": null,
+      "paceWordsPerLevel": null,
+      "wordGates": []
     }
   }
 }

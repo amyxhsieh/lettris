@@ -85,6 +85,23 @@ def parity_cases(payload):
                 difficultyId=difficulty_id,
                 wordsFound=found,
             )
+    survival = game.CHALLENGES["survival"]
+    easy = game.DIFFICULTIES["easy"]
+    add(
+        "fallInterval",
+        game.fall_interval(15, easy, survival),
+        difficultyId="easy",
+        level=15,
+        challengeId="survival",
+    )
+    for level in (4, 5, 9, 10):
+        add(
+            "minWordLength",
+            game.min_word_length(easy, level, survival),
+            difficultyId="easy",
+            level=level,
+            challengeId="survival",
+        )
 
     # Dry window forces a vowel on easy. A vowel already in the window does not.
     add(

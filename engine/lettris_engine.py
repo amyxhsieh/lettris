@@ -235,6 +235,12 @@ class Challenge:
     limit_ms: int | None
     rank_by: str
     locked_difficulty: str | None = None
+    hide_difficulty: bool = False
+    pace_start_speed: int | None = None
+    pace_min_speed: int | None = None
+    pace_speed_step: int | None = None
+    pace_words_per_level: int | None = None
+    word_gates: tuple[tuple[int, int], ...] = ()
 
     def as_json(self):
         return {
@@ -246,6 +252,15 @@ class Challenge:
             "limitMs": self.limit_ms,
             "rankBy": self.rank_by,
             "lockedDifficulty": self.locked_difficulty,
+            "hideDifficulty": self.hide_difficulty,
+            "paceStartSpeed": self.pace_start_speed,
+            "paceMinSpeed": self.pace_min_speed,
+            "paceSpeedStep": self.pace_speed_step,
+            "paceWordsPerLevel": self.pace_words_per_level,
+            "wordGates": [
+                {"level": level, "length": length}
+                for level, length in self.word_gates
+            ],
         }
 
 
@@ -254,11 +269,18 @@ CHALLENGES = {
     "survival": Challenge(
         id="survival",
         label="SURVIVAL",
-        tagline="Play until the board fills",
+        tagline="Level 5 takes 4 letters, level 10 takes 5",
         goal="survival",
         target_words=None,
         limit_ms=None,
         rank_by="score",
+        locked_difficulty="easy",
+        hide_difficulty=True,
+        pace_start_speed=440,
+        pace_min_speed=160,
+        pace_speed_step=36,
+        pace_words_per_level=4,
+        word_gates=((5, 4), (10, 5)),
     ),
     "words": Challenge(
         id="words",
@@ -440,9 +462,27 @@ def calculate_score(word_length, combo, multiplier=1, times=1):
     ) // (combo_denominator * repeat_denominator)
 
 
-def fall_interval(level, difficulty):
-    raw = difficulty.start_speed - (level - 1) * difficulty.speed_step
-    return max(difficulty.min_speed, raw)
+def fall_interval(level, difficulty, challenge=None):
+    start = difficulty.start_speed
+    step = difficulty.speed_step
+    floor = difficulty.min_speed
+    if challenge is not None and challenge.pace_start_speed is not None:
+        start = challenge.pace_start_speed
+        step = challenge.pace_speed_step
+        floor = challenge.pace_min_speed
+    raw = start - (level - 1) * step
+    return max(floor, raw)
+
+
+def min_word_length(difficulty, level=1, challenge=None):
+    """Shortest word that clears. Survival steps up at levels 5 and 10."""
+    floor = difficulty.min_word_length
+    if challenge is None:
+        return floor
+    for gate_level, gate_length in challenge.word_gates:
+        if level >= gate_level:
+            floor = max(floor, gate_length)
+    return floor
 
 
 def level_for_words(words_found, words_per_level):
@@ -670,11 +710,12 @@ def find_word_cells(word, grid):
     return cells
 
 
-def is_valid_word(word, difficulty, words):
+def is_valid_word(word, difficulty, words, minimum=None):
     if not isinstance(word, str) or not word.isalpha():
         return False
     normalized = word.lower()
-    if not (difficulty.min_word_length <= len(normalized) <= difficulty.max_word_length):
+    floor = difficulty.min_word_length if minimum is None else minimum
+    if not (floor <= len(normalized) <= difficulty.max_word_length):
         return False
     return normalized in words
 

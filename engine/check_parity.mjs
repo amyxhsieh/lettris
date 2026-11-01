@@ -14,6 +14,7 @@ import {
   findWordCells,
   isValidWord,
   levelForWords,
+  minWordLength,
   sessionResult,
 } from '../src/utils/engine.js';
 

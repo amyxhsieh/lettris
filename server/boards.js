@@ -1,7 +1,7 @@
 export const DIFFICULTIES = new Set(['easy', 'medium', 'hard']);
 
 export const CHALLENGES = {
-  survival: { rankBy: 'score' },
+  survival: { rankBy: 'score', lockedDifficulty: 'easy' },
   words: { rankBy: 'scoreTime', targetWords: 60 },
   timed: { rankBy: 'score' },
   daily: { rankBy: 'collects', lockedDifficulty: 'medium' },
