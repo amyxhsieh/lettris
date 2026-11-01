@@ -88,9 +88,35 @@ Hold **QUIT** (top left) to leave. A short press stays in the game, and quitting
 
 ---
 
+## Engine
+
+Python is the source of truth. The browser never calls it. `engine/lettris_engine.py` owns the word list, the modes, the letter bags, the clears, and the score. `src/utils/engine.js` is a port of those same functions, and the game imports the generated rules instead of recomputing them.
+
+| Piece | Role |
+|-------|------|
+| `engine/lettris_engine.py` | Rules: which words clear, how letters fall, how a clear scores |
+| `engine/build_rules.py` | Builds the word list and writes the files the browser plays |
+| `engine/load_places.mjs` | One-word cities of 100,000 people or more, plus country names |
+| `engine/data/en_frequency.txt` | Words in frequency order, used for the daily pool and for which 3-letter words count |
+| `engine/data/three_letter.txt` | Curated 3-letter words |
+| `engine/test_engine.py` | Python tests for the rules |
+| `engine/check_parity.mjs` | Checks that the JavaScript port matches the Python results |
+| `src/utils/engine.js` | The browser port |
+| `src/generated/rules.json` | The built payload: words, daily words, difficulties, and modes |
+
+A build reads four sources. The English dictionary comes from `an-array-of-english-words`. Frequency order comes from `en_frequency.txt`. The short list comes from `three_letter.txt`. Place names come from `all-the-cities` and `country-list`. Words of 4 letters or more come from the dictionary. A 3-letter word gets in when it is on the curated list, or when it is both in the dictionary and in the top 10,000 of the frequency file. Names, fillers, and chopped pieces such as **gues** are removed. The daily pool is 366 common 4-letter words in that same frequency order, so a calendar day always picks the same word.
+
+`npm run build:rules` writes `src/generated/rules.json` and `engine/fixtures/parity.json`. `npm run test:rules` rebuilds those files, runs the Python tests, then runs the parity check. Change a rule in Python and in `src/utils/engine.js` together, then run that command. The Vite build does not run Python.
+
 ## Running locally
 
 ```bash
 npm install
 npm run dev
+```
+
+Check the engine after a rules change:
+
+```bash
+npm run test:rules
 ```
