@@ -237,11 +237,17 @@ export async function readBoard(challenge) {
         WHERE challenge = ${challenge} AND ranks = TRUE
         ORDER BY time_ms ASC, score DESC
         LIMIT 10`
-    : await sql`SELECT name, score, words, level, difficulty, challenge, time_ms, played_at
-        FROM runs
-        WHERE challenge = ${challenge} AND ranks = TRUE
-        ORDER BY score DESC
-        LIMIT 10`;
+    : rankBy === 'scoreTime'
+      ? await sql`SELECT name, score, words, level, difficulty, challenge, time_ms, played_at
+          FROM runs
+          WHERE challenge = ${challenge} AND ranks = TRUE
+          ORDER BY score DESC, time_ms ASC
+          LIMIT 10`
+      : await sql`SELECT name, score, words, level, difficulty, challenge, time_ms, played_at
+          FROM runs
+          WHERE challenge = ${challenge} AND ranks = TRUE
+          ORDER BY score DESC
+          LIMIT 10`;
   return rows.map((row) => publicRun({
     name: row.name,
     score: Number(row.score),
@@ -339,10 +345,15 @@ async function recordInPostgres(entry) {
         WHERE challenge = ${entry.challenge}
           AND ranks = TRUE
           AND (time_ms < ${entry.timeMs} OR (time_ms = ${entry.timeMs} AND score > ${entry.score}))`
-    : await sql`SELECT COUNT(*)::int AS better FROM runs
-        WHERE challenge = ${entry.challenge}
-          AND ranks = TRUE
-          AND score > ${entry.score}`;
+    : entry.rankBy === 'scoreTime'
+      ? await sql`SELECT COUNT(*)::int AS better FROM runs
+          WHERE challenge = ${entry.challenge}
+            AND ranks = TRUE
+            AND (score > ${entry.score} OR (score = ${entry.score} AND time_ms < ${entry.timeMs}))`
+      : await sql`SELECT COUNT(*)::int AS better FROM runs
+          WHERE challenge = ${entry.challenge}
+            AND ranks = TRUE
+            AND score > ${entry.score}`;
   return { rank: Number(rows[0].better) + 1, ranks: true };
 }
 

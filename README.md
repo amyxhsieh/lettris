@@ -21,7 +21,7 @@ Letters drop one at a time into a 13×8 grid. Pick a mode, then a difficulty, th
 | Mode | How it ends |
 |------|-------------|
 | Survival | Play until the board fills |
-| 50 Words | Clear 50 words. A run that fills early does not rank |
+| 60 Words | Clear 60 words. A run that fills early does not rank. Highest score wins, then the faster time |
 | 3 Minutes | Score until the clock hits 0:00. Filling the board early still ranks |
 | Daily | Today's 4-letter word, on Medium, with the same letters for everyone. Most clears of that word wins, then score breaks the tie. Other words still clear. The board resets at midnight UTC |
 
@@ -68,7 +68,7 @@ Hold **QUIT** (top left) to leave. A short press stays in the game, and quitting
 
 ## Features
 
-- 🏆 Shared leaderboard — one board per mode. Survival, 50 Words, and 3 Minutes rank by score. Daily ranks by how many times today's word was cleared, then by score. Each run is marked Easy, Medium, or Hard
+- 🏆 Shared leaderboard — one board per mode. Survival and 3 Minutes rank by score. 60 Words ranks by score, then by the faster time. Daily ranks by how many times today's word was cleared, then by score. Each run is marked Easy, Medium, or Hard
 - 👤 Name entry — enter once, remembered on this browser. Skipping the name still ranks, as `PLAYER` plus a number from this browser
 - 🎵 Background music with fade in and out, plus sound effects
 - Pixel art background with shooting stars on the start screen

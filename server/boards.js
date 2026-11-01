@@ -2,7 +2,7 @@ export const DIFFICULTIES = new Set(['easy', 'medium', 'hard']);
 
 export const CHALLENGES = {
   survival: { rankBy: 'score' },
-  words: { rankBy: 'score', targetWords: 50 },
+  words: { rankBy: 'scoreTime', targetWords: 60 },
   timed: { rankBy: 'score' },
   daily: { rankBy: 'collects', lockedDifficulty: 'medium' },
 };
@@ -62,6 +62,10 @@ export function isBetter(rankBy, candidate, entry) {
   if (rankBy === 'collects') {
     if (candidate.words !== entry.words) return candidate.words > entry.words;
     return candidate.score > entry.score;
+  }
+  if (rankBy === 'scoreTime') {
+    if (candidate.score !== entry.score) return candidate.score > entry.score;
+    return candidate.timeMs < entry.timeMs;
   }
   return candidate.score > entry.score;
 }

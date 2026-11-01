@@ -258,6 +258,7 @@ function Game() {
           row.score === entry.score
           && String(row.name).toUpperCase() === entry.name.toUpperCase()
           && row.difficulty === entry.difficulty
+          && (spec.rankBy !== 'time' && spec.rankBy !== 'scoreTime' || row.timeMs === entry.timeMs)
           && (spec.rankBy !== 'collects' || row.words === entry.words)
         ));
         if (index !== -1) {
@@ -275,7 +276,7 @@ function Game() {
       const index = scoresFor(entry.challenge).findIndex((row) => (
         row.score === entry.score
         && row.name.toUpperCase() === entry.name.toUpperCase()
-        && (spec.rankBy !== 'time' || row.timeMs === entry.timeMs)
+        && (spec.rankBy !== 'time' && spec.rankBy !== 'scoreTime' || row.timeMs === entry.timeMs)
         && (spec.rankBy !== 'collects' || row.words === entry.words)
       ));
       setBoardRank(index === -1 ? null : index + 1);

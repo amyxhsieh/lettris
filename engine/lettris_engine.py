@@ -262,12 +262,12 @@ CHALLENGES = {
     ),
     "words": Challenge(
         id="words",
-        label="50 WORDS",
-        tagline="Clear 50 words for the highest score",
+        label="60 WORDS",
+        tagline="Clear 60 words. Highest score wins, then the faster time",
         goal="words",
-        target_words=50,
+        target_words=60,
         limit_ms=None,
-        rank_by="score",
+        rank_by="scoreTime",
     ),
     "timed": Challenge(
         id="timed",
@@ -297,7 +297,7 @@ def session_result(challenge, words, elapsed_ms, topped_out):
     """Whether this run is over, whether the goal was met, and why.
 
     `reason` is "topout", "target", "time", or None.
-    A failed 50-word run stays off the board. A timed run that fills
+    A run that misses the word target stays off the board. A timed run that fills
     early still ranks, because that contest is the score. Daily ends the
     same way and ranks by how many times today's word was cleared.
     """

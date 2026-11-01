@@ -81,6 +81,9 @@ function compareEntries(challenge, a, b) {
   if (rankBy === 'collects') {
     if (b.words !== a.words) return b.words - a.words;
   }
+  if (rankBy === 'scoreTime' && b.score === a.score) {
+    return (a.timeMs ?? Number.MAX_SAFE_INTEGER) - (b.timeMs ?? Number.MAX_SAFE_INTEGER);
+  }
   return b.score - a.score;
 }
 

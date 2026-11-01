@@ -889,12 +889,12 @@
     "fn": "challenge",
     "expect": {
       "id": "words",
-      "label": "50 WORDS",
-      "tagline": "Clear 50 words for the highest score",
+      "label": "60 WORDS",
+      "tagline": "Clear 60 words. Highest score wins, then the faster time",
       "goal": "words",
-      "targetWords": 50,
+      "targetWords": 60,
       "limitMs": null,
-      "rankBy": "score",
+      "rankBy": "scoreTime",
       "lockedDifficulty": null
     },
     "challengeId": "words"
@@ -954,10 +954,10 @@
   {
     "fn": "sessionResult",
     "expect": {
-      "over": true,
-      "cleared": true,
-      "reason": "target",
-      "ranks": true
+      "over": false,
+      "cleared": false,
+      "reason": null,
+      "ranks": false
     },
     "challengeId": "words",
     "words": 50,
@@ -968,9 +968,9 @@
     "fn": "sessionResult",
     "expect": {
       "over": true,
-      "cleared": true,
-      "reason": "target",
-      "ranks": true
+      "cleared": false,
+      "reason": "topout",
+      "ranks": false
     },
     "challengeId": "words",
     "words": 50,

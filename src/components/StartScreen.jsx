@@ -20,7 +20,7 @@ const CONTROLS = [
 
 const MODE_MARK = {
   survival: 'SRV',
-  words: '50W',
+  words: '60W',
   timed: '3MN',
   daily: 'DAY',
 };
@@ -79,7 +79,7 @@ const PAGES = {
       },
       {
         heading: '3. A finished game',
-        body: 'When a run ends, the board saves your name, score, words, level, difficulty, game type, and time. Quit does not save a run. A 50 Words run that stops before 50 words counts as a game played, and it does not rank.',
+        body: 'When a run ends, the board saves your name, score, words, level, difficulty, game type, and time. Quit does not save a run. A 60 Words run that stops before 60 words counts as a game played, and it does not rank.',
       },
       {
         heading: '4. This browser',
@@ -831,7 +831,7 @@ function StartScreen({ onStart }) {
                   Chain words quickly for a combo.
                   Clearing a word again scores half, then a quarter.
                   After a clear, the next letters lean toward a different word.
-                  Survival fills the board. 50 Words is 50 clears. 3 Minutes ends at 0:00.
+                  Survival fills the board. 60 Words is 60 clears, ranked by score and then by time. 3 Minutes ends at 0:00.
                   Daily is today's 4-letter word on Medium, with the same letters for everyone. Clear that word the most times. Other words still clear.
                   Easy scores ×1, Medium ×2, Hard ×3.
                 </p>
