@@ -514,14 +514,9 @@ function Game() {
     const g = gridRef.current;
     const cells = engine.findWordCells(word, g);
     if (!cells) return;
-    if (engine.challenge(challengeRef.current).uniqueWords && seenWordsRef.current.has(word)) {
-      if (repeatTimerRef.current) clearTimeout(repeatTimerRef.current);
-      setRepeatNotice(word);
-      repeatTimerRef.current = setTimeout(() => setRepeatNotice(''), 900);
-      clickSound();
-      setTyped('');
-      return;
-    }
+    const repeated = Boolean(
+      engine.challenge(challengeRef.current).uniqueWords && seenWordsRef.current.has(word),
+    );
     const gone = new Set(cells.map(({ row, col }) => `${row}:${col}`));
     const remaining = [];
     for (let row = 0; row < g.length; row += 1) {
@@ -535,55 +530,61 @@ function Game() {
     branchRef.current = { letters: opened, left: opened ? RULES.branchDrops : 0 };
 
     const spec = engine.difficulty(mode);
-    const now = Date.now();
-    let newCombo;
-    if (now - lastWordTimeRef.current < spec.comboWindowMs && lastWordTimeRef.current > 0) {
-      newCombo = comboRef.current + 1;
-    } else {
-      newCombo = 1;
-    }
-    lastWordTimeRef.current = now;
-    comboRef.current = newCombo;
-    setCombo(newCombo);
-
-    const seen = seenWordsRef.current;
-    const times = (seen.get(word) || 0) + 1;
-    seen.set(word, times);
-    const pts = engine.calculateScore(word.length, newCombo, spec.scoreMultiplier || 1, times);
-    setScore((prev) => {
-      const next = prev + pts;
-      scoreRef.current = next;
-      return next;
-    });
-
-    const newWordsFound = wordsFoundRef.current + 1;
-    wordsFoundRef.current = newWordsFound;
-    setWordsFound(newWordsFound);
-    if (challengeRef.current === 'daily' && word.toLowerCase() === dailyWordRef.current) {
-      collectsRef.current += 1;
-      setCollects(collectsRef.current);
-    }
-
-    const newLevel = engine.levelForWords(newWordsFound, mode, challengeRef.current);
-    if (newLevel !== levelRef.current) {
-      const pace = engine.challenge(challengeRef.current);
-      const crossed = (pace.wordGates || []).filter(
-        (gate) => levelRef.current < gate.level && newLevel >= gate.level,
-      );
-      if (crossed.length) {
-        const gate = crossed[crossed.length - 1];
-        if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
-        setLevelNotice(`LEVEL ${gate.level}\n${gate.length}+ LETTERS`);
-        noticeTimerRef.current = setTimeout(() => setLevelNotice(''), 1400);
+    if (!repeated) {
+      const now = Date.now();
+      let newCombo;
+      if (now - lastWordTimeRef.current < spec.comboWindowMs && lastWordTimeRef.current > 0) {
+        newCombo = comboRef.current + 1;
+      } else {
+        newCombo = 1;
       }
-      levelRef.current = newLevel;
-      setLevel(newLevel);
-    }
+      lastWordTimeRef.current = now;
+      comboRef.current = newCombo;
+      setCombo(newCombo);
 
-    // Floating word + points sound
-    playSound('/sound/points.wav');
-    setFloatingWord({ word, points: pts, repeat: times > 1 });
-    setTimeout(() => setFloatingWord(''), 900);
+      const seen = seenWordsRef.current;
+      const times = (seen.get(word) || 0) + 1;
+      seen.set(word, times);
+      const pts = engine.calculateScore(word.length, newCombo, spec.scoreMultiplier || 1, times);
+      setScore((prev) => {
+        const next = prev + pts;
+        scoreRef.current = next;
+        return next;
+      });
+
+      const newWordsFound = wordsFoundRef.current + 1;
+      wordsFoundRef.current = newWordsFound;
+      setWordsFound(newWordsFound);
+      if (challengeRef.current === 'daily' && word.toLowerCase() === dailyWordRef.current) {
+        collectsRef.current += 1;
+        setCollects(collectsRef.current);
+      }
+
+      const newLevel = engine.levelForWords(newWordsFound, mode, challengeRef.current);
+      if (newLevel !== levelRef.current) {
+        const pace = engine.challenge(challengeRef.current);
+        const crossed = (pace.wordGates || []).filter(
+          (gate) => levelRef.current < gate.level && newLevel >= gate.level,
+        );
+        if (crossed.length) {
+          const gate = crossed[crossed.length - 1];
+          if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
+          setLevelNotice(`LEVEL ${gate.level}\n${gate.length}+ LETTERS`);
+          noticeTimerRef.current = setTimeout(() => setLevelNotice(''), 1400);
+        }
+        levelRef.current = newLevel;
+        setLevel(newLevel);
+      }
+
+      playSound('/sound/points.wav');
+      setFloatingWord({ word, points: pts, repeat: times > 1 });
+      setTimeout(() => setFloatingWord(''), 900);
+    } else {
+      if (repeatTimerRef.current) clearTimeout(repeatTimerRef.current);
+      setRepeatNotice(word);
+      repeatTimerRef.current = setTimeout(() => setRepeatNotice(''), 900);
+      clickSound();
+    }
 
     // Clear cells with animation
     clearingRef.current = true;

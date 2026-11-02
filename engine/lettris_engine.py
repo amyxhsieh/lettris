@@ -287,7 +287,7 @@ CHALLENGES = {
     "words": Challenge(
         id="words",
         label="60 WORDS",
-        tagline="60 different words. Highest score wins, then the faster time",
+        tagline="A repeat clears, but does not count",
         goal="words",
         target_words=60,
         limit_ms=None,

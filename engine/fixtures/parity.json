@@ -941,7 +941,7 @@
     "expect": {
       "id": "words",
       "label": "60 WORDS",
-      "tagline": "60 different words. Highest score wins, then the faster time",
+      "tagline": "A repeat clears, but does not count",
       "goal": "words",
       "targetWords": 60,
       "limitMs": null,

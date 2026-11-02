@@ -865,7 +865,7 @@ function StartScreen({ onStart }) {
                       <>
                         <span style={{ color: CHALLENGE_COLOR.words }}>60 Words.</span> Clear 60 different words.
                       </>,
-                      <span style={{ display: 'block', paddingLeft: 12 }}>A repeat does not clear. Best score wins. A faster time breaks a tie.</span>,
+                      <span style={{ display: 'block', paddingLeft: 12 }}>A repeat still clears, and it does not count again. Best score wins. A faster time breaks a tie.</span>,
                       <>
                         <span style={{ color: CHALLENGE_COLOR.timed }}>3 Minutes.</span> The clock ends at 0:00.
                       </>,
