@@ -31,7 +31,9 @@ function run(test) {
     case 'calculateScore':
       return calculateScore(test.length, test.combo, test.multiplier ?? 1, test.times ?? 1);
     case 'fallInterval':
-      return fallInterval(test.level, difficulty);
+      return fallInterval(test.level, difficulty, test.challengeId ? rules.challenges[test.challengeId] : null);
+    case 'minWordLength':
+      return minWordLength(difficulty, test.level ?? 1, test.challengeId ? rules.challenges[test.challengeId] : null);
     case 'levelForWords':
       return levelForWords(test.wordsFound, difficulty.wordsPerLevel);
     case 'chooseLetter':

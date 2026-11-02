@@ -863,9 +863,9 @@ function StartScreen({ onStart }) {
                       </>,
                       <span style={{ display: 'block', paddingLeft: 12 }}>Level 5 needs 4 letters. Level 10 needs 5.</span>,
                       <>
-                        <span style={{ color: CHALLENGE_COLOR.words }}>60 Words.</span> Clear 60 words.
+                        <span style={{ color: CHALLENGE_COLOR.words }}>60 Words.</span> Clear 60 different words.
                       </>,
-                      <span style={{ display: 'block', paddingLeft: 12 }}>Best score wins. A faster time breaks a tie.</span>,
+                      <span style={{ display: 'block', paddingLeft: 12 }}>A repeat does not clear. Best score wins. A faster time breaks a tie.</span>,
                       <>
                         <span style={{ color: CHALLENGE_COLOR.timed }}>3 Minutes.</span> The clock ends at 0:00.
                       </>,

@@ -158,6 +158,7 @@ function Game() {
   const [typed, setTyped] = useState('');
   const [floatingWord, setFloatingWord] = useState('');
   const [levelNotice, setLevelNotice] = useState('');
+  const [repeatNotice, setRepeatNotice] = useState('');
   const [comboBanner, setComboBanner] = useState(null); // { text, color, key }
 
   // ── Refs for use inside intervals (avoid stale closures) ──
@@ -169,6 +170,7 @@ function Game() {
   const levelRef = useRef(1);
   const wordsFoundRef = useRef(0);
   const noticeTimerRef = useRef(null);
+  const repeatTimerRef = useRef(null);
   const lastWordTimeRef = useRef(0);
   const clearingRef = useRef(false); // prevent overlapping clears
   const difficultyRef = useRef(difficulty);
@@ -413,7 +415,9 @@ function Game() {
     seenWordsRef.current = new Map();
     setFalling(null);
     if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
+    if (repeatTimerRef.current) clearTimeout(repeatTimerRef.current);
     setLevelNotice('');
+    setRepeatNotice('');
     setStarted(false);
     setGameOver(false);
     setPaused(false);
@@ -466,7 +470,9 @@ function Game() {
     setFloatingWord('');
     setClearedCells([]);
     if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
+    if (repeatTimerRef.current) clearTimeout(repeatTimerRef.current);
     setLevelNotice('');
+    setRepeatNotice('');
     setGameOver(false);
     setPaused(false);
     setDifficulty(mode);
@@ -508,6 +514,14 @@ function Game() {
     const g = gridRef.current;
     const cells = engine.findWordCells(word, g);
     if (!cells) return;
+    if (engine.challenge(challengeRef.current).uniqueWords && seenWordsRef.current.has(word)) {
+      if (repeatTimerRef.current) clearTimeout(repeatTimerRef.current);
+      setRepeatNotice(word);
+      repeatTimerRef.current = setTimeout(() => setRepeatNotice(''), 900);
+      clickSound();
+      setTyped('');
+      return;
+    }
     const gone = new Set(cells.map(({ row, col }) => `${row}:${col}`));
     const remaining = [];
     for (let row = 0; row < g.length; row += 1) {
@@ -917,6 +931,33 @@ function Game() {
               </div>
             )}
 
+            {repeatNotice && (
+              <div
+                className="anim-repeat"
+                style={{
+                  position: 'absolute',
+                  top: '38%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  fontFamily: "'BoutiqueBitmap', sans-serif",
+                  fontWeight: 700,
+                  fontSize: 'max(22px, calc(var(--cell) * 0.5))',
+                  letterSpacing: 5,
+                  color: '#ff66aa',
+                  textShadow: '0 0 10px #ff66aa, 0 0 30px #ff66aa66',
+                  pointerEvents: 'none',
+                  whiteSpace: 'nowrap',
+                  zIndex: 20,
+                  textAlign: 'center',
+                }}
+              >
+                {repeatNotice}
+                <span style={{ display: 'block', marginTop: 6, fontSize: '0.62em', letterSpacing: 3 }}>
+                  REPEATED
+                </span>
+              </div>
+            )}
+
             {floatingWord && (
               <div
                 className="anim-float-up"
@@ -955,6 +996,7 @@ function Game() {
             grid={grid}
             difficulty={difficulty}
             minLetters={engine.minWordLength(difficulty, level, challenge)}
+            repeated={Boolean(engine.challenge(challenge).uniqueWords && typed && seenWordsRef.current.has(typed))}
           />
 
           <p

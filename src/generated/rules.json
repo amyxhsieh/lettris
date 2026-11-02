@@ -284662,12 +284662,13 @@
           "level": 10,
           "length": 5
         }
-      ]
+      ],
+      "uniqueWords": false
     },
     "words": {
       "id": "words",
       "label": "60 WORDS",
-      "tagline": "Clear 60 words. Highest score wins, then the faster time",
+      "tagline": "60 different words. Highest score wins, then the faster time",
       "goal": "words",
       "targetWords": 60,
       "limitMs": null,
@@ -284678,7 +284679,8 @@
       "paceMinSpeed": null,
       "paceSpeedStep": null,
       "paceWordsPerLevel": null,
-      "wordGates": []
+      "wordGates": [],
+      "uniqueWords": true
     },
     "timed": {
       "id": "timed",
@@ -284694,7 +284696,8 @@
       "paceMinSpeed": null,
       "paceSpeedStep": null,
       "paceWordsPerLevel": null,
-      "wordGates": []
+      "wordGates": [],
+      "uniqueWords": false
     },
     "daily": {
       "id": "daily",
@@ -284710,7 +284713,8 @@
       "paceMinSpeed": null,
       "paceSpeedStep": null,
       "paceWordsPerLevel": null,
-      "wordGates": []
+      "wordGates": [],
+      "uniqueWords": false
     }
   }
 }

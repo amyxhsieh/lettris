@@ -241,6 +241,7 @@ class Challenge:
     pace_speed_step: int | None = None
     pace_words_per_level: int | None = None
     word_gates: tuple[tuple[int, int], ...] = ()
+    unique_words: bool = False
 
     def as_json(self):
         return {
@@ -261,6 +262,7 @@ class Challenge:
                 {"level": level, "length": length}
                 for level, length in self.word_gates
             ],
+            "uniqueWords": self.unique_words,
         }
 
 
@@ -285,11 +287,12 @@ CHALLENGES = {
     "words": Challenge(
         id="words",
         label="60 WORDS",
-        tagline="Clear 60 words. Highest score wins, then the faster time",
+        tagline="60 different words. Highest score wins, then the faster time",
         goal="words",
         target_words=60,
         limit_ms=None,
         rank_by="scoreTime",
+        unique_words=True,
     ),
     "timed": Challenge(
         id="timed",

@@ -814,7 +814,8 @@
           "level": 10,
           "length": 5
         }
-      ]
+      ],
+      "uniqueWords": false
     },
     "challengeId": "survival"
   },
@@ -940,7 +941,7 @@
     "expect": {
       "id": "words",
       "label": "60 WORDS",
-      "tagline": "Clear 60 words. Highest score wins, then the faster time",
+      "tagline": "60 different words. Highest score wins, then the faster time",
       "goal": "words",
       "targetWords": 60,
       "limitMs": null,
@@ -951,7 +952,8 @@
       "paceMinSpeed": null,
       "paceSpeedStep": null,
       "paceWordsPerLevel": null,
-      "wordGates": []
+      "wordGates": [],
+      "uniqueWords": true
     },
     "challengeId": "words"
   },
@@ -1088,7 +1090,8 @@
       "paceMinSpeed": null,
       "paceSpeedStep": null,
       "paceWordsPerLevel": null,
-      "wordGates": []
+      "wordGates": [],
+      "uniqueWords": false
     },
     "challengeId": "timed"
   },
@@ -1225,7 +1228,8 @@
       "paceMinSpeed": null,
       "paceSpeedStep": null,
       "paceWordsPerLevel": null,
-      "wordGates": []
+      "wordGates": [],
+      "uniqueWords": false
     },
     "challengeId": "daily"
   },

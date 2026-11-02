@@ -37,7 +37,7 @@ After a clear, the next letters lean toward a different word. The game looks at 
 | Mode | How it plays |
 |------|----------------|
 | Survival | Play until the board fills. No difficulty choice. Level 5 needs 4 letters. Level 10 needs 5. A notice appears at each of those levels. Drops start faster than Easy and keep speeding up |
-| 60 Words | Clear 60 words. A run that fills early does not rank. Best score wins. A faster time breaks a tie |
+| 60 Words | Clear 60 different words. A repeat does not clear. A run that fills early does not rank. Best score wins. A faster time breaks a tie |
 | 3 Minutes | The clock ends at 0:00. Filling the board early still ranks |
 | Daily | Everyone shares the same 4-letter word, on Medium. Clear it the most times. Score breaks a tie. Other words still clear. The board resets at midnight UTC |
 
@@ -72,7 +72,7 @@ Hold **QUIT** (top left) to leave. A short press stays in the game, and quitting
 ## Scoring
 
 - Longer words score more: length² × 10, then the combo, then the difficulty multiplier
-- Clearing the same word again in a run scores half, then a quarter. The letters still clear
+- Clearing the same word again in a run scores half, then a quarter. The letters still clear. In 60 Words a repeat does not clear
 - Clear words quickly back-to-back to build a **combo** (×1, ×1.5, ×2, up to ×2.5)
 - The same word is worth twice as much on Medium and three times as much on Hard
 

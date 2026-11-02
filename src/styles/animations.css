@@ -691,6 +691,21 @@
 .anim-pop-in   { animation: popIn   0.25s ease-out forwards; }
 .anim-pop-out  { animation: popOut  0.3s ease-in  forwards; }
 .anim-float-up { animation: floatUp 0.9s ease-out forwards; }
+.anim-repeat { animation: repeatPop 900ms cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+
+@keyframes repeatPop {
+  0% { transform: translateX(-50%) scale(0.92); opacity: 0; }
+  18% { transform: translateX(-50%) scale(1); opacity: 1; }
+  72% { transform: translateX(-50%) scale(1); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-28px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-repeat,
+  .anim-float-up {
+    animation: none;
+  }
+}
 .anim-shake    { animation: shake   0.4s ease-in-out; }
 .anim-pulse    { animation: pulse   0.5s ease-in-out infinite; }
 .anim-hard-drop { animation: hardDrop 0.2s ease-out; }

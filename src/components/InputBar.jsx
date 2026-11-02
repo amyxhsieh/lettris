@@ -54,7 +54,7 @@ function NeonButton({ onClick, disabled, children, color, square }) {
   );
 }
 
-function InputBar({ typed, onSubmit, onPause, paused, grid, difficulty = 'medium', minLetters = null }) {
+function InputBar({ typed, onSubmit, onPause, paused, grid, difficulty = 'medium', minLetters = null, repeated = false }) {
   const inputRef = useRef(null);
 
   // Keep input blurred — keyboard handled globally in Game
@@ -66,15 +66,20 @@ function InputBar({ typed, onSubmit, onPause, paused, grid, difficulty = 'medium
   const enough = typed.length >= minWordLength;
   const inDict = enough && isValidWord(typed, difficulty);
   const canForm = inDict && canFormWord(typed, grid);
-  // red = not a real word; orange = real word but letters not on board; green = ready to submit
+  // red = not a real word; orange = real word but letters not on board
+  // pink = already cleared in this 60 Words run; green = ready to submit
   const inputBorder = !enough
     ? 'rgba(255,255,255,0.2)'
+    : canForm && repeated
+    ? '#ff66aa'
     : canForm
     ? '#33ee66'
     : inDict
     ? '#ffaa33'
     : '#ee4455';
-  const inputGlow = canForm
+  const inputGlow = canForm && repeated
+    ? '0 0 8px #ff66aa44'
+    : canForm
     ? '0 0 8px #33ee6644'
     : inDict
     ? '0 0 8px #ffaa3344'
@@ -116,7 +121,7 @@ function InputBar({ typed, onSubmit, onPause, paused, grid, difficulty = 'medium
         autoCapitalize="off"
         spellCheck={false}
       />
-      <NeonButton onClick={onSubmit} disabled={!canForm} color="#33ee66">
+      <NeonButton onClick={onSubmit} disabled={!canForm} color={canForm && repeated ? '#ff66aa' : '#33ee66'}>
         ENTER
       </NeonButton>
       <NeonButton onClick={() => { clickSound(); onPause(); }} color="#00ccee" square>
