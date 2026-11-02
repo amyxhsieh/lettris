@@ -28,7 +28,7 @@ Easy and Medium need 3 letters or more. Hard needs 4 or more. A word can be as l
 
 **Score**
 
-Clear words quickly to build a combo. The same word scores full, then half, then a quarter. Easy scores ×1, Medium ×2, and Hard ×3.
+Clear words quickly to build a combo. In Survival and Daily, the same word scores full, then half, then a quarter. Easy scores ×1, Medium ×2, and Hard ×3.
 
 After a clear, the next letters lean toward a different word. The game looks at the letters still on the board and raises up to three letters that would finish another common word. Easy aims at words of 3 or 4 letters, Medium up to 6, and Hard at words of 5 to 8. The letters from the word you just cleared stay at their normal rate, so the same word is not simply rebuilt. On Daily, today's word keeps its own boost on top of that.
 
@@ -38,7 +38,7 @@ After a clear, the next letters lean toward a different word. The game looks at 
 |------|----------------|
 | Survival | Play until the board fills. No difficulty choice. Level 5 needs 4 letters. Level 10 needs 5. A notice appears at each of those levels. Drops start faster than Easy and keep speeding up |
 | 60 Words | Clear 60 different words. A repeat still clears, and it does not count again. A run that fills early does not rank. Best score wins. A faster time breaks a tie |
-| 3 Minutes | The clock ends at 0:00. Filling the board early still ranks |
+| 3 Minutes | The clock ends at 0:00. A repeat still clears, and it does not count again. Filling the board early still ranks |
 | Daily | Everyone shares the same 4-letter word, on Medium. Clear it the most times. Score breaks a tie. Other words still clear. The board resets at midnight UTC |
 
 **Difficulties**
@@ -72,7 +72,7 @@ Hold **QUIT** (top left) to leave. A short press stays in the game, and quitting
 ## Scoring
 
 - Longer words score more: length² × 10, then the combo, then the difficulty multiplier
-- Clearing the same word again in a run scores half, then a quarter. The letters still clear. In 60 Words a repeat still clears, and it does not count toward the 60 or the score
+- In Survival and Daily, clearing the same word again scores half, then a quarter. The letters still clear. In 60 Words and 3 Minutes a repeat still clears, and it does not add to the score. In 60 Words it also does not count toward the 60
 - Clear words quickly back-to-back to build a **combo** (×1, ×1.5, ×2, up to ×2.5)
 - The same word is worth twice as much on Medium and three times as much on Hard
 

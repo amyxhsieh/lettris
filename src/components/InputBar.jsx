@@ -67,7 +67,7 @@ function InputBar({ typed, onSubmit, onPause, paused, grid, difficulty = 'medium
   const inDict = enough && isValidWord(typed, difficulty);
   const canForm = inDict && canFormWord(typed, grid);
   // red = not a real word; orange = real word but letters not on board
-  // pink = already cleared in this 60 Words run; green = ready to submit
+  // pink = already cleared in this 60 Words or 3 Minutes run; green = ready to submit
   const inputBorder = !enough
     ? 'rgba(255,255,255,0.2)'
     : canForm && repeated

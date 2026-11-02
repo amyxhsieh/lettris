@@ -850,7 +850,7 @@ function StartScreen({ onStart }) {
                     heading: 'SCORE',
                     lines: [
                       'Clear words quickly to build a combo.',
-                      'The same word scores full, then half, then a quarter.',
+                      'Survival and Daily score a repeat at half, then a quarter.',
                       'Easy ×1. Medium ×2. Hard ×3.',
                       'After a clear, the next letters lean toward a new word.',
                     ],
@@ -869,6 +869,7 @@ function StartScreen({ onStart }) {
                       <>
                         <span style={{ color: CHALLENGE_COLOR.timed }}>3 Minutes.</span> The clock ends at 0:00.
                       </>,
+                      <span style={{ display: 'block', paddingLeft: 12 }}>A repeat still clears, and it does not count again.</span>,
                       <>
                         <span style={{ color: CHALLENGE_COLOR.daily }}>Daily.</span> Everyone shares the same 4-letter word.
                       </>,

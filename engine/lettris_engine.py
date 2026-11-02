@@ -302,6 +302,7 @@ CHALLENGES = {
         target_words=None,
         limit_ms=180_000,
         rank_by="score",
+        unique_words=True,
     ),
     "daily": Challenge(
         id="daily",

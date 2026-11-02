@@ -279,7 +279,7 @@ class ChallengeTest(unittest.TestCase):
         self.assertEqual(game.CHALLENGES["words"].rank_by, "scoreTime")
         self.assertTrue(game.CHALLENGES["words"].unique_words)
         self.assertFalse(game.CHALLENGES["survival"].unique_words)
-        self.assertFalse(game.CHALLENGES["timed"].unique_words)
+        self.assertTrue(game.CHALLENGES["timed"].unique_words)
         self.assertFalse(game.CHALLENGES["daily"].unique_words)
         self.assertEqual(game.CHALLENGES["timed"].limit_ms, 180_000)
         self.assertEqual(game.CHALLENGES["timed"].rank_by, "score")

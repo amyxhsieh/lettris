@@ -284697,7 +284697,7 @@
       "paceSpeedStep": null,
       "paceWordsPerLevel": null,
       "wordGates": [],
-      "uniqueWords": false
+      "uniqueWords": true
     },
     "daily": {
       "id": "daily",

@@ -1091,7 +1091,7 @@
       "paceSpeedStep": null,
       "paceWordsPerLevel": null,
       "wordGates": [],
-      "uniqueWords": false
+      "uniqueWords": true
     },
     "challengeId": "timed"
   },
