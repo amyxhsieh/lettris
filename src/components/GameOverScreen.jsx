@@ -42,7 +42,6 @@ function overview({ challenge, reason, wordsFound, score, level, difficulty, tim
       rows: [
         { label: 'COLLECTS', value: wordsFound, color: CHALLENGE_COLOR.daily },
         scoreRow,
-        { label: 'TIME', value: formatClock(timeMs), color: '#00ccee' },
       ],
     };
   }
