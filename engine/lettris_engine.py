@@ -82,8 +82,10 @@ FRAGMENT_WORDS = frozenset({
 
 # Spoken fillers and given names that ride along in frequency lists.
 # Real words that are also names (mark, rose, grace, march) stay out of this set.
+# "dee" is the spoken name of the letter D, and a given name.
 BLOCKED_WORDS = frozenset({
     "yeah", "okay", "gonna", "wanna", "kinda", "gotta",
+    "dee",
     "john", "mary", "jane", "mike", "paul", "anna", "eric", "emma", "jake",
     "luke", "jean", "carl", "chad", "brad", "craig", "cole", "jesus", "james",
     "henry", "peter", "laura", "kelly", "nancy", "betty", "donna", "carol",

@@ -200,7 +200,7 @@ class DictionaryTest(unittest.TestCase):
         self.assertLess(len(self.words), 500_000)
         for word in ("cat", "stone", "the", "letter", "queue", "quiz", "mom", "mum", "vein", "rome", "italy", "gin", "cue", "did", "git", "zen", "soy", "veg", "dont", "doesnt", "monday", "saturday", "wednesday", "september"):
             self.assertIn(word, self.words)
-        for word in ("nth", "aah", "aahed", "john", "gonna", "cuz", "lol", "dvd", "gues", "bein", "alway", "empt"):
+        for word in ("nth", "aah", "aahed", "john", "gonna", "cuz", "lol", "dvd", "gues", "bein", "alway", "empt", "dee"):
             self.assertNotIn(word, self.words)
         for word in ("guest", "guess", "hell", "boar", "forgo", "vein"):
             self.assertIn(word, self.words)
