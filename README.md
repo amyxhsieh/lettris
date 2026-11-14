@@ -1,6 +1,6 @@
 # Lettris
 
-**Tetris meets word game.** Letters fall from the sky — you move them into place, then type a word to clear them. Simple idea, surprisingly hard to put down.
+**Tetris meets word game.** Letters fall from the sky — you move them into place, then type a word to clear them.
 
 Play at [lettris-game.vercel.app](https://lettris-game.vercel.app/).
 
